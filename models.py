@@ -26,7 +26,7 @@ class MenuEntry(db.Model):
     items = db.Column(db.Text, nullable=False)
     event_type = db.Column(db.String(20), default='Normal')  # Normal, Festival, Holiday
     published = db.Column(db.Boolean, default=True)
-    kitchen_status = db.Column(db.String(50), default='Planned') # Planned, Prep Started, Cooking, Ready, Served
+    kitchen_status = db.Column(db.String(50), default="Planned")
 
 class Vote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -100,43 +100,6 @@ class Notification(db.Model):
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     
     user = db.relationship('User', backref=db.backref('notifications', lazy=True))
-
-# ── Complaints and Leave (New Operations) ──
-class Complaint(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    student_id = db.Column(db.String(50), nullable=False)
-    category = db.Column(db.String(50), nullable=False) # Food Quality, Cleanliness, Timing, etc
-    description = db.Column(db.Text, nullable=False)
-    status = db.Column(db.String(20), default='Open') # Open, In Progress, Resolved, Rejected
-    admin_note = db.Column(db.Text, nullable=True)
-    created_at = db.Column(db.DateTime, server_default=db.func.now())
-
-class LeaveRequest(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    student_id = db.Column(db.String(50), nullable=False)
-    start_date = db.Column(db.String(20), nullable=False)
-    end_date = db.Column(db.String(20), nullable=False)
-    leave_type = db.Column(db.String(50), nullable=True) # Home Visit, Medical, Outing, Other
-    reason = db.Column(db.String(200), nullable=True)
-    status = db.Column(db.String(20), default='Pending') # Pending, Approved, Rejected
-    created_at = db.Column(db.DateTime, server_default=db.func.now())
-
-# ── Inventory & Feedback ──
-class Ingredient(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    quantity = db.Column(db.Float, nullable=False)
-    unit = db.Column(db.String(20), nullable=False) # kg, L, etc
-    min_stock = db.Column(db.Float, default=10.0)
-    last_updated = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
-
-class Feedback(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    student_id = db.Column(db.String(50), nullable=False)
-    menu_id = db.Column(db.Integer, db.ForeignKey('menu_entry.id'), nullable=False)
-    rating = db.Column(db.String(20), nullable=False) # Like, Neutral, Dislike
-    comments = db.Column(db.Text, nullable=True)
-    timestamp = db.Column(db.DateTime, server_default=db.func.now())
 
 
 class FoodPredictor:
@@ -244,3 +207,40 @@ class FoodPredictor:
             'samples': len(df),
             'note': 'Evaluated on training data (small dataset). For production, use time-based train/test split.'
         }
+
+# ── Complaints and Leave (New Operations) ──
+class Complaint(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.String(50), nullable=False)
+    category = db.Column(db.String(50), nullable=False) 
+    description = db.Column(db.Text, nullable=False)
+    status = db.Column(db.String(20), default='Open') 
+    admin_note = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+
+class LeaveRequest(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.String(50), nullable=False)
+    start_date = db.Column(db.String(20), nullable=False)
+    end_date = db.Column(db.String(20), nullable=False)
+    leave_type = db.Column(db.String(50), nullable=True) 
+    reason = db.Column(db.String(200), nullable=True)
+    status = db.Column(db.String(20), default='Pending') 
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+
+# ── Inventory & Feedback ──
+class Ingredient(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    quantity = db.Column(db.Float, nullable=False)
+    unit = db.Column(db.String(20), nullable=False) 
+    min_stock = db.Column(db.Float, default=10.0)
+    last_updated = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+
+class Feedback(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.String(50), nullable=False)
+    menu_id = db.Column(db.Integer, db.ForeignKey('menu_entry.id'), nullable=False)
+    rating = db.Column(db.String(20), nullable=False) 
+    comments = db.Column(db.Text, nullable=True)
+    timestamp = db.Column(db.DateTime, server_default=db.func.now())

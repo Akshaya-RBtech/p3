@@ -1,4 +1,7 @@
-{% extends "layout.html" %}
+import os
+print("Building admin dashboard with 12 sections...")
+
+html_content = '''{% extends "layout.html" %}
 
 {% block content %}
 <div class="md:hidden" style="padding:12px 20px;background:var(--card-bg);border-bottom:1px solid var(--border);font-weight:700;display:flex;justify-content:space-between;align-items:center;" onclick="document.querySelector('.sidebar-nav').classList.toggle('api-show')">
@@ -552,3 +555,9 @@
     }
 </script>
 {% endblock %}
+'''
+
+with open("templates/admin_dashboard.html", "w", encoding="utf-8") as f:
+    f.write(html_content)
+
+print("Admin dashboard rebuilt with exactly 12 sections!")

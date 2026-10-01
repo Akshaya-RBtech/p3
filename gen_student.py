@@ -1,4 +1,7 @@
-{% extends "layout.html" %}
+import os
+print("Building student portal with 9 sections...")
+
+html_content = '''{% extends "layout.html" %}
 
 {% block content %}
 <div class="md:hidden" style="padding:12px 20px;background:var(--card-bg);border-bottom:1px solid var(--border);font-weight:700;display:flex;justify-content:space-between;align-items:center;" onclick="document.querySelector('.sidebar-nav').classList.toggle('api-show')">
@@ -440,7 +443,7 @@ async function loadStudentNotifications() {
         document.getElementById('home-alert-count').innerText = unreadCount;
         
         if(!data.notifications || data.notifications.length === 0) {
-            container.innerHTML = '<div class="text-center p-8 text-muted"><i class="fas fa-bell-slash text-2xl mb-3 block"></i>No notifications found. You're all caught up!</div>';
+            container.innerHTML = '<div class="text-center p-8 text-muted"><i class="fas fa-bell-slash text-2xl mb-3 block"></i>No notifications found. You\'re all caught up!</div>';
             return;
         }
         
@@ -544,3 +547,9 @@ async function submitStudentFeedback(e) {
 }
 </script>
 {% endblock %}
+'''
+
+with open("templates/student_portal.html", "w", encoding="utf-8") as f:
+    f.write(html_content)
+
+print("Student Portal successfully rebuilt with exactly 9 sections!")

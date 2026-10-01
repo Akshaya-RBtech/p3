@@ -114,19 +114,6 @@ def safe_migrate_db():
         if 'full_name' not in columns:
             cursor.execute("ALTER TABLE user ADD COLUMN full_name VARCHAR(120)")
             print("[Migration] Added 'full_name' column to User table.")
-            
-        cursor.execute("PRAGMA table_info(menu_entry)")
-        menucolumns = [col[1] for col in cursor.fetchall()]
-        if 'kitchen_status' not in menucolumns:
-            cursor.execute("ALTER TABLE menu_entry ADD COLUMN kitchen_status VARCHAR(50) DEFAULT 'Planned'")
-            print("[Migration] Added 'kitchen_status' column to MenuEntry table.")
-
-        cursor.execute("PRAGMA table_info(leave_request)")
-        leavecolumns = [col[1] for col in cursor.fetchall()]
-        if 'leave_type' not in leavecolumns:
-            # LeaveRequest table might not exist yet during the first boot, so wrap in try-except
-            cursor.execute("ALTER TABLE leave_request ADD COLUMN leave_type VARCHAR(50)")
-            print("[Migration] Added 'leave_type' column to LeaveRequest table.")
         
         conn.commit()
     except Exception as e:
@@ -649,233 +636,10 @@ def get_notifications():
 @login_required
 def read_all_notifications():
     if current_user.role != 'student':
-        return jsonify({"error": "Unauthorized"}), 403
+        return jsonify({'error': 'Unauthorized'}), 403
     Notification.query.filter_by(user_id=current_user.id, is_read=False).update({'is_read': True})
     db.session.commit()
-    return jsonify({"success": True})
-
-
-# ── COMPLAINTS & LEAVE PIPELINE ──
-
-@app.route('/api/complaints', methods=['GET', 'POST'])
-@login_required
-def handle_complaints():
-    if request.method == 'POST':
-        if current_user.role != 'student':
-            return jsonify({"error": "Unauthorized"}), 403
-        data = request.json
-        c = Complaint(
-            student_id=current_user.student_id,
-            category=data.get('category'),
-            description=data.get('description'),
-            status='Open'
-        )
-        db.session.add(c)
-        db.session.commit()
-        return jsonify({"success": True, "message": "Complaint submitted successfully."})
-    
-    # GET: Admin sees all, student sees own
-    if current_user.role == 'admin':
-        reqs = Complaint.query.order_by(Complaint.created_at.desc()).all()
-    else:
-        reqs = Complaint.query.filter_by(student_id=current_user.student_id).order_by(Complaint.created_at.desc()).all()
-    
-    return jsonify([{
-        "id": r.id,
-        "student_id": r.student_id,
-        "category": r.category,
-        "description": r.description,
-        "status": r.status,
-        "admin_note": r.admin_note,
-        "created_at": r.created_at.strftime('%Y-%m-%d %H:%M')
-    } for r in reqs])
-
-@app.route('/api/complaints/<int:complaint_id>/update', methods=['POST'])
-@login_required
-def update_complaint(complaint_id):
-    if current_user.role != 'admin':
-        return jsonify({"error": "Unauthorized"}), 403
-    
-    complaint = Complaint.query.get(complaint_id)
-    if not complaint:
-        return jsonify({"error": "Not Found"}), 404
-        
-    data = request.json
-    complaint.status = data.get('status', complaint.status)
-    complaint.admin_note = data.get('admin_note', complaint.admin_note)
-    db.session.commit()
-    
-    # Optionally notify the student
-    u = User.query.filter_by(student_id=complaint.student_id, role='student').first()
-    if u:
-        n = Notification(
-            user_id=u.id,
-            title="Complaint Update",
-            message=f"Your complaint regarding '{complaint.category}' is now {complaint.status}."
-        )
-        db.session.add(n)
-        db.session.commit()
-
-    return jsonify({"success": True})
-
-
-@app.route('/api/leave', methods=['GET', 'POST'])
-@login_required
-def handle_leave():
-    if request.method == 'POST':
-        if current_user.role != 'student':
-            return jsonify({"error": "Unauthorized"}), 403
-        data = request.json
-        c = LeaveRequest(
-            student_id=current_user.student_id,
-            start_date=data.get('start_date'),
-            end_date=data.get('end_date'),
-            leave_type=data.get('type', 'Other'),
-            reason=data.get('reason'),
-            status='Pending'
-        )
-        db.session.add(c)
-        db.session.commit()
-        return jsonify({"success": True, "message": "Leave request submitted."})
-    
-    # GET: Admin sees all, student sees own
-    if current_user.role == 'admin':
-        reqs = LeaveRequest.query.order_by(LeaveRequest.created_at.desc()).all()
-    else:
-        reqs = LeaveRequest.query.filter_by(student_id=current_user.student_id).order_by(LeaveRequest.created_at.desc()).all()
-    
-    return jsonify([{
-        "id": r.id,
-        "student_id": r.student_id,
-        "start_date": r.start_date,
-        "end_date": r.end_date,
-        "reason": r.reason,
-        "status": r.status,
-        "created_at": r.created_at.strftime('%Y-%m-%d %H:%M')
-    } for r in reqs])
-
-@app.route('/api/leave/<int:leave_id>/update', methods=['POST'])
-@login_required
-def update_leave(leave_id):
-    if current_user.role != 'admin':
-        return jsonify({"error": "Unauthorized"}), 403
-    
-    leave = LeaveRequest.query.get(leave_id)
-    if not leave:
-        return jsonify({"error": "Not Found"}), 404
-        
-    data = request.json
-    leave.status = data.get('status', leave.status)
-    db.session.commit()
-    
-    # Automatically cancel meals in that range if Approved
-    if leave.status == 'Approved':
-        start_date = datetime.strptime(leave.start_date, '%Y-%m-%d').date()
-        end_date = datetime.strptime(leave.end_date, '%Y-%m-%d').date()
-        
-        delta = timedelta(days=1)
-        curr_date = start_date
-        while curr_date <= end_date:
-            date_str = curr_date.strftime('%Y-%m-%d')
-            # Look up menus in range
-            menus = MenuEntry.query.filter_by(date=date_str, published=True).all()
-            for m in menus:
-                # Mark as 'no' for attendance
-                v = Vote.query.filter_by(student_id=leave.student_id, date=date_str, meal_type=m.meal_type).first()
-                if not v:
-                    v = Vote(student_id=leave.student_id, date=date_str, meal_type=m.meal_type)
-                    db.session.add(v)
-                v.vote = 'no'
-                v.skip_reason = 'Approved Hostel Leave'
-            curr_date += delta
-        db.session.commit()
-        
-    # Notify student
-    u = User.query.filter_by(student_id=leave.student_id, role='student').first()
-    if u:
-        n = Notification(
-            user_id=u.id,
-            title="Leave Request Update",
-            message=f"Your leave request from {leave.start_date} to {leave.end_date} has been {leave.status}."
-        )
-        db.session.add(n)
-        db.session.commit()
-
-    return jsonify({"success": True})
-
-# ── INVENTORY PIPELINE ──
-@app.route('/api/inventory', methods=['GET'])
-@login_required
-def get_inventory():
-    if current_user.role != 'admin':
-        return jsonify({"error": "Unauthorized"}), 403
-    inv = Ingredient.query.all()
-    return jsonify([{
-        "id": i.id, "name": i.name, "quantity": i.quantity,
-        "unit": i.unit, "min_stock": i.min_stock, "last_updated": i.last_updated.strftime('%Y-%m-%d %H:%M')
-    } for i in inv])
-
-@app.route('/api/inventory/add', methods=['POST'])
-@login_required
-def add_inventory():
-    if current_user.role != 'admin':
-        return jsonify({"error": "Unauthorized"}), 403
-    data = request.json
-    ing = Ingredient(
-        name=data.get('name'),
-        quantity=float(data.get('quantity', 0)),
-        unit=data.get('unit'),
-        min_stock=float(data.get('min_stock', 10.0))
-    )
-    db.session.add(ing)
-    db.session.commit()
-    return jsonify({"success": True})
-
-@app.route('/api/inventory/<int:ing_id>/update', methods=['POST'])
-@login_required
-def update_inventory(ing_id):
-    if current_user.role != 'admin':
-        return jsonify({"error": "Unauthorized"}), 403
-    ing = Ingredient.query.get(ing_id)
-    if not ing:
-        return jsonify({"error": "Not Found"}), 404
-    data = request.json
-    if 'quantity' in data:
-        ing.quantity = float(data['quantity'])
-    if 'min_stock' in data:
-        ing.min_stock = float(data['min_stock'])
-    db.session.commit()
-    return jsonify({"success": True})
-
-# ── FEEDBACK PIPELINE ──
-@app.route('/api/feedback', methods=['POST'])
-@login_required
-def submit_feedback():
-    if current_user.role != 'student':
-        return jsonify({"error": "Unauthorized"}), 403
-    data = request.json
-    fb = Feedback(
-        student_id=current_user.student_id,
-        menu_id=data.get('menu_id'),
-        rating=data.get('rating'),
-        comments=data.get('comments', '')
-    )
-    db.session.add(fb)
-    db.session.commit()
-    return jsonify({"success": True})
-
-# ── KITCHEN STATUS PIPELINE ──
-@app.route('/api/menu/<int:menu_id>/status', methods=['POST'])
-@login_required
-def update_kitchen_status(menu_id):
-    if current_user.role != 'admin':
-        return jsonify({"error": "Unauthorized"}), 403
-    m = MenuEntry.query.get(menu_id)
-    if not m:
-        return jsonify({"error": "Not found"}), 404
-    m.kitchen_status = request.json.get('kitchen_status', m.kitchen_status)
-    db.session.commit()
-    return jsonify({"success": True})
+    return jsonify({'success': True})
 
 
 # --- Student Portal ---
@@ -901,10 +665,7 @@ def student_portal():
     my_votes = Vote.query.filter_by(student_id=current_user.student_id).all()
     voted_menu_ids = [v.menu_id for v in my_votes]
     
-    my_complaints = Complaint.query.filter_by(student_id=current_user.student_id).order_by(Complaint.created_at.desc()).all()
-    my_leaves = LeaveRequest.query.filter_by(student_id=current_user.student_id).order_by(LeaveRequest.created_at.desc()).all()
-    
-    return render_template('student_portal.html', menus=upcoming_menus, voted_ids=voted_menu_ids, complaints=my_complaints, leaves=my_leaves)
+    return render_template('student_portal.html', menus=upcoming_menus, voted_ids=voted_menu_ids)
 
 @app.route('/api/menu_stats/<int:menu_id>')
 @login_required
@@ -928,27 +689,17 @@ def menu_stats(menu_id):
 @app.route('/student/vote', methods=['POST'])
 @login_required
 def vote():
-    if request.is_json:
-        data = request.json
-        menu_id = data.get('menu_id')
-        choice = data.get('choice')
-        reason = data.get('reason', '')
-    else:
-        menu_id = request.form.get('menu_id')
-        choice = request.form.get('choice')
-        reason = request.form.get('reason', '')
+    menu_id = request.form.get('menu_id')
+    choice = request.form.get('choice')
+    reason = request.form.get('reason', '')
     
     existing_vote = Vote.query.filter_by(student_id=current_user.student_id, menu_id=menu_id).first()
     if existing_vote:
-        if request.is_json:
-            return jsonify({'success': False, 'error': 'You have already voted for this meal.'}), 400
         flash('You have already voted for this meal.')
     else:
         vote = Vote(student_id=current_user.student_id, menu_id=menu_id, choice=choice, reason=reason)
         db.session.add(vote)
         db.session.commit()
-        if request.is_json:
-            return jsonify({'success': True, 'message': 'Vote submitted!'})
         flash('Vote submitted!')
     
     return redirect(url_for('student_portal'))
@@ -1206,6 +957,192 @@ try:
     init_db()
 except Exception as e:
     print(f"Warning: Database initialization failed during boot: {e}")
+
+
+
+# ── COMPLAINTS & LEAVE PIPELINE ──
+
+@app.route('/api/complaints', methods=['GET', 'POST'])
+@login_required
+def handle_complaints():
+    if request.method == 'POST':
+        if current_user.role != 'student':
+            return jsonify({"error": "Unauthorized"}), 403
+        data = request.json
+        c = Complaint(
+            student_id=current_user.student_id,
+            category=data.get('category'),
+            description=data.get('description'),
+            status='Open'
+        )
+        db.session.add(c)
+        db.session.commit()
+        return jsonify({"success": True, "message": "Complaint submitted successfully."})
+    
+    if current_user.role == 'admin':
+        reqs = Complaint.query.order_by(Complaint.created_at.desc()).all()
+    else:
+        reqs = Complaint.query.filter_by(student_id=current_user.student_id).order_by(Complaint.created_at.desc()).all()
+    
+    return jsonify([{
+        "id": r.id,
+        "student_id": r.student_id,
+        "category": r.category,
+        "description": r.description,
+        "status": r.status,
+        "admin_note": r.admin_note,
+        "created_at": r.created_at.strftime('%Y-%m-%d %H:%M')
+    } for r in reqs])
+
+@app.route('/api/complaints/<int:complaint_id>/update', methods=['POST'])
+@login_required
+def update_complaint(complaint_id):
+    if current_user.role != 'admin':
+        return jsonify({"error": "Unauthorized"}), 403
+    complaint = Complaint.query.get(complaint_id)
+    if not complaint:
+        return jsonify({"error": "Not Found"}), 404
+        
+    data = request.json
+    complaint.status = data.get('status', complaint.status)
+    complaint.admin_note = data.get('admin_note', complaint.admin_note)
+    db.session.commit()
+    
+    u = User.query.filter_by(student_id=complaint.student_id, role='student').first()
+    if u:
+        n = Notification(
+            user_id=u.id,
+            title="Complaint Update",
+            message=f"Your complaint regarding '{complaint.category}' is now {complaint.status}."
+        )
+        db.session.add(n)
+        db.session.commit()
+
+    return jsonify({"success": True})
+
+@app.route('/api/leave', methods=['GET', 'POST'])
+@login_required
+def handle_leave():
+    if request.method == 'POST':
+        if current_user.role != 'student':
+            return jsonify({"error": "Unauthorized"}), 403
+        data = request.json
+        c = LeaveRequest(
+            student_id=current_user.student_id,
+            start_date=data.get('start_date'),
+            end_date=data.get('end_date'),
+            leave_type=data.get('type', 'Other'),
+            reason=data.get('reason'),
+            status='Pending'
+        )
+        db.session.add(c)
+        db.session.commit()
+        return jsonify({"success": True, "message": "Leave request submitted."})
+    
+    if current_user.role == 'admin':
+        reqs = LeaveRequest.query.order_by(LeaveRequest.created_at.desc()).all()
+    else:
+        reqs = LeaveRequest.query.filter_by(student_id=current_user.student_id).order_by(LeaveRequest.created_at.desc()).all()
+    
+    return jsonify([{
+        "id": r.id,
+        "student_id": r.student_id,
+        "start_date": r.start_date,
+        "end_date": r.end_date,
+        "reason": r.reason,
+        "status": r.status,
+        "created_at": r.created_at.strftime('%Y-%m-%d %H:%M')
+    } for r in reqs])
+
+@app.route('/api/leave/<int:leave_id>/update', methods=['POST'])
+@login_required
+def update_leave(leave_id):
+    if current_user.role != 'admin':
+        return jsonify({"error": "Unauthorized"}), 403
+    leave = LeaveRequest.query.get(leave_id)
+    if not leave:
+        return jsonify({"error": "Not Found"}), 404
+    data = request.json
+    leave.status = data.get('status', leave.status)
+    db.session.commit()
+    
+    if leave.status == 'Approved':
+        start_date = datetime.strptime(leave.start_date, '%Y-%m-%d').date()
+        end_date = datetime.strptime(leave.end_date, '%Y-%m-%d').date()
+        delta = timedelta(days=1)
+        curr_date = start_date
+        while curr_date <= end_date:
+            date_str = curr_date.strftime('%Y-%m-%d')
+            menus = MenuEntry.query.filter_by(date=date_str, published=True).all()
+            for m in menus:
+                v = Vote.query.filter_by(student_id=leave.student_id, date=date_str, meal_type=m.meal_type).first()
+                if not v:
+                    v = Vote(student_id=leave.student_id, date=date_str, meal_type=m.meal_type)
+                    db.session.add(v)
+                v.vote = 'no'
+                v.skip_reason = 'Approved Hostel Leave'
+            curr_date += delta
+        db.session.commit()
+        
+    u = User.query.filter_by(student_id=leave.student_id, role='student').first()
+    if u:
+        n = Notification(user_id=u.id, title="Leave Request Update", message=f"Your leave request from {leave.start_date} to {leave.end_date} has been {leave.status}.")
+        db.session.add(n)
+        db.session.commit()
+
+    return jsonify({"success": True})
+
+@app.route('/api/inventory', methods=['GET'])
+@login_required
+def get_inventory():
+    if current_user.role != 'admin':
+        return jsonify({"error": "Unauthorized"}), 403
+    inv = Ingredient.query.all()
+    return jsonify([{"id": i.id, "name": i.name, "quantity": i.quantity, "unit": i.unit, "min_stock": i.min_stock, "last_updated": i.last_updated.strftime('%Y-%m-%d %H:%M')} for i in inv])
+
+@app.route('/api/inventory/add', methods=['POST'])
+@login_required
+def add_inventory():
+    if current_user.role != 'admin':
+        return jsonify({"error": "Unauthorized"}), 403
+    data = request.json
+    ing = Ingredient(name=data.get('name'), quantity=float(data.get('quantity', 0)), unit=data.get('unit'), min_stock=float(data.get('min_stock', 10.0)))
+    db.session.add(ing)
+    db.session.commit()
+    return jsonify({"success": True})
+
+@app.route('/api/inventory/<int:ing_id>/update', methods=['POST'])
+@login_required
+def update_inventory(ing_id):
+    if current_user.role != 'admin':
+        return jsonify({"error": "Unauthorized"}), 403
+    ing = Ingredient.query.get(ing_id)
+    if not ing: return jsonify({"error": "Not Found"}), 404
+    data = request.json
+    if 'quantity' in data: ing.quantity = float(data['quantity'])
+    if 'min_stock' in data: ing.min_stock = float(data['min_stock'])
+    db.session.commit()
+    return jsonify({"success": True})
+
+@app.route('/api/feedback', methods=['POST'])
+@login_required
+def submit_feedback():
+    if current_user.role != 'student': return jsonify({"error": "Unauthorized"}), 403
+    data = request.json
+    fb = Feedback(student_id=current_user.student_id, menu_id=data.get('menu_id'), rating=data.get('rating'), comments=data.get('comments', ''))
+    db.session.add(fb)
+    db.session.commit()
+    return jsonify({"success": True})
+
+@app.route('/api/menu/<int:menu_id>/status', methods=['POST'])
+@login_required
+def update_kitchen_status(menu_id):
+    if current_user.role != 'admin': return jsonify({"error": "Unauthorized"}), 403
+    m = MenuEntry.query.get(menu_id)
+    if not m: return jsonify({"error": "Not found"}), 404
+    m.kitchen_status = request.json.get('kitchen_status', m.kitchen_status)
+    db.session.commit()
+    return jsonify({"success": True})
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
