@@ -128,11 +128,12 @@
             <form onsubmit="submitStudentComplaint(event)">
                 <select id="comp-category" class="form-input" style="margin-bottom:10px;width:100%;font-size:13px;" required>
                     <option value="">Select Category...</option>
-                    <option value="Food Quality">Food Quality & Taste</option>
-                    <option value="Cleanliness">Hygiene & Cleanliness</option>
-                    <option value="Meal Timing">Meal Timings</option>
-                    <option value="Portion Size">Portion Size</option>
-                    <option value="Other">Other Issues</option>
+                    <option value="Food quality">Food quality</option>
+                    <option value="Food quantity">Food quantity</option>
+                    <option value="Menu">Menu</option>
+                    <option value="Food hygiene">Food hygiene</option>
+                    <option value="Mess service">Mess service</option>
+                    <option value="Other issues">Other issues</option>
                 </select>
                 <textarea id="comp-description" class="form-input" rows="3" placeholder="Describe your issue..." style="margin-bottom:10px;width:100%;font-size:13px;" required></textarea>
                 <button type="submit" class="btn-primary" style="width:100%;padding:10px;display:flex;justify-content:center;">
@@ -159,6 +160,13 @@
                         <input type="date" id="leave-end" class="form-input" style="width:100%;font-size:13px;" required>
                     </div>
                 </div>
+                <select id="leave-type" class="form-input" style="margin-bottom:10px;width:100%;font-size:13px;" required>
+                    <option value="">Select Leave Type...</option>
+                    <option value="Home Visit">Home Visit</option>
+                    <option value="Medical">Medical / Sick Leave</option>
+                    <option value="Outing">Local Outing</option>
+                    <option value="Other">Other</option>
+                </select>
                 <textarea id="leave-reason" class="form-input" rows="1" placeholder="Reason (Optional)" style="margin-bottom:10px;width:100%;font-size:13px;"></textarea>
                 <button type="submit" class="btn-primary" style="width:100%;padding:10px;display:flex;justify-content:center;background:var(--warning);border-color:var(--warning);">
                     <i class="fas fa-arrow-right-from-bracket" style="margin-right:6px;"></i> Submit Request
@@ -391,6 +399,7 @@
         const start = document.getElementById('leave-start').value;
         const end = document.getElementById('leave-end').value;
         const reason = document.getElementById('leave-reason').value;
+        const leaveType = document.getElementById('leave-type').value;
         const btn = e.target.querySelector('button');
         const st = document.getElementById('leave-status');
         
@@ -408,7 +417,7 @@
             const res = await fetch('/api/leave', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ start_date: start, end_date: end, reason: reason })
+                body: JSON.stringify({ start_date: start, end_date: end, type: leaveType, reason: reason })
             });
             const data = await res.json();
             st.style.display = 'block';

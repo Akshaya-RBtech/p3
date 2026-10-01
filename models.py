@@ -116,6 +116,7 @@ class LeaveRequest(db.Model):
     student_id = db.Column(db.String(50), nullable=False)
     start_date = db.Column(db.String(20), nullable=False)
     end_date = db.Column(db.String(20), nullable=False)
+    leave_type = db.Column(db.String(50), nullable=True) # Home Visit, Medical, Outing, Other
     reason = db.Column(db.String(200), nullable=True)
     status = db.Column(db.String(20), default='Pending') # Pending, Approved, Rejected
     created_at = db.Column(db.DateTime, server_default=db.func.now())

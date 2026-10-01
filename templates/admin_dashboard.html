@@ -211,10 +211,13 @@
             
             <!-- Complaints Module -->
             <div class="card">
-                <div class="card-header">
+                <div class="card-header" style="display:flex;justify-content:space-between;flex-wrap:wrap;">
                     <div>
                         <div class="section-title">Student Complaints</div>
                         <div class="section-sub">Manage and resolve reported issues</div>
+                    </div>
+                    <div style="display:flex;gap:6px;">
+                        <select id="filter-comp-status" onchange="filterOperations()" class="form-input" style="font-size:11px;padding:4px;"><option value="All">All Status</option><option value="Open">Open</option><option value="In Progress">In Progress</option><option value="Resolved">Resolved</option></select>
                     </div>
                 </div>
                 <div class="card-body" style="max-height:450px;overflow-y:auto;" id="ops-complaints">
@@ -224,10 +227,14 @@
 
             <!-- Leave Requests Module -->
             <div class="card">
-                <div class="card-header">
+                <div class="card-header" style="display:flex;justify-content:space-between;flex-wrap:wrap;">
                     <div>
                         <div class="section-title">Leave Requests</div>
                         <div class="section-sub">Approve or reject student availability limits</div>
+                    </div>
+                    <div style="display:flex;gap:6px;">
+                        <input type="text" id="filter-leave-date" onkeyup="filterOperations()" placeholder="Search date..." class="form-input" style="font-size:11px;padding:4px;width:100px;">
+                        <select id="filter-leave-status" onchange="filterOperations()" class="form-input" style="font-size:11px;padding:4px;"><option value="All">All Status</option><option value="Pending">Pending</option><option value="Approved">Approved</option><option value="Rejected">Rejected</option></select>
                     </div>
                 </div>
                 <div class="card-body" style="max-height:450px;overflow-y:auto;" id="ops-leave">
@@ -1081,7 +1088,7 @@
                 compDiv.innerHTML = `<div style="text-align:center;color:var(--text-muted);font-size:13px;padding:20px;">No complaints found.</div>`;
             } else {
                 compDiv.innerHTML = compData.map(c => `
-                    <div style="padding:14px;border-bottom:1px solid var(--border);border-left:4px solid ${c.status === 'Open' ? 'var(--danger)' : c.status === 'In Progress' ? 'var(--warning)' : 'var(--success)'};margin-bottom:8px;background:var(--input-bg);border-radius:0 8px 8px 0;">
+                    <div class="ops-comp-item" data-status="${c.status}" style="padding:14px;border-bottom:1px solid var(--border);border-left:4px solid ${c.status === 'Open' ? 'var(--danger)' : c.status === 'In Progress' ? 'var(--warning)' : 'var(--success)'};margin-bottom:8px;background:var(--input-bg);border-radius:0 8px 8px 0;">
                         <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
                             <span style="font-weight:700;font-size:13px;color:var(--text-primary);"><i class="fas fa-user-circle"></i> ${c.student_id}</span>
                             <span style="font-size:11px;color:var(--text-muted);">${c.created_at}</span>
@@ -1100,6 +1107,9 @@
                         </div>
                     </div>
                 `).join('');
+                
+                // Add global array storage for filters
+                window.compsData = compData;
             }
         } catch (e) {
             console.error('Failure fetching complaints');
@@ -1114,7 +1124,7 @@
                 leaveDiv.innerHTML = `<div style="text-align:center;color:var(--text-muted);font-size:13px;padding:20px;">No leave requests found.</div>`;
             } else {
                 leaveDiv.innerHTML = leaveData.map(L => `
-                    <div style="padding:14px;border-bottom:1px solid var(--border);border-left:4px solid ${L.status === 'Pending' ? 'var(--warning)' : L.status === 'Rejected' ? 'var(--danger)' : 'var(--success)'};margin-bottom:8px;background:var(--input-bg);border-radius:0 8px 8px 0;">
+                    <div class="ops-leave-item" data-status="${L.status}" data-date="${L.start_date} ${L.end_date}" style="padding:14px;border-bottom:1px solid var(--border);border-left:4px solid ${L.status === 'Pending' ? 'var(--warning)' : L.status === 'Rejected' ? 'var(--danger)' : 'var(--success)'};margin-bottom:8px;background:var(--input-bg);border-radius:0 8px 8px 0;">
                         <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
                             <span style="font-weight:700;font-size:13px;color:var(--text-primary);"><i class="fas fa-user-circle"></i> ${L.student_id}</span>
                             <span style="font-size:11px;color:var(--text-muted);">${L.created_at}</span>
@@ -1129,10 +1139,40 @@
                         </div>
                     </div>
                 `).join('');
+                window.leavesData = leaveData;
             }
+            // Trigger filters once mapped
+            filterOperations();
         } catch (e) {
             console.error('Failure fetching leave requests');
         }
+    }
+    
+    function filterOperations() {
+        const cStatus = document.getElementById('filter-comp-status').value;
+        const lStatus = document.getElementById('filter-leave-status').value;
+        const lDate = document.getElementById('filter-leave-date').value.toLowerCase();
+        
+        // Filter Complaints Nodes
+        const compDiv = document.getElementById('ops-complaints');
+        Array.from(compDiv.children).forEach(el => {
+            if(el.className.includes('ops-comp-item')) {
+                const s = el.dataset.status;
+                el.style.display = (cStatus === 'All' || s === cStatus) ? 'block' : 'none';
+            }
+        });
+        
+        // Filter Leaves Nodes
+        const leaveDiv = document.getElementById('ops-leave');
+        Array.from(leaveDiv.children).forEach(el => {
+            if(el.className.includes('ops-leave-item')) {
+                const s = el.dataset.status;
+                const d = el.dataset.date.toLowerCase();
+                const mStatus = (lStatus === 'All' || s === lStatus);
+                const mDate = (lDate === '' || d.includes(lDate));
+                el.style.display = (mStatus && mDate) ? 'block' : 'none';
+            }
+        });
     }
 
     async function updateComplaintStatus(id, selectElem) {

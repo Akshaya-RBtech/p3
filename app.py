@@ -120,6 +120,13 @@ def safe_migrate_db():
         if 'kitchen_status' not in menucolumns:
             cursor.execute("ALTER TABLE menu_entry ADD COLUMN kitchen_status VARCHAR(50) DEFAULT 'Planned'")
             print("[Migration] Added 'kitchen_status' column to MenuEntry table.")
+
+        cursor.execute("PRAGMA table_info(leave_request)")
+        leavecolumns = [col[1] for col in cursor.fetchall()]
+        if 'leave_type' not in leavecolumns:
+            # LeaveRequest table might not exist yet during the first boot, so wrap in try-except
+            cursor.execute("ALTER TABLE leave_request ADD COLUMN leave_type VARCHAR(50)")
+            print("[Migration] Added 'leave_type' column to LeaveRequest table.")
         
         conn.commit()
     except Exception as e:
@@ -723,6 +730,7 @@ def handle_leave():
             student_id=current_user.student_id,
             start_date=data.get('start_date'),
             end_date=data.get('end_date'),
+            leave_type=data.get('type', 'Other'),
             reason=data.get('reason'),
             status='Pending'
         )
