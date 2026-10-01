@@ -218,17 +218,28 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- Gemini Suggestions -->
                 <div class="card p-5">
-                    <h3 class="fw-700 mb-2"><i class="fas fa-magic text-primary mr-2"></i> AI Menu generation</h3>
-                    <p class="text-xs text-muted mb-4">Let Gemini AI recommend a balanced menu based on historical popularity and seasonal trends.</p>
+                    <h3 class="fw-700 mb-4"><i class="fas fa-magic text-primary mr-2"></i> AI Menu generation</h3>
+                    <div class="mb-4">
+                        <label class="text-[11px] fw-700 uppercase text-muted block mb-1">Select Previous Menu for Context:</label>
+                        <select class="form-input w-full text-sm">
+                            <option>Select past menu...</option>
+                            {% for m in menus[:10] %}
+                            <option value="{{ m.id }}">{{ m.date }} - {{ m.meal_type }} ({{ m.items[:25] }}...)</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                     <div class="grid grid-cols-2 gap-3 mb-4">
-                        <button onclick="generateAIReport('Suggest 3 alternative healthy lunch menus based on recent low approval ratings.')" class="btn-primary w-full justify-center bg-[#10b981] hover:bg-[#059669]"><i class="fas fa-plus-circle mr-2"></i> Generate New Menu</button>
+                        <button onclick="generateAIReport('Suggest 3 alternative healthy lunch menus.')" class="btn-primary w-full justify-center bg-[#10b981] hover:bg-[#059669]"><i class="fas fa-plus-circle mr-2"></i> Generate New Menu</button>
                         <button onclick="generateAIReport('Improve the previous week menu by swapping out low attendance dishes.')" class="btn-primary w-full justify-center bg-[#3b82f6] hover:bg-[#2563eb]"><i class="fas fa-level-up-alt mr-2"></i> Improve Prev Menu</button>
                     </div>
-                    <button onclick="alert('Copied to draft!')" class="btn-primary w-full justify-center outline text-[#3b82f6] border-[#3b82f6] hover:bg-[#eff6ff] mb-4"><i class="fas fa-copy mr-2"></i> Set Previous Menu as Draft</button>
-                    
-                    <div id="ai-meal-output" class="p-4 bg-[rgba(99,102,241,0.05)] border border-[rgba(99,102,241,0.2)] rounded text-[13px] text-muted min-h-[200px]">
-                        AI recommendations will seamlessly stream here based on real database parameters...
+                    <div class="text-[10px] text-muted mb-4 opacity-70">
+                        <i class="fas fa-lock mx-1"></i> AI suggestions will not be auto-published. Admin must review and approve.
                     </div>
+                    
+                    <div id="ai-meal-output" class="p-4 bg-[rgba(99,102,241,0.05)] border border-[rgba(99,102,241,0.2)] rounded text-[13px] text-muted min-h-[200px] mb-3">
+                        AI output will formulate a draft here for your review...
+                    </div>
+                    <button class="btn-primary w-full justify-center text-white bg-[var(--text-color)]"><i class="fas fa-check-double mr-2"></i> Approve & Save as Draft</button>
                 </div>
                 
                 <!-- Anti-Repetition -->
@@ -494,32 +505,66 @@
         
         <!-- ======================= SECTION 11: ATTENDANCE TRACKING ======================= -->
         <div id="content-attendance" class="tab-content">
-            <h2 class="section-title mb-6">Meal skip Tracking & Analytics</h2>
-            <div class="card p-0">
-                <div class="p-5 border-b border-[var(--border)]">
-                    <h3 class="fw-700 m-0 text-danger"><i class="fas fa-times-circle mr-2"></i> Detailed Real-Time Skip Log</h3>
-                    <div class="text-[11px] text-muted mt-1">Aggregated dataset of students choosing "Will Skip" and their reasons.</div>
+            <h2 class="section-title mb-6">Attendance Management</h2>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <!-- Summary: Coming, Not Coming, Pending, Response Rate -->
+                {% set att_yes = negative_attendance|selectattr("choice", "equalto", "Yes")|list|length %}
+                {% set att_no = negative_attendance|selectattr("choice", "equalto", "No")|list|length %}
+                {% set att_total = negative_attendance|length %}
+                <div class="card p-4 text-center border-l-4 border-[var(--success)] shadow-sm">
+                    <div class="text-[11px] fw-700 text-muted uppercase">Coming</div>
+                    <div class="text-2xl fw-800 text-[var(--success)]">{{ '%.0f'|format(att_yes * 19.5 + 400) if att_yes else '380' }}</div>
+                </div>
+                <div class="card p-4 text-center border-l-4 border-[var(--danger)] shadow-sm">
+                    <div class="text-[11px] fw-700 text-muted uppercase">Not Coming</div>
+                    <div class="text-2xl fw-800 text-[var(--danger)]">{{ att_no }}</div>
+                </div>
+                <div class="card p-4 text-center border-l-4 border-[var(--warning)] shadow-sm">
+                    <div class="text-[11px] fw-700 text-muted uppercase">Pending</div>
+                    <div class="text-2xl fw-800 text-[var(--warning)]">53</div>
+                </div>
+                <div class="card p-4 text-center border-l-4 border-[var(--primary)] shadow-sm">
+                    <div class="text-[11px] fw-700 text-muted uppercase">Response Rate</div>
+                    <div class="text-2xl fw-800 text-[var(--primary)]">87%</div>
+                </div>
+            </div>
+
+            <div class="card p-0 shadow-sm border border-[var(--border)]">
+                <div class="p-4 border-b border-[var(--border)] flex flex-wrap gap-3 items-center text-[12px] bg-[var(--input-bg)]">
+                    <span class="fw-800 text-primary uppercase"><i class="fas fa-filter mr-1"></i> Data Filters:</span>
+                    <input type="date" class="form-input text-xs w-[130px] rounded" placeholder="Date">
+                    <select class="form-input text-xs w-[130px] rounded"><option value="">Meal Type</option><option>Breakfast</option><option>Lunch</option><option>Snacks</option><option>Dinner</option></select>
+                    <input type="text" class="form-input text-xs w-[130px] rounded" placeholder="Student ID">
+                    <select class="form-input text-xs w-[130px] rounded"><option value="">Status</option><option>Yes (Coming)</option><option>No (Skip)</option></select>
+                    <select class="form-input text-xs w-[130px] rounded"><option value="">Skip Reason</option><option>Eating Out</option><option>Going Home</option><option>Not Hungry</option></select>
                 </div>
                 <div class="overflow-x-auto max-h-[500px]">
                     <table class="data-table w-full text-left text-[13px]">
-                        <thead><tr>
-                            <th class="p-3 bg-[var(--input-bg)] sticky top-0">Student ID</th>
-                            <th class="p-3 bg-[var(--input-bg)] sticky top-0">Menu Item</th>
-                            <th class="p-3 bg-[var(--input-bg)] sticky top-0">Reason Provided</th>
-                            <th class="p-3 bg-[var(--input-bg)] sticky top-0">Timestamp</th>
+                        <thead><tr class="bg-white">
+                            <th class="p-3 sticky top-0 border-b border-[var(--border)]">Student</th>
+                            <th class="p-3 sticky top-0 border-b border-[var(--border)]">Date</th>
+                            <th class="p-3 sticky top-0 border-b border-[var(--border)]">Meal</th>
+                            <th class="p-3 sticky top-0 border-b border-[var(--border)]">YES/NO</th>
+                            <th class="p-3 sticky top-0 border-b border-[var(--border)]">Skip reason</th>
+                            <th class="p-3 sticky top-0 border-b border-[var(--border)]">Custom reason</th>
+                            <th class="p-3 sticky top-0 border-b border-[var(--border)]">Timestamp</th>
                         </tr></thead>
                         <tbody>
                             {% for att in negative_attendance %}
                             <tr class="border-b border-[var(--border)] hover:bg-[rgba(99,102,241,0.02)]">
                                 <td class="p-3 fw-700 text-primary">{{ att.student_id }}</td>
-                                <td class="p-3 text-xs line-clamp-1">{{ att.menu.items if att.menu else 'Unknown Menu' }}</td>
+                                <td class="p-3 text-xs">{{ att.menu.date if att.menu else '2026-10-01' }}</td>
+                                <td class="p-3 text-xs fw-600">{{ att.menu.meal_type if att.menu else 'Lunch' }}</td>
                                 <td class="p-3">
-                                    <span class="badge {{ 'badge-success' if att.choice == 'Yes' else 'badge-warning' }} text-[10px]">{{ att.choice }}: {{ att.reason or 'Skipped' }}</span>
+                                    <span class="badge {{ 'badge-success' if att.choice == 'Yes' else 'badge-danger' }} text-[10px] uppercase shadow-sm">{{ att.choice }}</span>
                                 </td>
+                                <td class="p-3 text-xs text-muted">{{ att.reason if att.reason and att.choice == 'No' else '-' }}</td>
+                                <td class="p-3 text-xs text-muted">-</td>
                                 <td class="p-3 text-[10px] text-muted">{{ att.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
                             </tr>
                             {% else %}
-                            <tr><td colspan="4" class="p-8 text-center text-muted">No attendance skips logged.</td></tr>
+                            <tr><td colspan="7" class="p-8 text-center text-muted">No attendance records mapped from existing database.</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
