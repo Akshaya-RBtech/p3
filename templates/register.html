@@ -1,0 +1,303 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div style="display:flex;align-items:center;justify-content:center;min-height:70vh;padding:24px 16px;">
+    <div style="width:100%;max-width:460px;">
+        <div class="card" style="padding:0;overflow:hidden;">
+            <!-- Header Accent -->
+            <div style="background:linear-gradient(135deg, var(--primary), var(--primary-dark));padding:24px 32px;">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div style="width:42px;height:42px;background:rgba(255,255,255,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;">
+                        {% if type == 'Admin' %}
+                        <i class="fas fa-user-shield" style="color:white;font-size:18px;"></i>
+                        {% else %}
+                        <i class="fas fa-graduation-cap" style="color:white;font-size:18px;"></i>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h2 style="font-size:22px;font-weight:800;color:white;letter-spacing:-0.5px;">Create Account</h2>
+                        <p style="font-size:12px;color:rgba(255,255,255,0.7);font-weight:500;">{{ type }} Registration</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="padding:28px 32px;">
+                <!-- Error display -->
+                <div id="reg-error" style="display:none;padding:12px 14px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;color:var(--danger);font-size:13px;font-weight:500;margin-bottom:16px;">
+                    <i class="fas fa-circle-exclamation" style="margin-right:6px;"></i>
+                    <span id="reg-error-text"></span>
+                </div>
+
+                <div id="reg-success" style="display:none;padding:12px 14px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:10px;color:var(--success);font-size:13px;font-weight:500;margin-bottom:16px;">
+                    <i class="fas fa-check-circle" style="margin-right:6px;"></i>
+                    <span id="reg-success-text"></span>
+                </div>
+
+                <form id="register-form" onsubmit="event.preventDefault(); handleRegister();">
+                    <div class="form-group">
+                        <label class="form-label" for="full_name">Full Name</label>
+                        <div style="position:relative;">
+                            <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-muted);"><i class="fas fa-user" style="font-size:13px;"></i></span>
+                            <input type="text" name="full_name" id="full_name" class="form-input" style="padding-left:40px;" placeholder="Enter your full name" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="username">Username</label>
+                        <div style="position:relative;">
+                            <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-muted);"><i class="fas fa-at" style="font-size:13px;"></i></span>
+                            <input type="text" name="username" id="username" class="form-input" style="padding-left:40px;" placeholder="Choose a username" required>
+                        </div>
+                    </div>
+
+                    {% if type == 'Student' %}
+                    <div class="form-group">
+                        <label class="form-label" for="student_id">Student ID</label>
+                        <div style="position:relative;">
+                            <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-muted);"><i class="fas fa-id-card" style="font-size:13px;"></i></span>
+                            <input type="text" name="student_id" id="student_id" class="form-input" style="padding-left:40px;" placeholder="e.g. ST12345" required>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="form-group">
+                        <label class="form-label" for="reg_email">Email Address</label>
+                        <div style="position:relative;">
+                            <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-muted);"><i class="fas fa-envelope" style="font-size:13px;"></i></span>
+                            <input type="email" name="email" id="reg_email" class="form-input" style="padding-left:40px;" placeholder="you@example.com" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="reg_password">Password</label>
+                        <div style="position:relative;">
+                            <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-muted);"><i class="fas fa-lock" style="font-size:13px;"></i></span>
+                            <input type="password" name="password" id="reg_password" class="form-input" style="padding-left:40px;" placeholder="Min 6 characters" required minlength="6">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:4px;">
+                        <label class="form-label" for="confirm_password">Confirm Password</label>
+                        <div style="position:relative;">
+                            <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-muted);"><i class="fas fa-lock" style="font-size:13px;"></i></span>
+                            <input type="password" name="confirm_password" id="confirm_password" class="form-input" style="padding-left:40px;" placeholder="Re-enter password" required minlength="6">
+                        </div>
+                    </div>
+
+                    {% if type == 'Admin' %}
+                    <div class="form-group" style="margin-top:16px;">
+                        <label class="form-label" for="admin_secret">Admin Setup Secret</label>
+                        <div style="position:relative;">
+                            <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-muted);"><i class="fas fa-key" style="font-size:13px;"></i></span>
+                            <input type="password" name="admin_secret" id="admin_secret" class="form-input" style="padding-left:40px;" placeholder="Enter admin setup secret" required>
+                        </div>
+                        <p style="font-size:11px;color:var(--text-muted);margin-top:6px;">
+                            <i class="fas fa-info-circle" style="margin-right:4px;"></i>
+                            Contact your system administrator for the setup secret.
+                        </p>
+                    </div>
+                    {% endif %}
+
+                    <button type="submit" id="register-btn" class="btn-primary" style="width:100%;justify-content:center;padding:13px;font-size:14px;margin-top:20px;">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Create Account</span>
+                    </button>
+                </form>
+
+                <div style="margin-top:20px;text-align:center;">
+                    {% if type == 'Admin' %}
+                    <p style="font-size:12px;color:var(--text-muted);">
+                        Already have an account? <a href="{{ url_for('login') }}" style="color:var(--primary);text-decoration:none;font-weight:600;">Sign in</a>
+                    </p>
+                    {% else %}
+                    <p style="font-size:12px;color:var(--text-muted);">
+                        Already registered? <a href="{{ url_for('student_login') }}" style="color:var(--primary);text-decoration:none;font-weight:600;">Sign in</a>
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
+<script>
+    const REG_ROLE = "{{ type | lower }}";
+    let firebaseReady = false;
+
+    async function initFirebaseAuth() {
+        try {
+            const res = await fetch('/api/firebase-config');
+            if (!res.ok) {
+                console.warn('Backend returned non-200 for config endpoint');
+            }
+            const contentType = res.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new Error("Server returned an invalid HTML/Non-JSON response for configuration.");
+            }
+            const config = await res.json();
+            if (!config.apiKey) {
+                showRegError('Firebase is not configured. Contact the administrator.');
+                return;
+            }
+            if (!firebase.apps.length) {
+                firebase.initializeApp(config);
+            }
+            firebaseReady = true;
+        } catch (e) {
+            console.error('Could not load Firebase config:', e);
+            showRegError('Could not connect to the server. Please try again later.');
+        }
+    }
+
+    initFirebaseAuth();
+
+    function showRegError(msg) {
+        const el = document.getElementById('reg-error');
+        document.getElementById('reg-error-text').textContent = msg;
+        el.style.display = 'block';
+        document.getElementById('reg-success').style.display = 'none';
+    }
+
+    function showRegSuccess(msg) {
+        const el = document.getElementById('reg-success');
+        document.getElementById('reg-success-text').textContent = msg;
+        el.style.display = 'block';
+        document.getElementById('reg-error').style.display = 'none';
+    }
+
+    async function handleRegister() {
+        const fullName = document.getElementById('full_name').value.trim();
+        const username = document.getElementById('username').value.trim();
+        const email = document.getElementById('reg_email').value.trim();
+        const password = document.getElementById('reg_password').value;
+        const confirmPassword = document.getElementById('confirm_password').value;
+        const btn = document.getElementById('register-btn');
+
+        // Validation
+        if (!fullName || !username || !email || !password || !confirmPassword) {
+            showRegError('Please fill in all fields.');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            showRegError('Passwords do not match.');
+            return;
+        }
+
+        if (password.length < 6) {
+            showRegError('Password must be at least 6 characters long.');
+            return;
+        }
+
+        if (!firebaseReady) {
+            showRegError('Firebase is not ready. Please refresh and try again.');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
+        document.getElementById('reg-error').style.display = 'none';
+
+        try {
+            // Attempt to create Firebase account
+            let userCredential;
+            let existingAccount = false;
+            
+            try {
+                userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+                // Update display name for new accounts
+                await userCredential.user.updateProfile({ displayName: fullName });
+            } catch (createError) {
+                if (createError.code === 'auth/email-already-in-use') {
+                    existingAccount = true;
+                    // Account exists in Firebase, try to sign in to get the token for syncing
+                    try {
+                        userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+                    } catch (signInError) {
+                        if (signInError.code === 'auth/wrong-password') {
+                            showRegError('This email is already registered. Please enter the correct password to complete setup, or sign in.');
+                            return;
+                        }
+                        throw signInError; // Re-throw if it's not a simple wrong-password issue
+                    }
+                } else {
+                    throw createError; // Re-throw other creation errors
+                }
+            }
+
+            const idToken = await userCredential.user.getIdToken();
+
+            // Build registration data
+            const regData = {
+                idToken: idToken,
+                role: REG_ROLE,
+                full_name: fullName,
+                username: username,
+                is_sync: existingAccount // Flag to tell backend this is an existing Firebase account sync
+            };
+
+            if (REG_ROLE === 'student') {
+                const studentId = document.getElementById('student_id')?.value.trim();
+                if (!studentId) {
+                    showRegError('Student ID is required.');
+                    return;
+                }
+                regData.student_id = studentId;
+            }
+
+            if (REG_ROLE === 'admin') {
+                const adminSecret = document.getElementById('admin_secret')?.value.trim();
+                if (!adminSecret) {
+                    showRegError('Admin setup secret is required.');
+                    return;
+                }
+                regData.admin_secret = adminSecret;
+            }
+
+            // Register with WasteZero backend
+            const res = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(regData)
+            });
+
+            const contentType = res.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new Error("Server returned HTML instead of JSON. The backend authentication route may have crashed.");
+            }
+
+            const data = await res.json();
+
+            if (data.success) {
+                showRegSuccess('Account setup successfully! Redirecting to login...');
+                setTimeout(() => {
+                    window.location.href = data.redirect;
+                }, 1500);
+            } else {
+                showRegError(data.error || 'Registration failed. Please try again.');
+                // Only delete the Firebase account if we created it during this session
+                if (!existingAccount) {
+                    try {
+                        await firebase.auth().currentUser?.delete();
+                    } catch (e) { /* ignore */ }
+                }
+            }
+        } catch (error) {
+            console.error('Registration error:', error);
+            const errorMessages = {
+                'auth/invalid-email': 'Invalid email address.',
+                'auth/weak-password': 'Password is too weak. Use at least 6 characters.',
+                'auth/network-request-failed': 'Network error. Check your connection.'
+            };
+            showRegError(errorMessages[error.code] || error.message || 'An error occurred during registration.');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-user-plus"></i><span>Create Account</span>';
+        }
+    }
+</script>
+{% endblock %}

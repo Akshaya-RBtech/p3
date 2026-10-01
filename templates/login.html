@@ -1,0 +1,267 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<style>
+    .top-header { display: none !important; }
+    .main-content { padding: 0 !important; margin: 0 !important; }
+    
+    .login-container {
+        min-height: 100vh;
+        width: 100vw;
+        background: url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=2940&auto=format&fit=crop') no-repeat center center;
+        background-size: cover;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+    .login-container::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: linear-gradient(to bottom, rgba(255,255,255,0.7) 0%, rgba(220,252,231,0.8) 100%);
+        z-index: 1;
+    }
+    
+    /* Overlaying leaves decoration */
+    .leaves-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 40vh;
+        background: url('https://png.pngtree.com/png-clipart/20230303/ourmid/pngtree-green-leaves-png-image_6628867.png') no-repeat center bottom;
+        background-size: contain;
+        z-index: 2;
+        opacity: 0.7;
+        pointer-events: none;
+    }
+
+    .login-card {
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        width: 100%;
+        max-width: 440px;
+        position: relative;
+        z-index: 10;
+        text-align: center;
+    }
+    
+    .login-input-group {
+        position: relative;
+        margin-bottom: 20px;
+    }
+    
+    .login-input-group input {
+        width: 100%;
+        padding: 14px 14px 14px 44px;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 14px;
+        color: #1e293b;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+    
+    .login-input-group input:focus { border-color: var(--primary); }
+    
+    .login-input-group i {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #64748b;
+        font-size: 14px;
+    }
+    
+    .login-links {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 16px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+    .login-links a {
+        color: var(--primary);
+        text-decoration: none;
+    }
+</style>
+
+<div class="login-container">
+    <div class="leaves-overlay"></div>
+    
+    <div class="login-card">
+        <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px;">
+            <i class="fas fa-leaf" style="font-size:32px;color:var(--primary);"></i>
+            <h1 style="font-size:28px;font-weight:900;color:#0f172a;letter-spacing:-1px;margin:0;">WasteZero</h1>
+        </div>
+        
+        <h2 style="font-size:22px;font-weight:800;color:#1e293b;margin-bottom:8px;">{{ type }} Login</h2>
+        <p style="font-size:13px;color:#64748b;margin-bottom:32px;">
+            {% if type == 'Admin' %} Access your dashboard and manage the system 
+            {% else %} Access your mess, attendance and more {% endif %}
+        </p>
+
+        <!-- Error display -->
+        <div id="login-error" style="display:none;padding:12px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;color:var(--danger);font-size:13px;text-align:left;font-weight:500;margin-bottom:16px;">
+            <i class="fas fa-circle-exclamation" style="margin-right:6px;"></i><span id="login-error-text"></span>
+        </div>
+
+        <!-- Success display -->
+        <div id="login-success" style="display:none;padding:12px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:10px;color:var(--success);font-size:13px;text-align:left;font-weight:500;margin-bottom:16px;">
+            <i class="fas fa-check-circle" style="margin-right:6px;"></i><span id="login-success-text"></span>
+        </div>
+
+        <form id="login-form" onsubmit="event.preventDefault(); handleLogin();" style="text-align:left;">
+            <div class="login-input-group">
+                <i class="fas fa-user-lock"></i>
+                {% if type == 'Admin' %}
+                <!-- We expect Email behind the scenes for Firebase, label implies ID -->
+                <input type="email" name="email" id="email" placeholder="Admin ID / Email" required>
+                {% else %}
+                <input type="email" name="email" id="email" placeholder="Student ID / Register Number" required>
+                {% endif %}
+            </div>
+
+            <div class="login-input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" name="password" id="password" placeholder="Password" required>
+            </div>
+            
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:24px;font-size:13px;color:#475569;font-weight:500;">
+                <input type="checkbox" id="remember" style="accent-color:var(--primary);width:16px;height:16px;border-radius:4px;">
+                <label for="remember">Remember me</label>
+            </div>
+
+            <button type="submit" id="login-btn" class="btn-primary" style="width:100%;justify-content:center;padding:14px;font-size:15px;border-radius:12px;box-shadow:0 4px 14px rgba(16,185,129,0.3);">
+                Login
+            </button>
+        </form>
+
+        <div class="login-links">
+            <a href="#">Forgot Password?</a>
+            {% if type == 'Admin' %}
+            <a href="{{ url_for('admin_setup') }}">New Admin? Register</a>
+            {% else %}
+            <a href="{{ url_for('student_register') }}">New Student? Register</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
+<script>
+    const LOGIN_ROLE = "{{ type | lower }}";
+
+    // Fetch Firebase config from backend (never hardcode in frontend)
+    let firebaseReady = false;
+
+    async function initFirebaseAuth() {
+        try {
+            const res = await fetch('/api/firebase-config');
+            if (!res.ok) {
+                console.warn('Backend returned non-200 for config endpoint');
+            }
+            const contentType = res.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new Error("Server returned an invalid HTML/Non-JSON response for configuration.");
+            }
+            const config = await res.json();
+            if (!config.apiKey) {
+                showLoginError('Firebase is not configured. Contact the administrator.');
+                return;
+            }
+            if (!firebase.apps.length) {
+                firebase.initializeApp(config);
+            }
+            firebaseReady = true;
+        } catch (e) {
+            console.error('Could not load Firebase config:', e);
+            showLoginError('Could not connect to the server. Please try again later.');
+        }
+    }
+
+    initFirebaseAuth();
+
+    function showLoginError(msg) {
+        const el = document.getElementById('login-error');
+        document.getElementById('login-error-text').textContent = msg;
+        el.style.display = 'block';
+        document.getElementById('login-success').style.display = 'none';
+    }
+
+    function showLoginSuccess(msg) {
+        const el = document.getElementById('login-success');
+        document.getElementById('login-success-text').textContent = msg;
+        el.style.display = 'block';
+        document.getElementById('login-error').style.display = 'none';
+    }
+
+    async function handleLogin() {
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const btn = document.getElementById('login-btn');
+
+        if (!email || !password) {
+            showLoginError('Please enter your email and password.');
+            return;
+        }
+
+        if (!firebaseReady) {
+            showLoginError('Firebase is not ready. Please refresh and try again.');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+        document.getElementById('login-error').style.display = 'none';
+
+        try {
+            const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+            const idToken = await userCredential.user.getIdToken();
+
+            // Send token to Flask backend for verification
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idToken: idToken, role: LOGIN_ROLE })
+            });
+
+            const contentType = res.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                // If it isn't JSON, throw an error, preventing JSON parse crash
+                throw new Error("Server returned HTML instead of JSON. The backend authentication route may have crashed.");
+            }
+
+            const data = await res.json();
+
+            if (data.success) {
+                showLoginSuccess('Login successful! Redirecting...');
+                window.location.href = data.redirect;
+            } else {
+                showLoginError(data.error || 'Login failed. Please check your credentials.');
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            const errorMessages = {
+                'auth/user-not-found': 'No account found with this email.',
+                'auth/wrong-password': 'Incorrect password. Please try again.',
+                'auth/invalid-email': 'Invalid email address.',
+                'auth/invalid-credential': 'Invalid email or password.',
+                'auth/too-many-requests': 'Too many attempts. Please try again later.',
+                'auth/user-disabled': 'This account has been disabled.',
+                'auth/network-request-failed': 'Network error. Check your connection.'
+            };
+            showLoginError(errorMessages[error.code] || error.message || 'An error occurred during login.');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i><span>Sign In</span>';
+        }
+    }
+</script>
+{% endblock %}

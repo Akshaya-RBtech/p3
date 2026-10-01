@@ -1,0 +1,972 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Image 18 Student Dashboard Top Card -->
+    <div style="background:white;border-radius:24px;padding:24px;box-shadow:0 10px 40px rgba(0,0,0,0.08);margin-top:-20px;position:relative;z-index:10;">
+        
+        <!-- User Welcome Section -->
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;">
+            <div style="width:52px;height:52px;border-radius:50%;background:#e0f2fe;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                <!-- Just using an avatar visual placeholder like the image -->
+                <img src="https://ui-avatars.com/api/?name={{ current_user.full_name or current_user.username }}&background=10b981&color=fff&size=52" style="width:100%;height:100%;object-fit:cover;" alt="Avatar">
+            </div>
+            <div>
+                <div style="font-size:13px;color:#0f766e;font-weight:700;margin-bottom:2px;">Good Morning,</div>
+                <div style="font-size:18px;font-weight:800;color:#1e293b;letter-spacing:-0.5px;">{{ current_user.full_name or current_user.username }}</div>
+            </div>
+        </div>
+
+        <div style="font-size:15px;font-weight:800;color:#1e293b;margin-bottom:16px;">Today's Menu</div>
+
+        <!-- Weekly Menus Output styled like Image 18 -->
+        <div style="display:flex;flex-direction:column;gap:16px;">
+            <!-- Breakfast Mock / Dynamic -->
+            <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:16px;border-bottom:1px solid #f1f5f9;">
+                <div style="display:flex;align-items:center;gap:14px;">
+                    <div style="width:40px;height:40px;border-radius:50%;background:#dcfce7;display:flex;align-items:center;justify-content:center;color:#16a34a;font-size:18px;">
+                        <i class="fas fa-seedling"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight:800;font-size:14px;color:#1e293b;margin-bottom:2px;">Breakfast</div>
+                        <div style="font-size:12px;color:#64748b;font-weight:500;">Rice + Sambar</div>
+                    </div>
+                </div>
+                <div style="background:#dcfce7;color:#16a34a;border-radius:100px;padding:6px 14px;font-size:11px;font-weight:800;letter-spacing:0.5px;">
+                    Coming
+                </div>
+            </div>
+
+            <!-- Lunch Mock / Dynamic -->
+            <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:8px;">
+                <div style="display:flex;align-items:center;gap:14px;">
+                    <div style="width:40px;height:40px;border-radius:50%;background:#ffedd5;display:flex;align-items:center;justify-content:center;color:#f97316;font-size:18px;">
+                        <i class="fas fa-drumstick-bite"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight:800;font-size:14px;color:#1e293b;margin-bottom:2px;">Lunch</div>
+                        <div style="font-size:12px;color:#64748b;font-weight:500;">Rice + Sambar</div>
+                        <div style="font-size:10px;color:#94a3b8;font-weight:600;margin-top:2px;">[12:30 - 4:00 PM]</div>
+                    </div>
+                </div>
+                <div style="background:#ffedd5;color:#f97316;border-radius:100px;padding:6px 14px;font-size:11px;font-weight:800;letter-spacing:0.5px;">
+                    Pending
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ===== HOME TAB ===== -->
+    <div id="content-home" class="tab-content block" style="margin-top:24px;">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="col-span-1 lg:col-span-2" style="display:flex;flex-direction:column;gap:16px;">
+                {% for menu in menus %}
+                <div class="card" style="background:#fff;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,0.05);overflow:hidden;border:1px solid var(--border);">
+                    <!-- Card Body -->
+                    <div style="padding:18px 20px;">
+                        <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;">Dishes 🍽️</div>
+                        <p style="font-size:14px;font-weight:600;color:var(--text-primary);line-height:1.5;margin-bottom:18px;">{{ menu.items }}</p>
+
+                {% if menu.id in voted_ids %}
+                <div style="text-align:center;padding:14px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:12px;">
+                    <div style="display:flex;justify-content:center;align-items:center;gap:8px;margin-bottom:6px;">
+                        <i class="fas fa-circle-check" style="color:var(--success);font-size:18px;"></i>
+                        <span style="color:var(--success);font-weight:700;font-size:13px;">Vote Submitted!</span>
+                    </div>
+                    <div style="font-size:11px;font-weight:600;padding:4px 8px;background:rgba(0,0,0,0.05);border-radius:6px;display:inline-block;margin-bottom:8px;">Status: {{ menu.kitchen_status }}</div>
+                    
+                    <hr style="border-color:var(--border);margin:8px 0;opacity:0.5;">
+                    <form onsubmit="submitStudentFeedback(event, {{ menu.id }})">
+                        <div style="font-size:11px;font-weight:600;margin-bottom:6px;">How was the meal?</div>
+                        <select id="fb-rating-{{ menu.id }}" class="form-input" style="font-size:11px;padding:4px;margin-bottom:6px;width:100%;" required>
+                            <option value="">Select Rating...</option>
+                            <option value="Like">👍 Liked it</option>
+                            <option value="Neutral">😐 Neutral</option>
+                            <option value="Dislike">👎 Disliked it</option>
+                        </select>
+                        <input type="text" id="fb-comment-{{ menu.id }}" class="form-input" style="font-size:11px;padding:4px;width:100%;margin-bottom:6px;" placeholder="Optional comment (e.g., too spicy)">
+                        <button type="submit" class="btn-primary" style="font-size:11px;padding:6px;width:100%;display:flex;justify-content:center;">Submit Feedback</button>
+                    </form>
+                    <div id="fb-status-{{ menu.id }}" style="margin-top:6px;font-size:11px;display:none;font-weight:600;"></div>
+                </div>
+                {% else %}
+                <!-- VOTE BOX (Image 6) -->
+                <div id="vote-success-{{ menu.id }}" style="display:none;text-align:center;padding:14px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:12px;margin-bottom:10px;">
+                    <div style="display:flex;justify-content:center;align-items:center;gap:8px;">
+                        <i class="fas fa-circle-check" style="color:var(--success);font-size:18px;"></i>
+                        <span style="color:var(--success);font-weight:700;font-size:13px;">Vote Submitted!</span>
+                    </div>
+                </div>
+                <div id="vote-error-{{ menu.id }}" style="display:none;color:var(--danger);font-size:11px;font-weight:600;margin-bottom:6px;text-align:center;"></div>
+                
+                <form onsubmit="submitVoteAjax(event, {{ menu.id }})" id="vote-form-{{ menu.id }}" style="background:white;border-radius:16px;padding:24px;box-shadow:0 10px 40px rgba(0,0,0,0.1);position:relative;border:1px solid var(--border);margin-top:10px;text-align:left;">
+                    <button type="button" style="position:absolute;top:16px;right:16px;background:none;border:none;color:var(--primary);cursor:pointer;"><i class="fas fa-times"></i></button>
+                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+                        <div style="width:40px;height:40px;background:var(--primary);border-radius:50%;color:white;display:flex;align-items:center;justify-content:center;font-size:16px;">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight:800;color:#1e293b;font-size:15px;">{{ menu.meal_type }} - {{ menu.date }}</div>
+                            <div style="font-size:11px;color:#64748b;margin-top:2px;font-weight:500;">
+                                {{ menu.items|truncate(25) }}
+                                {% if menu.meal_type == 'Breakfast' %}(07:30 - 09:30 AM){% endif %}
+                                {% if menu.meal_type == 'Lunch' %}(12:30 - 01:30 PM){% endif %}
+                                {% if menu.meal_type == 'Dinner' %}(07:30 - 09:30 PM){% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="menu_id" value="{{ menu.id }}">
+
+                    <div style="display:flex;gap:12px;margin-bottom:20px;">
+                        <button type="button" onclick="selectVote({{ menu.id }}, 'Yes')"
+                            id="btn-yes-{{ menu.id }}"
+                            style="flex:1;padding:12px;border-radius:12px;font-weight:700;font-size:14px;cursor:pointer;border:none;background:var(--success);color:white;transition:all 0.2s;">
+                            <i class="far fa-check-circle" style="margin-right:6px;"></i>Coming
+                        </button>
+                        <button type="button" onclick="selectVote({{ menu.id }}, 'No')"
+                            id="btn-no-{{ menu.id }}"
+                            style="flex:1;padding:12px;border-radius:12px;font-weight:700;font-size:14px;cursor:pointer;border:1px solid #fecaca;background:linear-gradient(to right, #fef2f2, #ffe4e6);color:#ef4444;transition:all 0.2s;">
+                            <i class="far fa-times-circle" style="margin-right:6px;"></i>Not Coming
+                        </button>
+                    </div>
+
+                    <input type="hidden" name="choice" id="choice-{{ menu.id }}">
+
+                    <div id="reason-box-{{ menu.id }}" style="display:none;margin-bottom:20px;">
+                        <div style="font-size:12px;font-weight:600;margin-bottom:12px;color:#475569;">If Not Coming, please select reason:</div>
+                        <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:16px;">
+                            <label style="display:flex;align-items:center;gap:10px;font-size:14px;color:#334155;cursor:pointer;">
+                                <input type="radio" name="reason_radio_{{ menu.id }}" value="Don't like the menu" onchange="toggleOtherReason({{ menu.id }}, this.value)" style="width:18px;height:18px;accent-color:var(--primary);">
+                                Don't like the menu
+                            </label>
+                            <label style="display:flex;align-items:center;gap:10px;font-size:14px;color:#334155;cursor:pointer;">
+                                <input type="radio" name="reason_radio_{{ menu.id }}" value="Going outside" onchange="toggleOtherReason({{ menu.id }}, this.value)" style="width:18px;height:18px;accent-color:var(--primary);">
+                                Going outside
+                            </label>
+                            <label style="display:flex;align-items:center;gap:10px;font-size:14px;color:#334155;cursor:pointer;">
+                                <input type="radio" name="reason_radio_{{ menu.id }}" value="Sick" onchange="toggleOtherReason({{ menu.id }}, this.value)" style="width:18px;height:18px;accent-color:var(--primary);">
+                                Sick
+                            </label>
+                            <label style="display:flex;align-items:center;gap:10px;font-size:14px;color:#334155;cursor:pointer;">
+                                <input type="radio" name="reason_radio_{{ menu.id }}" value="Other" onchange="toggleOtherReason({{ menu.id }}, this.value)" style="width:18px;height:18px;accent-color:var(--primary);">
+                                Other
+                            </label>
+                        </div>
+                        <input type="hidden" name="reason" id="reason-{{ menu.id }}">
+                        <textarea id="reason-other-{{ menu.id }}" rows="1" class="form-input"
+                            placeholder="Enter reason (if other)" style="display:none;width:100%;font-size:13px;padding:12px 14px;border-radius:8px;" oninput="updateReasonField({{ menu.id }})"></textarea>
+                    </div>
+
+                    <div style="display:flex;gap:12px;" id="submit-btn-group-{{ menu.id }}">
+                        <button type="submit" id="submit-btn-{{ menu.id }}" style="display:none;flex:1;background:var(--primary);color:white;padding:12px;border:none;border-radius:10px;font-weight:700;cursor:pointer;">
+                            Submit
+                        </button>
+                        <button type="button" onclick="document.getElementById('vote-form-{{ menu.id }}').reset(); document.getElementById('submit-btn-{{ menu.id }}').style.display='none'; document.getElementById('cancel-btn-{{ menu.id }}').style.display='none';" id="cancel-btn-{{ menu.id }}" style="display:none;flex:1;background:white;color:#64748b;border:1px solid #cbd5e1;padding:12px;border-radius:10px;font-weight:700;cursor:pointer;">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+                <script>
+                    // Update selectVote to show submit button nicely as per design
+                    const oldSelectVote{{ menu.id }} = window.selectVote;
+                    window.selectVote = function(id, val) {
+                        if(typeof oldSelectVote{{ menu.id }} === 'function') oldSelectVote{{ menu.id }}(id, val);
+                        if(id == {{ menu.id }}) {
+                            document.getElementById('submit-btn-' + id).style.display = 'block';
+                            document.getElementById('cancel-btn-' + id).style.display = 'block';
+                        }
+                    }
+                </script>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+        
+        <!-- Desktop Right Widgets mapped from Image 5 -->
+        <div class="col-span-1" style="display:flex;flex-direction:column;gap:20px;">
+            <div class="card" style="background:linear-gradient(135deg, #f0fdf4, #dcfce7);padding:24px;border:1px solid rgba(34,197,94,0.2);box-shadow:0 4px 20px rgba(16,185,129,0.05);">
+                <div style="font-size:15px;font-weight:800;color:var(--text-primary);margin-bottom:16px;">Tomorrow's Attendance</div>
+                <div style="display:flex;align-items:center;background:rgba(255,255,255,0.8);padding:14px;border-radius:12px;margin-bottom:20px;border:1px solid rgba(255,255,255,0.5);">
+                    <div style="width:30px;height:30px;background:rgba(16,185,129,0.1);color:var(--success);border-radius:8px;display:flex;align-items:center;justify-content:center;margin-right:12px;font-size:13px;">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <span style="font-size:13px;font-weight:600;color:var(--text-secondary);">Lunch - Rice + Sambar + Veg Curry</span>
+                </div>
+                <div style="display:flex;gap:10px;">
+                    <button style="flex:1;padding:12px;border-radius:100px;font-weight:700;font-size:13px;border:none;background:var(--success);color:white;box-shadow:0 4px 10px rgba(16,185,129,0.2);">Coming</button>
+                    <button style="flex:1;padding:12px;border-radius:100px;font-weight:700;font-size:13px;border:1px solid rgba(239,68,68,0.2);background:white;color:var(--danger);">Not Coming</button>
+                </div>
+            </div>
+
+            <div class="card" style="padding:24px;">
+                <div style="font-size:15px;font-weight:800;color:var(--text-primary);margin-bottom:16px;">Quick Stats</div>
+                <div style="display:flex;gap:12px;">
+                    <div style="flex:1;text-align:center;padding:14px 10px;background:rgba(16,185,129,0.05);border-radius:12px;border:1px solid rgba(16,185,129,0.1);">
+                        <div style="font-size:11px;color:var(--text-secondary);font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">Confirmed</div>
+                        <div style="font-size:26px;color:var(--success);font-weight:800;line-height:1;">3</div>
+                    </div>
+                    <div style="flex:1;text-align:center;padding:14px 10px;background:rgba(245,158,11,0.05);border-radius:12px;border:1px solid rgba(245,158,11,0.1);">
+                        <div style="font-size:11px;color:var(--text-secondary);font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">Pending</div>
+                        <div style="font-size:26px;color:var(--warning);font-weight:800;line-height:1;">1</div>
+                    </div>
+                    <div style="flex:1;text-align:center;padding:14px 10px;background:rgba(239,68,68,0.05);border-radius:12px;border:1px solid rgba(239,68,68,0.1);">
+                        <div style="font-size:11px;color:var(--text-secondary);font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">Skipped</div>
+                        <div style="font-size:26px;color:var(--danger);font-weight:800;line-height:1;">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="padding:24px;">
+                <div style="font-size:15px;font-weight:800;color:var(--text-primary);margin-bottom:20px;">Recent Notifications</div>
+                <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid rgba(0,0,0,0.04);">
+                    <div style="width:28px;height:28px;border-radius:50%;background:rgba(245,158,11,0.1);color:var(--warning);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;"><i class="fas fa-bell"></i></div>
+                    <div>
+                        <div style="font-size:13px;color:var(--text-primary);font-weight:600;line-height:1.4;">Tomorrow's lunch attendance is still pending.</div>
+                        <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">10:04 AM</div>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid rgba(0,0,0,0.04);">
+                    <div style="width:28px;height:28px;border-radius:50%;background:rgba(59,130,246,0.1);color:#3b82f6;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;"><i class="fas fa-info"></i></div>
+                    <div>
+                        <div style="font-size:13px;color:var(--text-primary);font-weight:600;line-height:1.4;">Menu updated for tomorrow's dinner.</div>
+                        <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Yesterday</div>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:14px;">
+                    <div style="width:28px;height:28px;border-radius:50%;background:rgba(16,185,129,0.1);color:var(--success);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;"><i class="fas fa-calendar-check"></i></div>
+                    <div>
+                        <div style="font-size:13px;color:var(--text-primary);font-weight:600;line-height:1.4;">Hostel will be closed on Sunday.</div>
+                        <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Apr 28, 2025</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    
+    <div id="content-weekly" class="tab-content" style="display:none;padding:24px;text-align:center;">
+        <div class="card" style="padding:40px;border-radius:16px;">
+            <i class="fas fa-calendar-alt" style="font-size:48px;color:var(--primary);margin-bottom:16px;"></i>
+            <h3>Weekly Schedule</h3>
+            <p>Your weekly schedule will appear here.</p>
+        </div>
+    </div>
+    
+    <div id="content-attendance" class="tab-content" style="display:none;padding:24px;text-align:center;">
+        <div class="card" style="padding:40px;border-radius:16px;">
+            <i class="fas fa-check-circle" style="font-size:48px;color:var(--primary);margin-bottom:16px;"></i>
+            <h3>Meal Attendance</h3>
+            <p>Your attendance history will appear here.</p>
+        </div>
+    </div>
+
+    <div id="content-leave" class="tab-content" style="display:none;padding:24px;text-align:center;">
+        <div class="card" style="padding:40px;border-radius:16px;">
+            <i class="fas fa-envelope-open" style="font-size:48px;color:var(--primary);margin-bottom:16px;"></i>
+            <h3>Leave Requests</h3>
+            <p>Your leave requests will appear here.</p>
+        </div>
+    </div>
+
+    <div id="content-complaint" class="tab-content" style="display:none;padding:24px;text-align:center;">
+        <div class="card" style="padding:40px;border-radius:16px;">
+            <i class="fas fa-exclamation-circle" style="font-size:48px;color:var(--primary);margin-bottom:16px;"></i>
+            <h3>Submit Complaint</h3>
+            <p>Complaint forms will appear here.</p>
+        </div>
+    </div>
+</div>
+    {% else %}
+    <div style="text-align:center;padding:60px 20px;">
+        <div style="width:64px;height:64px;background:rgba(16,185,129,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:var(--primary);font-size:24px;">
+            <i class="fas fa-calendar-xmark"></i>
+        </div>
+        <h3 style="font-size:18px;font-weight:700;color:var(--text-primary);margin-bottom:6px;">No Active Menus</h3>
+        <p style="color:var(--text-secondary);font-size:14px;">The admin hasn't published any menus for today or tomorrow yet.<br>Check back later!</p>
+    </div>
+    {% endif %}
+    </div> <!-- END HOME TAB -->
+
+    <!-- ===== CALENDAR TAB ===== -->
+    <!-- ===== NOTIFICATIONS TAB (Image 15) ===== -->
+    <div id="content-notifications" class="tab-content" style="display:none;margin-top:24px;">
+        <div class="card" style="border-radius:20px;padding:24px;background:white;box-shadow:0 10px 40px rgba(0,0,0,0.05);border:1px solid rgba(0,0,0,0.08);">
+            
+            <!-- Header -->
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+                <div style="font-size:18px;font-weight:800;color:#1e293b;">Notifications</div>
+                <div style="display:flex;align-items:center;gap:16px;color:#64748b;font-size:14px;">
+                    <i class="fas fa-search" style="cursor:pointer;"></i>
+                    <i class="fas fa-filter" style="cursor:pointer;"></i>
+                    <i class="fas fa-gear" style="cursor:pointer;"></i>
+                    <div style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+                        <i class="far fa-user"></i>
+                        <span style="font-size:11px;font-weight:700;color:#3b82f6;">Rahul</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+                <div style="display:flex;gap:12px;">
+                    <button style="background:#16a34a;color:white;border:none;padding:8px 24px;border-radius:100px;font-size:12px;font-weight:700;cursor:pointer;">All</button>
+                    <button style="background:#f8fafc;color:#64748b;border:1px solid #e2e8f0;padding:8px 16px;border-radius:100px;font-size:12px;font-weight:700;cursor:pointer;">Unread (2)</button>
+                    <button style="background:#f8fafc;color:#64748b;border:1px solid #e2e8f0;padding:8px 24px;border-radius:100px;font-size:12px;font-weight:700;cursor:pointer;">Read</button>
+                </div>
+                <button style="background:none;border:none;color:#64748b;font-size:12px;font-weight:700;display:flex;align-items:center;gap:6px;cursor:pointer;">
+                    <i class="fas fa-check-double"></i> Mark all as read
+                </button>
+            </div>
+
+            <!-- Notification List -->
+            <div style="display:flex;flex-direction:column;gap:16px;">
+                
+                <!-- Notif 1 -->
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;padding:16px;border:1px solid #e2e8f0;border-radius:16px;transition:all 0.2s;">
+                    <div style="display:flex;gap:16px;">
+                        <div style="width:40px;height:40px;border-radius:50%;background:#ffedd5;color:#f97316;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div>
+                            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:4px;letter-spacing:-0.2px;">Tomorrow's lunch attendance is still pending</div>
+                            <div style="font-size:11px;font-weight:600;color:#3b82f6;text-transform:uppercase;letter-spacing:0.5px;">Reminder • 10:04 AM Attendance Closed</div>
+                        </div>
+                    </div>
+                    <div style="font-size:11px;font-weight:600;color:#94a3b8;flex-shrink:0;">10:04 AM</div>
+                </div>
+
+                <!-- Notif 2 -->
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;padding:16px;border:1px solid #e2e8f0;border-radius:16px;transition:all 0.2s;">
+                    <div style="display:flex;gap:16px;">
+                        <div style="width:40px;height:40px;border-radius:50%;background:#e0f2fe;color:#0ea5e9;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <div>
+                            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:4px;letter-spacing:-0.2px;">Menu updated for tomorrow's Dinner</div>
+                            <div style="font-size:11px;font-weight:600;color:#3b82f6;text-transform:uppercase;letter-spacing:0.5px;">Co-ordinator • Menu Update • Veg</div>
+                        </div>
+                    </div>
+                    <div style="font-size:11px;font-weight:600;color:#94a3b8;flex-shrink:0;">Yesterday</div>
+                </div>
+
+                <!-- Notif 3 -->
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;padding:16px;border:1px solid #e2e8f0;border-radius:16px;transition:all 0.2s;">
+                    <div style="display:flex;gap:16px;">
+                        <div style="width:40px;height:40px;border-radius:50%;background:#fee2e2;color:#dc2626;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div>
+                            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:4px;letter-spacing:-0.2px;">Hostel will be closed on Sunday</div>
+                            <div style="font-size:11px;font-weight:600;color:#3b82f6;text-transform:uppercase;letter-spacing:0.5px;">Warden • Maintenance</div>
+                        </div>
+                    </div>
+                    <div style="font-size:11px;font-weight:600;color:#94a3b8;flex-shrink:0;">Apr 25, 2025</div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    
+    <div id="content-calendar" class="tab-content" style="display:none;">        <div class="card" style="padding:0;border-radius:16px;background:var(--card-bg);overflow:hidden;">
+            <div style="padding:20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+                <h3 style="font-size:18px;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:8px;">
+                    <i class="fas fa-calendar-week" style="color:var(--primary);"></i> Weekly Meal Calendar
+                </h3>
+            </div>
+            
+            <div style="overflow-x:auto;">
+                <table style="width:100%;border-collapse:collapse;min-width:700px;font-size:13px;text-align:left;">
+                    <thead style="background:rgba(0,0,0,0.02);">
+                        <tr>
+                            <th style="padding:14px 20px;color:var(--text-secondary);font-weight:600;text-transform:uppercase;font-size:11px;letter-spacing:0.5px;">Day</th>
+                            <th style="padding:14px 20px;color:var(--text-secondary);font-weight:600;text-transform:uppercase;font-size:11px;letter-spacing:0.5px;">Breakfast</th>
+                            <th style="padding:14px 20px;color:var(--text-secondary);font-weight:600;text-transform:uppercase;font-size:11px;letter-spacing:0.5px;">Lunch</th>
+                            <th style="padding:14px 20px;color:var(--text-secondary);font-weight:600;text-transform:uppercase;font-size:11px;letter-spacing:0.5px;">Snacks</th>
+                            <th style="padding:14px 20px;color:var(--text-secondary);font-weight:600;text-transform:uppercase;font-size:11px;letter-spacing:0.5px;">Dinner</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for date, items in weekly_menus | groupby('date') %}
+                            <tr style="border-bottom:1px solid var(--border);transition:all 0.2s;">
+                                <td style="padding:16px 20px;vertical-align:top;font-weight:700;color:var(--text-primary);">
+                                    <div style="display:flex;align-items:center;gap:8px;">
+                                        <div style="width:40px;height:40px;border-radius:10px;background:rgba(16,185,129,0.1);color:var(--success);display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                                            <span style="font-size:10px;text-transform:uppercase;font-weight:800;">Day</span>
+                                            <span style="font-size:14px;letter-spacing:-0.5px;">{{ date[-2:] }}</span>
+                                        </div>
+                                        <div style="font-size:12px;color:var(--text-secondary);font-weight:600;">{{ date }}</div>
+                                    </div>
+                                </td>
+                                {% for meal in ['Breakfast', 'Lunch', 'Snacks', 'Dinner'] %}
+                                    {% set m = items | selectattr('meal_type', 'equalto', meal) | first %}
+                                    <td style="padding:16px 20px;vertical-align:top;color:var(--text-primary);">
+                                        {% if m %}
+                                            <div style="font-weight:500;margin-bottom:8px;line-height:1.4;">{{ m.items }}</div>
+                                            {% if m.id in voted_ids %}
+                                                {% if voted_choices.get(m.id) == 'Yes' %}
+                                                    <span style="display:inline-block;padding:4px 8px;font-size:10px;font-weight:700;color:var(--success);background:rgba(16,185,129,0.1);border-radius:100px;">Coming</span>
+                                                {% else %}
+                                                    <span style="display:inline-block;padding:4px 8px;font-size:10px;font-weight:700;color:var(--danger);background:rgba(239,68,68,0.1);border-radius:100px;">Not Coming</span>
+                                                {% endif %}
+                                            {% else %}
+                                                <button onclick="switchDashboardTab(event, 'home')" style="font-size:10px;padding:4px 8px;border-radius:100px;font-weight:600;border:1px dashed var(--primary);color:var(--primary);background:none;cursor:pointer;">Pending</button>
+                                            {% endif %}
+                                        {% else %}
+                                            <span style="color:var(--text-muted);font-style:italic;font-size:11px;">-</span>
+                                        {% endif %}
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% if not weekly_menus %}
+                <div style="text-align:center;padding:40px;color:var(--text-muted);font-size:13px;">No menus mapped for this week.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== COMPLAINTS TAB (Image 10) ===== -->
+    <div id="content-complaints" class="tab-content" style="display:none;">
+        <div class="card" style="padding:24px;background:white;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,0.05);border:1px solid rgba(0,0,0,0.08);max-width:540px;margin:0 auto;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;border-bottom:1px solid #f1f5f9;padding-bottom:16px;">
+                <div style="width:36px;height:36px;background:#dcfce7;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#16a34a;font-size:16px;">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <h3 style="font-size:16px;font-weight:800;color:#1e293b;margin:0;">Submit Complaint</h3>
+            </div>
+            
+            <form onsubmit="submitStudentComplaint(event)" style="display:flex;flex-direction:column;gap:16px;">
+                <div>
+                    <label style="display:block;font-size:12px;font-weight:700;color:#334155;margin-bottom:6px;">Category</label>
+                    <select id="comp-category" class="form-input" style="width:100%;font-size:14px;padding:12px 14px;border-radius:8px;border:1px solid #cbd5e1;color:#1e293b;background:white;-webkit-appearance:none;background-image:url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23475569%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');background-repeat:no-repeat;background-position:right 12px top 50%;background-size:10px auto;" required>
+                        <option value="Food Quality">Food Quality</option>
+                        <option value="Cleanliness">Cleanliness</option>
+                        <option value="Meal Timing">Meal Timing</option>
+                        <option value="Staff Behavior">Staff Behavior</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label style="display:block;font-size:12px;font-weight:700;color:#334155;margin-bottom:6px;">Subject</label>
+                    <select id="comp-subject" class="form-input" style="width:100%;font-size:14px;padding:12px 14px;border-radius:8px;border:1px solid #cbd5e1;color:#1e293b;background:white;-webkit-appearance:none;background-image:url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23475569%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');background-repeat:no-repeat;background-position:right 12px top 50%;background-size:10px auto;">
+                        <option value="Food too spicy">Food too spicy</option>
+                        <option value="Food too salty">Food too salty</option>
+                        <option value="Undercooked meal">Undercooked meal</option>
+                        <option value="Mess hygiene poor">Mess hygiene poor</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label style="display:block;font-size:12px;font-weight:700;color:#334155;margin-bottom:6px;">Description</label>
+                    <textarea id="comp-description" class="form-input" rows="3" placeholder="The food was too spicy today. Please consider reducing the spice level." style="width:100%;font-size:14px;padding:12px 14px;border-radius:8px;border:1px solid #cbd5e1;color:#1e293b;" required></textarea>
+                </div>
+                
+                <div>
+                    <label style="display:block;font-size:12px;font-weight:700;color:#334155;margin-bottom:6px;">Upload Complaint</label>
+                    <div style="display:flex;align-items:center;border:1px solid #cbd5e1;border-radius:8px;padding:6px;background:white;gap:10px;">
+                        <label for="comp-file" style="background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;">
+                            <i class="fas fa-camera"></i> Choose file
+                        </label>
+                        <input type="file" id="comp-file" style="display:none;">
+                        <span style="font-size:12px;color:#94a3b8;">No file chosen</span>
+                    </div>
+                </div>
+
+                <div id="comp-status" style="font-size:12px;display:none;font-weight:600;text-align:center;"></div>
+                
+                <button type="submit" class="btn-primary" style="width:100%;padding:14px;display:flex;justify-content:center;background:var(--primary);border:none;border-radius:8px;font-size:15px;font-weight:700;margin-top:8px;">
+                    Submit Complaint
+                </button>
+            </form>
+
+            <div style="margin-top:40px;">
+                <h4 style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:12px;border-bottom:1px solid #f1f5f9;padding-bottom:10px;">My Complaints</h4>
+                <div style="overflow-x:auto;">
+                    <table style="width:100%;border-collapse:collapse;font-size:13px;color:#334155;text-align:left;">
+                        <thead>
+                            <tr style="border-bottom:1px solid #f1f5f9;color:#64748b;font-size:12px;">
+                                <th style="padding:10px 0;font-weight:700;">Date</th>
+                                <th style="padding:10px 0;font-weight:700;">Subject</th>
+                                <th style="padding:10px 0;font-weight:700;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom:1px solid #f1f5f9;">
+                                <td style="padding:12px 0;">Apr 27, 2025</td>
+                                <td style="padding:12px 0;">Food quality</td>
+                                <td style="padding:12px 0;"><span style="padding:4px 8px;border-radius:100px;background:#fef3c7;color:#d97706;font-weight:700;font-size:10px;display:inline-flex;align-items:center;gap:4px;"><i class="fas fa-clock"></i> In Progress</span></td>
+                            </tr>
+                            <tr style="border-bottom:1px solid #f1f5f9;">
+                                <td style="padding:12px 0;">Apr 20, 2025</td>
+                                <td style="padding:12px 0;">Cleanliness</td>
+                                <td style="padding:12px 0;"><span style="padding:4px 8px;border-radius:100px;background:#dcfce7;color:#16a34a;font-weight:700;font-size:10px;display:inline-flex;align-items:center;gap:4px;"><i class="fas fa-check"></i> Resolved</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div> <!-- END COMPLAINTS TAB -->
+
+    <!-- ===== LEAVES TAB (Image 8 logic) ===== -->
+    <div id="content-leaves" class="tab-content" style="display:none;">
+        <div class="card" style="padding:24px;background:white;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,0.05);border:1px solid rgba(0,0,0,0.08);max-width:440px;margin:0 auto;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <img src="https://ui-avatars.com/api/?name={{ current_user.username }}&background=10b981&color=fff&size=40" style="width:40px;height:40px;border-radius:50%;" alt="Avatar">
+                    <h3 style="font-size:16px;font-weight:700;color:#1e293b;margin:0;">New Leave Request</h3>
+                </div>
+                <button style="background:none;border:none;color:#64748b;font-size:16px;cursor:pointer;"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <form onsubmit="submitStudentLeave(event)" style="display:flex;flex-direction:column;gap:16px;">
+                <div>
+                    <label style="display:block;font-size:12px;font-weight:700;color:#334155;margin-bottom:6px;">Leave Start Date</label>
+                    <div style="position:relative;">
+                        <input type="date" id="leave-start" class="form-input" style="width:100%;font-size:14px;padding:12px 14px;border-radius:8px;border:1px solid #cbd5e1;color:#1e293b;" required>
+                    </div>
+                </div>
+                
+                <div>
+                    <label style="display:block;font-size:12px;font-weight:700;color:#334155;margin-bottom:6px;">Leave End Date</label>
+                    <div style="position:relative;">
+                        <input type="date" id="leave-end" class="form-input" style="width:100%;font-size:14px;padding:12px 14px;border-radius:8px;border:1px solid #cbd5e1;color:#1e293b;" required>
+                    </div>
+                </div>
+
+                <div>
+                    <label style="display:block;font-size:12px;font-weight:700;color:#334155;margin-bottom:6px;">Leave Type</label>
+                    <select id="leave-type" class="form-input" style="width:100%;font-size:14px;padding:12px 14px;border-radius:8px;border:1px solid #cbd5e1;color:#1e293b;" required>
+                        <option value="Personal Leave">Personal Leave</option>
+                        <option value="Medical Leave">Medical Leave</option>
+                        <option value="Academic Duty">Academic Duty</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label style="display:block;font-size:12px;font-weight:700;color:#334155;margin-bottom:6px;">Reason</label>
+                    <textarea id="leave-reason" class="form-input" rows="3" placeholder="Family function at home" style="width:100%;font-size:14px;padding:12px 14px;border-radius:8px;border:1px solid #cbd5e1;color:#1e293b;" required></textarea>
+                </div>
+
+                <div>
+                    <label style="display:block;font-size:12px;font-weight:700;color:#334155;margin-bottom:6px;">Optional Document</label>
+                    <div style="display:flex;align-items:center;border:1px solid #cbd5e1;border-radius:8px;padding:6px;background:white;gap:10px;">
+                        <label for="optional-doc" style="background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;">
+                            <i class="fas fa-file-upload"></i> Choose File
+                        </label>
+                        <input type="file" id="optional-doc" style="display:none;">
+                        <span style="font-size:12px;color:#94a3b8;">No file chosen</span>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-primary" style="width:100%;padding:14px;display:flex;justify-content:center;background:var(--primary);border:none;border-radius:8px;font-size:15px;font-weight:700;margin-top:8px;">
+                    Submit Request
+                </button>
+            </form>
+            <div id="leave-status" style="margin-top:12px;font-size:13px;display:none;font-weight:600;text-align:center;"></div>
+        </div>
+    </div> <!-- END LEAVES TAB -->
+
+
+    <!-- ===== AGENT TAB (Image 7 logic) ===== -->
+    <div id="content-agent" class="tab-content" style="display:none;">
+    <!-- AI Assistant Section aligned to Image 7 -->
+    <div class="card" style="max-width:500px;margin:0 auto;background:white;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,0.05);border:1px solid rgba(0,0,0,0.08);overflow:hidden;display:flex;flex-direction:column;height:75vh;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid #f1f5f9;">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <div style="width:40px;height:40px;background:#2563eb;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                    <i class="fas fa-robot" style="color:white;font-size:18px;"></i>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div id="student-chat-messages" style="max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;margin-bottom:14px;">
+                <div style="display:flex;align-items:flex-start;gap:8px;">
+                    <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;color:white;font-size:10px;flex-shrink:0;">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div style="background:var(--input-bg);border:1px solid var(--border);border-radius:0 12px 12px 12px;padding:10px 14px;font-size:13px;color:var(--text-primary);max-width:85%;line-height:1.5;">
+                        Hey! 👋 I'm your WasteZero assistant. Ask me about today's menu, voting help, or diet tips!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input -->
+            <div style="display:flex;gap:8px;">
+                <input type="text" id="student-chat-input" placeholder="Type your question..." onkeypress="if(event.key==='Enter') sendStudentMsg()"
+                    class="form-input" style="flex:1;">
+                <button onclick="sendStudentMsg()" class="btn-primary" style="padding:10px 16px;">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    </div> <!-- END AGENT TAB -->
+
+    <!-- ===== PROFILE / SETTINGS TAB (Image 21) ===== -->
+    <div id="content-profile" class="tab-content" style="display:none;margin-top:24px;">
+        <div style="background:white;border-radius:24px;border:1px solid #e2e8f0;box-shadow:0 10px 40px rgba(0,0,0,0.05);padding:24px;max-width:500px;margin:0 auto;position:relative;">
+            
+            <!-- Header -->
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;font-size:18px;font-weight:800;color:#1e293b;">
+                <div style="width:28px;height:28px;border-radius:50%;background:#dcfce7;display:flex;justify-content:center;align-items:center;color:#16a34a;font-size:14px;">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                Settings
+            </div>
+
+            <!-- Appearance Section -->
+            <div style="font-size:14px;font-weight:800;color:#1e3a8a;margin-bottom:16px;">Appearance</div>
+            <div style="display:flex;gap:12px;margin-bottom:32px;">
+                <button style="flex:1;background:#f8fafc;color:#64748b;border:1px solid #e2e8f0;padding:12px;border-radius:12px;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;">
+                    <i class="fas fa-sun"></i> Light
+                </button>
+                <button style="flex:1;background:#f8fafc;color:#64748b;border:1px solid #e2e8f0;padding:12px;border-radius:12px;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;">
+                    <i class="fas fa-moon"></i> Dark
+                </button>
+                <!-- System is matching Image 21 active state -->
+                <button style="flex:1;background:white;color:#0f766e;border:2px solid #10b981;padding:12px;border-radius:12px;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;">
+                    <i class="fas fa-circle-half-stroke"></i> System
+                </button>
+            </div>
+
+            <!-- Menu List -->
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                
+                <a href="#" style="display:flex;align-items:center;justify-content:space-between;padding:16px;border:1px solid #f1f5f9;border-radius:16px;background:white;text-decoration:none;color:#475569;font-weight:700;font-size:14px;transition:all 0.2s;">
+                    <div style="display:flex;align-items:center;gap:16px;">
+                        <i class="far fa-user" style="font-size:16px;color:#64748b;"></i>
+                        Profile Information
+                    </div>
+                    <i class="fas fa-chevron-right" style="font-size:12px;color:#cbd5e1;"></i>
+                </a>
+
+                <a href="#" style="display:flex;align-items:center;justify-content:space-between;padding:16px;border:1px solid #f1f5f9;border-radius:16px;background:white;text-decoration:none;color:#475569;font-weight:700;font-size:14px;transition:all 0.2s;">
+                    <div style="display:flex;align-items:center;gap:16px;">
+                        <i class="fas fa-lock" style="font-size:16px;color:#64748b;"></i>
+                        Change Password
+                    </div>
+                    <i class="fas fa-chevron-right" style="font-size:12px;color:#cbd5e1;"></i>
+                </a>
+
+                <a href="#" style="display:flex;align-items:center;justify-content:space-between;padding:16px;border:1px solid #f1f5f9;border-radius:16px;background:white;text-decoration:none;color:#475569;font-weight:700;font-size:14px;transition:all 0.2s;">
+                    <div style="display:flex;align-items:center;gap:16px;">
+                        <i class="far fa-bell" style="font-size:16px;color:#64748b;"></i>
+                        Notification Settings
+                    </div>
+                    <i class="fas fa-chevron-right" style="font-size:12px;color:#cbd5e1;"></i>
+                </a>
+
+                <a href="#" style="display:flex;align-items:center;justify-content:space-between;padding:16px;border:1px solid #f1f5f9;border-radius:16px;background:white;text-decoration:none;color:#475569;font-weight:700;font-size:14px;transition:all 0.2s;">
+                    <div style="display:flex;align-items:center;gap:16px;">
+                        <i class="fas fa-info-circle" style="font-size:16px;color:#64748b;"></i>
+                        Help & Support
+                    </div>
+                    <i class="fas fa-chevron-right" style="font-size:12px;color:#cbd5e1;"></i>
+                </a>
+
+                <a href="{{ url_for('logout') }}" style="display:flex;align-items:center;justify-content:space-between;padding:16px;border:1px solid #fee2e2;border-radius:16px;background:#fff5f5;text-decoration:none;color:#ef4444;font-weight:800;font-size:14px;transition:all 0.2s;">
+                    <div style="display:flex;align-items:center;gap:16px;">
+                        <i class="fas fa-power-off" style="font-size:16px;"></i>
+                        Logout Account
+                    </div>
+                    <i class="fas fa-chevron-right" style="font-size:12px;color:#ef4444;"></i>
+                </a>
+
+            </div>
+        </div>
+    </div> <!-- END PROFILE TAB -->
+</div>
+
+<script>
+    function activateTab(tab) {
+        document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+        const contentEl = document.getElementById('content-' + tab);
+        if (contentEl) contentEl.style.display = 'block';
+    }
+
+    function selectVote(menuId, choice) {
+        document.getElementById('choice-' + menuId).value = choice;
+        document.getElementById('submit-btn-' + menuId).style.display = 'flex';
+
+        const yesBtn = document.getElementById('btn-yes-' + menuId);
+        const noBtn = document.getElementById('btn-no-' + menuId);
+        const reasonBox = document.getElementById('reason-box-' + menuId);
+
+        if (choice === 'Yes') {
+            yesBtn.style.background = 'var(--success)';
+            yesBtn.style.color = 'white';
+            yesBtn.style.borderColor = 'var(--success)';
+            noBtn.style.background = 'rgba(239,68,68,0.06)';
+            noBtn.style.color = 'var(--danger)';
+            noBtn.style.borderColor = 'rgba(239,68,68,0.3)';
+            reasonBox.style.display = 'none';
+        } else {
+            noBtn.style.background = 'var(--danger)';
+            noBtn.style.color = 'white';
+            noBtn.style.borderColor = 'var(--danger)';
+            yesBtn.style.background = 'rgba(16,185,129,0.06)';
+            yesBtn.style.color = 'var(--success)';
+            yesBtn.style.borderColor = 'rgba(16,185,129,0.3)';
+            reasonBox.style.display = 'block';
+            document.getElementById('reason-select-' + menuId).required = true;
+        }
+    }
+
+    function toggleOtherReason(menuId) {
+        const sel = document.getElementById('reason-select-' + menuId);
+        const otherInput = document.getElementById('reason-other-' + menuId);
+        const hiddenInput = document.getElementById('reason-' + menuId);
+        
+        if (sel.value === 'Other') {
+            otherInput.style.display = 'block';
+            otherInput.required = true;
+            hiddenInput.value = otherInput.value;
+        } else {
+            otherInput.style.display = 'none';
+            otherInput.required = false;
+            hiddenInput.value = sel.value;
+        }
+    }
+
+    function updateReasonField(menuId) {
+        if (document.getElementById('reason-select-' + menuId).value === 'Other') {
+            document.getElementById('reason-' + menuId).value = document.getElementById('reason-other-' + menuId).value;
+        }
+    }
+
+    let studentSessionId = 'student_' + Math.random().toString(36).substr(2, 9);
+    
+    // ===== VOTE LOGIC =====
+    function selectVote(menuId, choice) {
+        document.getElementById('choice-' + menuId).value = choice;
+        const btnYes = document.getElementById('btn-yes-' + menuId);
+        const btnNo = document.getElementById('btn-no-' + menuId);
+        const submitBtn = document.getElementById('submit-btn-' + menuId);
+        const reasonBox = document.getElementById('reason-box-' + menuId);
+
+        // Reset styling
+        btnYes.style.background = 'white';
+        btnYes.style.color = 'var(--success)';
+        btnYes.style.border = '1px solid rgba(16,185,129,0.4)';
+        
+        btnNo.style.background = 'white';
+        btnNo.style.color = 'var(--danger)';
+        btnNo.style.border = '1px solid rgba(239,68,68,0.4)';
+
+        if (choice === 'Yes') {
+            btnYes.style.background = 'var(--success)';
+            btnYes.style.color = 'white';
+            btnYes.style.border = 'none';
+            reasonBox.style.display = 'none';
+            // Clear reason
+            document.getElementById('reason-' + menuId).value = '';
+            document.querySelectorAll(`input[name="reason_radio_${menuId}"]`).forEach(r => r.checked = false);
+            document.getElementById('reason-other-' + menuId).style.display = 'none';
+            submitBtn.innerText = 'Submit';
+            submitBtn.style.display = 'block';
+        } else if (choice === 'No') {
+            btnNo.style.background = 'var(--danger)';
+            btnNo.style.color = 'white';
+            btnNo.style.border = 'none';
+            reasonBox.style.display = 'block';
+            submitBtn.innerText = 'Submit';
+            submitBtn.style.display = 'block';
+        }
+    }
+
+    function toggleOtherReason(menuId) {
+        const sel = document.getElementById('reason-select-' + menuId);
+        const otherInput = document.getElementById('reason-other-' + menuId);
+        const hiddenReason = document.getElementById('reason-' + menuId);
+        
+        if (sel.value === 'Other') {
+            otherInput.style.display = 'block';
+            hiddenReason.value = otherInput.value.trim();
+        } else {
+            otherInput.style.display = 'none';
+            hiddenReason.value = sel.value;
+        }
+    }
+
+    function updateReasonField(menuId) {
+        const otherInput = document.getElementById('reason-other-' + menuId);
+        document.getElementById('reason-' + menuId).value = otherInput.value.trim();
+    }
+
+    function setStudentPrompt(text) {
+        document.getElementById('student-chat-input').value = text;
+        sendStudentMsg();
+    }
+
+    async function sendStudentMsg() {
+        const input = document.getElementById('student-chat-input');
+        const text = input.value.trim();
+        if (!text) return;
+        const container = document.getElementById('student-chat-messages');
+
+        container.innerHTML += `<div style="display:flex;justify-content:flex-end;"><div style="background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;border-radius:12px 0 12px 12px;padding:10px 14px;max-width:80%;font-size:13px;">${text}</div></div>`;
+        input.value = '';
+        container.scrollTop = container.scrollHeight;
+
+        const typingId = 'typing-s-' + Date.now();
+        container.innerHTML += `
+            <div id="${typingId}" style="display:flex;align-items:flex-start;gap:8px;">
+                <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;color:white;font-size:10px;flex-shrink:0;"><i class="fas fa-robot"></i></div>
+                <div style="background:var(--input-bg);border:1px solid var(--border);border-radius:0 12px 12px 12px;padding:10px 14px;font-size:12px;color:var(--text-muted);font-style:italic;">Thinking...</div>
+            </div>`;
+        container.scrollTop = container.scrollHeight;
+
+        try {
+            const res = await fetch('/api/ai/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text, session_id: studentSessionId })
+            });
+            const data = await res.json();
+            document.getElementById(typingId)?.remove();
+            const parsed = typeof marked !== 'undefined' ? marked.parse(data.response) : data.response;
+            container.innerHTML += `
+                <div style="display:flex;align-items:flex-start;gap:8px;">
+                    <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;color:white;font-size:10px;flex-shrink:0;"><i class="fas fa-robot"></i></div>
+                    <div style="background:var(--input-bg);border:1px solid var(--border);border-radius:0 12px 12px 12px;padding:10px 14px;font-size:13px;color:var(--text-primary);max-width:85%;line-height:1.5;">${parsed}</div>
+                </div>`;
+            container.scrollTop = container.scrollHeight;
+        } catch (err) {
+            document.getElementById(typingId)?.remove();
+            container.innerHTML += `
+                <div style="display:flex;align-items:flex-start;gap:8px;">
+                    <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;color:white;font-size:10px;flex-shrink:0;"><i class="fas fa-robot"></i></div>
+                    <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15);border-radius:0 12px 12px 12px;padding:10px 14px;font-size:12px;color:var(--danger);">Sorry, I couldn't connect. Try again in a moment.</div>
+                </div>`;
+        }
+    }
+
+    async function submitStudentComplaint(e) {
+        e.preventDefault();
+        const cat = document.getElementById('comp-category').value;
+        const desc = document.getElementById('comp-description').value;
+        const btn = e.target.querySelector('button');
+        const st = document.getElementById('comp-status');
+        btn.disabled = true;
+
+        try {
+            const res = await fetch('/api/complaints', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ category: cat, description: desc })
+            });
+            const data = await res.json();
+            st.style.display = 'block';
+            st.style.color = 'var(--success)';
+            st.innerText = '✅ Complaint submitted and sent to Warden.';
+            e.target.reset();
+        } catch(err) {
+            st.style.display = 'block';
+            st.style.color = 'var(--danger)';
+            st.innerText = '❌ Failed to submit complaint.';
+        }
+        btn.disabled = false;
+        setTimeout(() => st.style.display='none', 4000);
+    }
+
+    async function submitStudentLeave(e) {
+        e.preventDefault();
+        const start = document.getElementById('leave-start').value;
+        const end = document.getElementById('leave-end').value;
+        const reason = document.getElementById('leave-reason').value;
+        const btn = e.target.querySelector('button');
+        const st = document.getElementById('leave-status');
+        btn.disabled = true;
+
+        try {
+            const res = await fetch('/api/leave', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ start_date: start, end_date: end, reason: reason })
+            });
+            const data = await res.json();
+            st.style.display = 'block';
+            st.style.color = 'var(--success)';
+            st.innerText = '✅ Leave requested. Waiting for Warden approval.';
+            e.target.reset();
+        } catch(err) {
+            st.style.display = 'block';
+            st.style.color = 'var(--danger)';
+            st.innerText = '❌ Failed to submit leave.';
+        }
+        btn.disabled = false;
+        setTimeout(() => st.style.display='none', 4000);
+    }
+
+    async function submitStudentFeedback(e, menuId) {
+        e.preventDefault();
+        const rating = document.getElementById('fb-rating-' + menuId).value;
+        const comment = document.getElementById('fb-comment-' + menuId).value;
+        const btn = e.target.querySelector('button');
+        const st = document.getElementById('fb-status-' + menuId);
+        btn.disabled = true;
+
+        try {
+            const res = await fetch('/api/feedback', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ menu_id: menuId, rating: rating, comments: comment })
+            });
+            st.style.display = 'block';
+            st.style.color = 'var(--success)';
+            st.innerText = '✅ Feedback saved!';
+            e.target.reset();
+        } catch(err) {
+            st.style.display = 'block';
+            st.style.color = 'var(--danger)';
+            st.innerText = '❌ Failed.';
+        }
+        btn.disabled = false;
+        setTimeout(() => st.style.display='none', 4000);
+    }
+    
+    async function submitVoteAjax(e, menuId) {
+        e.preventDefault();
+        const choice = document.getElementById('choice-' + menuId).value;
+        const reason = document.getElementById('reason-' + menuId).value;
+        const btn = document.getElementById('submit-btn-' + menuId);
+        const err = document.getElementById('vote-error-' + menuId);
+        
+        if (choice === 'No' && !reason) {
+            err.style.display = 'block';
+            err.innerText = "Please provide a reason for skipping.";
+            return;
+        }
+        
+        btn.disabled = true;
+        try {
+            const res = await fetch('/student/vote', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({menu_id: menuId, choice: choice, reason: reason})
+            });
+            const data = await res.json();
+            if (res.ok) {
+                document.getElementById('vote-form-' + menuId).style.display = 'none';
+                document.getElementById('vote-success-' + menuId).style.display = 'block';
+            } else {
+                err.style.display = 'block';
+                err.innerText = data.error || 'Failed to submit vote.';
+            }
+        } catch (e) {
+            err.style.display = 'block';
+            err.innerText = 'Network error.';
+        }
+        btn.disabled = false;
+    }
+    window.addEventListener('DOMContentLoaded', () => {
+        const tab = new URLSearchParams(window.location.search).get('tab');
+        if (tab && typeof switchTab === 'function') switchTab(tab);
+    });
+</script>
+{% endblock %}

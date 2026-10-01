@@ -1,0 +1,1689 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="fade-in">
+
+    <!-- ===== PAGE HEADER ===== -->
+    <div style="display:flex;flex-direction:column;margin-bottom:28px;padding:4px 0;">
+        <div style="font-size:13px;color:var(--text-secondary);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;" id="admin-date-header"></div>
+        <div style="font-size:24px;font-weight:800;color:var(--text-primary);margin-top:4px;letter-spacing:-0.5px;">
+            Good Morning, {{ current_user.username.split()[0] }}!
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const dateOpts = { weekday: 'long', month: 'short', day: 'numeric' };
+            const el = document.getElementById('admin-date-header');
+            if (el) el.innerText = new Date().toLocaleDateString('en-US', dateOpts);
+            
+            const hours = new Date().getHours();
+            let greeting = 'Good Morning';
+            if(hours >= 12 && hours < 17) greeting = 'Good Afternoon';
+            else if(hours >= 17) greeting = 'Good Evening';
+            
+            const titleEl = el.nextElementSibling;
+            if(titleEl) titleEl.innerText = `${greeting}, {{ current_user.username.split()[0] }} 👋`;
+        });
+    </script>
+
+    <style>
+        .dash-tab {
+            display:inline-flex;align-items:center;gap:6px;
+            padding:9px 16px;border-radius:10px;font-size:12px;font-weight:600;
+            color:var(--text-secondary);background:transparent;border:none;cursor:pointer;
+            transition:all 0.2s;white-space:nowrap;font-family:'Inter',sans-serif;
+        }
+        .dash-tab:hover { color:var(--text-primary);background:rgba(99,102,241,0.06); }
+        .active-tab {
+            background:var(--primary) !important;color:white !important;
+            box-shadow:0 1px 4px rgba(99,102,241,0.2);
+        }
+        .tab-content { display:none; }
+        .tab-content.block { display:block; }
+        .ml-card { border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px; }
+        .chat-bubble-ai  { background:var(--card-bg);border:1px solid var(--border);border-radius:0 14px 14px 14px;padding:12px 14px;max-width:86%;font-size:13px;color:var(--text-primary);line-height:1.6; }
+        .chat-bubble-user{ background:linear-gradient(135deg,#818cf8,#6366f1);color:#fff;border-radius:14px 0 14px 14px;padding:12px 14px;max-width:86%;font-size:13px;line-height:1.5; }
+        .prompt-chip {
+            padding:6px 14px;border-radius:100px;font-size:11px;font-weight:600;
+            background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.25);
+            color:var(--primary);cursor:pointer;white-space:nowrap;transition:all 0.15s;font-family:'Inter',sans-serif;
+        }
+        .prompt-chip:hover { background:rgba(99,102,241,0.2); }
+        .feedback-card {
+            background:var(--input-bg);border:1px solid var(--border);border-radius:12px;padding:14px;
+        }
+    </style>
+
+
+    <!-- ============================== DASHBOARD ============================== -->
+<div id="content-dashboard" class="tab-content block">
+    <div class="card" style="padding:48px;text-align:center;margin-top:20px;border-radius:24px;border:none;box-shadow:0 10px 40px rgba(0,0,0,0.05);background:white;">
+        <i class="fas fa-chart-pie" style="font-size:64px;color:var(--primary);margin-bottom:24px;"></i>
+        <h2 style="font-size:24px;font-weight:800;color:var(--text-primary);letter-spacing:-0.5px;">Dashboard</h2>
+        <p style="color:var(--text-secondary);margin-top:12px;font-size:15px;">Welcome to the Admin Dashboard. Select an option from the sidebar.</p>
+    </div>
+</div>
+
+<!-- ============================== TAB 1 — MENU PLANNING ============================== -->
+    <div id="content-menu" class="tab-content">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Publish form -->
+            <div class="card col-span-1 lg:col-span-1">
+                <div class="card-header">
+                    <div>
+                        <div class="section-title"><i class="fas fa-plus-circle" style="color:var(--primary);margin-right:6px;"></i>Publish New Menu</div>
+                        <div class="section-sub">Schedule a meal for students</div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('add_menu') }}" method="POST">
+                        <div class="form-group">
+                            <label class="form-label">Date</label>
+                            <input type="date" name="date" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Meal Type</label>
+                            <select name="meal_type" class="form-input">
+                                <option>Breakfast</option><option>Lunch</option><option>Snacks</option><option>Dinner</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Dishes (comma-separated)</label>
+                            <textarea name="items" rows="3" class="form-input" placeholder="e.g. Masala Dosa, Chutney, Sambhar" required></textarea>
+                        </div>
+                        <div class="form-group" style="margin-bottom:20px;">
+                            <label class="form-label">Event Type</label>
+                            <select name="event_type" class="form-input">
+                                <option>Normal</option><option>Festival</option><option>Holiday</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-primary" style="width:100%;justify-content:center;">
+                            <i class="fas fa-paper-plane"></i> Publish Menu
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+        </div> <!-- End grid -->
+    </div> <!-- End content-menu -->
+
+    <!-- ============================== WEEKLY MEAL CALENDAR ============================== -->
+    <div id="content-weekly" class="tab-content">
+        <div class="grid grid-cols-1 gap-6">
+            <!-- Published menus table (Image 14) -->
+            <div class="card col-span-1 lg:col-span-2" style="border-radius:12px;border:1px solid rgba(0,0,0,0.08);box-shadow:0 10px 40px rgba(0,0,0,0.05);overflow:hidden;">
+                <!-- Header Component -->
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid #f1f5f9;background:white;">
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <i class="fas fa-leaf" style="color:#16a34a;font-size:20px;"></i>
+                        <span style="font-size:16px;font-weight:700;color:#1e293b;">Weekly Menu</span>
+                    </div>
+                    <div style="display:flex;gap:14px;color:#64748b;font-size:13px;align-items:center;">
+                        <i class="fas fa-rotate" style="cursor:pointer;background:#f1f5f9;padding:6px;border-radius:50%;color:#1e293b;width:24px;height:24px;display:flex;justify-content:center;align-items:center;"></i>
+                        <div style="width:1px;height:16px;background:#cbd5e1;"></div>
+                        <i class="fas fa-user" style="cursor:pointer;color:#1e293b;background:#f1f5f9;padding:6px;border-radius:50%;width:24px;height:24px;display:flex;justify-content:center;align-items:center;"></i>
+                        <i class="fas fa-ellipsis-v" style="cursor:pointer;"></i>
+                    </div>
+                </div>
+                
+                <!-- Sub Header (Date Switch / Actions) -->
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 24px;background:white;border-bottom:1px solid #f1f5f9;">
+                    <div style="display:flex;align-items:center;gap:16px;font-size:13px;font-weight:700;color:#1e293b;background:#f8fafc;padding:8px 16px;border-radius:8px;border:1px solid #e2e8f0;cursor:pointer;">
+                        <i class="fas fa-chevron-left" style="color:#64748b;font-size:11px;"></i>
+                        <span>Apr 28 — May 4, 2025</span>
+                    </div>
+                    <div style="display:flex;gap:10px;">
+                        <button style="display:flex;align-items:center;gap:6px;background:#fff;border:1px solid #3b82f6;color:#3b82f6;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">
+                            <i class="fas fa-pencil-alt"></i> Save Draft
+                        </button>
+                        <button style="display:flex;align-items:center;gap:6px;background:#16a34a;border:none;color:white;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">
+                            <i class="fas fa-calendar-check"></i> Publish
+                        </button>
+                    </div>
+                </div>
+
+                <div style="overflow-x:auto;">
+                    <table class="data-table" style="width:100%;text-align:left;border-collapse:collapse;">
+                        <thead style="background:rgba(0,0,0,0.01);">
+                            <tr style="border-bottom:1px solid #e2e8f0;">
+                                <th style="padding:14px 20px;color:#475569;font-weight:700;font-size:12px;">Day</th>
+                                <th style="padding:14px 20px;color:#475569;font-weight:700;font-size:12px;">Breakfast</th>
+                                <th style="padding:14px 20px;color:#475569;font-weight:700;font-size:12px;">Lunch</th>
+                                <th style="padding:14px 20px;color:#475569;font-weight:700;font-size:12px;">Snacks</th>
+                                <th style="padding:14px 20px;color:#475569;font-weight:700;font-size:12px;">Dinner</th>
+                                <th style="padding:14px 20px;color:#475569;font-weight:700;font-size:12px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for date, items in weekly_menus | groupby('date') %}
+                            <tr style="border-bottom:1px solid #f1f5f9;background:white;transition:all 0.2s;">
+                                <td style="padding:16px 20px;vertical-align:top;">
+                                    <div style="display:flex;align-items:flex-start;gap:6px;">
+                                        <div style="display:flex;flex-direction:column;font-weight:800;color:#1e293b;margin-top:-2px;">
+                                            <span style="font-size:12px;line-height:1.2;">Day</span>
+                                            <span style="font-size:14px;line-height:1.2;">{{ date[-2:] }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                {% for meal in ['Breakfast', 'Lunch', 'Snacks', 'Dinner'] %}
+                                    {% set m = items | selectattr('meal_type', 'equalto', meal) | first %}
+                                    <td style="padding:16px 20px;vertical-align:middle;color:#475569;font-weight:500;font-size:12px;">
+                                        {% if m %}
+                                            {{ m.items | replace(',', ' • ') }}
+                                        {% else %}
+                                            <span style="color:#cbd5e1;">-</span>
+                                        {% endif %}
+                                    </td>
+                                {% endfor %}
+                                <td style="padding:16px 20px;vertical-align:middle;text-align:right;">
+                                    <button style="background:#e0f2fe;color:#0ea5e9;border:1px solid transparent;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+                                        <i class="fas fa-pencil-alt"></i> Edit
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% if not weekly_menus %}
+                            <tr>
+                                <td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted);font-size:13px;">No menus designed for this week.</td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        </div>
+    </div>
+    
+    <!-- ============================== AI MEAL ASSISTANT ============================== -->
+    <div id="content-aimenu" class="tab-content">
+        <!-- AI Meal Assistant Section (Image 13) -->
+        <div class="card" style="margin-top:24px;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,0.05);border:1px solid rgba(0,0,0,0.08);background:white;padding:20px;">
+            <!-- Header -->
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div style="width:36px;height:36px;background:#0ea5e9;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:18px;">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div style="font-size:16px;font-weight:800;color:#1e293b;">AI Meal Assistant</div>
+                </div>
+                <div style="display:flex;gap:12px;color:#64748b;font-size:14px;align-items:center;">
+                    <i class="fas fa-rotate-right" style="cursor:pointer;background:#f1f5f9;padding:6px;border-radius:50%;color:#1e293b;width:24px;height:24px;display:flex;justify-content:center;align-items:center;font-size:12px;"></i>
+                    <i class="fas fa-ellipsis-h" style="cursor:pointer;"></i>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Set Previous Menu -->
+                <div style="padding:20px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;display:flex;flex-direction:column;align-items:center;text-align:center;">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;width:100%;justify-content:flex-start;">
+                        <div style="width:24px;height:24px;border-radius:50%;border:1.5px solid #16a34a;color:#16a34a;display:flex;align-items:center;justify-content:center;font-size:10px;">
+                            <i class="fas fa-clock-rotate-left"></i>
+                        </div>
+                        <div style="font-weight:800;font-size:13px;color:#1e293b;">Set Previous Menu</div>
+                    </div>
+                    <div style="font-size:11px;color:#64748b;margin-bottom:16px;line-height:1.5;text-align:left;width:100%;">Copy the previous week's actual menu to a draft for quick setup without publishing.</div>
+                    <button onclick="aiMealAction('previous')" style="width:100%;justify-content:center;padding:12px;background:#0ea5e9;color:white;font-weight:700;font-size:13px;border-radius:100px;border:none;cursor:pointer;box-shadow:0 4px 12px rgba(14,165,233,0.3);">Set Previous Menu</button>
+                </div>
+                
+                <!-- Generate New Menu -->
+                <div style="padding:20px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;display:flex;flex-direction:column;align-items:center;text-align:center;">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;width:100%;justify-content:flex-start;">
+                        <div style="width:24px;height:24px;border-radius:50%;border:1.5px solid #16a34a;color:#16a34a;display:flex;align-items:center;justify-content:center;font-size:10px;">
+                            <i class="fas fa-wand-magic-sparkles"></i>
+                        </div>
+                        <div style="font-weight:800;font-size:13px;color:#1e293b;">Generate New Menu</div>
+                    </div>
+                    <div style="font-size:11px;color:#64748b;margin-bottom:16px;line-height:1.5;text-align:left;width:100%;">Create a suggested weekly menu based on AI analysis of student popularity and feedback.</div>
+                    <button onclick="aiMealAction('generate')" style="width:100%;justify-content:center;padding:12px;background:#0ea5e9;color:white;font-weight:700;font-size:13px;border-radius:100px;border:none;cursor:pointer;box-shadow:0 4px 12px rgba(14,165,233,0.3);">Generate New Menu</button>
+                </div>
+
+                <!-- Improve Previous Menu -->
+                <div style="padding:20px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;display:flex;flex-direction:column;align-items:center;text-align:center;">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;width:100%;justify-content:flex-start;">
+                        <div style="width:24px;height:24px;border-radius:50%;border:1.5px solid #16a34a;color:#16a34a;display:flex;align-items:center;justify-content:center;font-size:10px;">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div style="font-weight:800;font-size:13px;color:#1e293b;">Improve Previous Menu</div>
+                    </div>
+                    <div style="font-size:11px;color:#64748b;margin-bottom:16px;line-height:1.5;text-align:left;width:100%;">Analyze feedback on the previous menu and get AI suggestions for improvements and alternatives.</div>
+                    <button onclick="aiMealAction('improve')" style="width:100%;justify-content:center;padding:12px;background:#0ea5e9;color:white;font-weight:700;font-size:13px;border-radius:100px;border:none;cursor:pointer;box-shadow:0 4px 12px rgba(14,165,233,0.3);">Improve Menu</button>
+                </div>
+                
+                <!-- Menu Repetition Detector -->
+                <div style="padding:20px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;display:flex;flex-direction:column;align-items:center;text-align:center;">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;width:100%;justify-content:flex-start;">
+                        <div style="width:24px;height:24px;border-radius:50%;border:1.5px solid #16a34a;color:#16a34a;display:flex;align-items:center;justify-content:center;font-size:10px;">
+                            <i class="fas fa-rotate"></i>
+                        </div>
+                        <div style="font-weight:800;font-size:13px;color:#1e293b;">Menu Repetition Detector</div>
+                    </div>
+                    <div style="font-size:11px;color:#64748b;margin-bottom:16px;line-height:1.5;text-align:left;width:100%;">Identify repetitive dishes across the current cycle and get AI-suggested alternatives.</div>
+                    <button onclick="aiMealAction('repetition')" style="width:100%;justify-content:center;padding:12px;background:#0ea5e9;color:white;font-weight:700;font-size:13px;border-radius:100px;border:none;cursor:pointer;box-shadow:0 4px 12px rgba(14,165,233,0.3);">Check Repetition</button>
+                </div>
+            </div>
+
+            <!-- Chat input -->
+            <div style="margin-top:20px;border:1px solid #cbd5e1;border-radius:100px;padding:6px 6px 6px 20px;display:flex;align-items:center;background:white;box-shadow:inset 0 2px 4px rgba(0,0,0,0.02);">
+                <input type="text" placeholder="Need help? Ask the AI assistant..." style="flex:1;border:none;outline:none;font-size:13px;color:#475569;background:transparent;">
+                <button style="width:36px;height:36px;border-radius:50%;background:#16a34a;color:white;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 10px rgba(22,163,74,0.3);">
+                    <i class="fas fa-paper-plane" style="margin-left:-2px;font-size:12px;"></i>
+                </button>
+            </div>
+            
+            <!-- Output area for AI Meal actions -->
+            <div id="ai-meal-output" style="display:none;margin-top:20px;padding:16px;border-radius:12px;border:1px solid rgba(16,185,129,0.3);background:rgba(248,250,252,1);">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                    <div style="font-weight:700;font-size:13px;color:var(--success);display:flex;align-items:center;gap:6px;"><i class="fas fa-check-circle"></i> Result</div>
+                    <button onclick="document.getElementById('ai-meal-output').style.display='none'" style="background:none;border:none;color:var(--text-muted);cursor:pointer;"><i class="fas fa-times"></i></button>
+                </div>
+                <div id="ai-meal-content" style="font-size:13px;color:var(--text-primary);line-height:1.5;"></div>
+            </div>
+        </div>
+    </div>
+    <!-- ============================== TAB 5 — COMMUNICATION CENTER ============================== -->
+    <div id="content-comms" class="tab-content">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="card" style="border-radius:12px;border:1px solid rgba(0,0,0,0.08);box-shadow:0 10px 40px rgba(0,0,0,0.05);overflow:hidden;">
+                <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid #f1f5f9;">
+                    <div style="font-size:16px;font-weight:700;color:#1e293b;">New Announcement</div>
+                    <div style="display:flex;gap:16px;color:#64748b;font-size:14px;align-items:center;">
+                        <i class="fas fa-eye" style="cursor:pointer;"></i>
+                        <i class="fas fa-chevron-right" style="cursor:pointer;"></i>
+                        <i class="far fa-bell" style="cursor:pointer;"></i>
+                        <i class="fas fa-times" style="cursor:pointer;"></i>
+                    </div>
+                </div>
+                <div class="card-body" style="padding:24px;">
+                    <form id="announcement-form" action="/api/announcements/create" method="POST" style="display:flex;flex-direction:column;gap:16px;">
+                        <div>
+                            <label style="display:block;font-size:12px;font-weight:700;color:#1e293b;margin-bottom:6px;">Recipients</label>
+                            <div style="position:relative;">
+                                <i class="fas fa-users" style="position:absolute;left:12px;top:14px;color:#64748b;font-size:12px;"></i>
+                                <select name="recipients" class="form-input" style="width:100%;font-size:13px;padding:12px 12px 12px 34px;border-radius:8px;border:1px solid #cbd5e1;color:#1e293b;background:white;-webkit-appearance:none;background-image:url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23475569%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');background-repeat:no-repeat;background-position:right 12px top 50%;background-size:10px auto;">
+                                    <option>All Students</option>
+                                    <option>Specific Hostel</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label style="display:block;font-size:12px;font-weight:700;color:#1e293b;margin-bottom:6px;">Category</label>
+                            <select name="category" id="ann-category" class="form-input" style="width:100%;font-size:13px;padding:12px 14px;border-radius:8px;border:1px solid #cbd5e1;color:#1e293b;background:white;-webkit-appearance:none;background-image:url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23475569%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');background-repeat:no-repeat;background-position:right 12px top 50%;background-size:10px auto;">
+                                <option>General Announcement</option>
+                                <option>Menu Update</option>
+                                <option>Meal Timing Change</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label style="display:block;font-size:12px;font-weight:700;color:#1e293b;margin-bottom:6px;">Message</label>
+                            <textarea id="ann-message" name="message" class="form-input" rows="3" required placeholder="Tomorrow's lunch timing changed to 1 PM." style="width:100%;font-size:13px;padding:12px 14px;border-radius:8px;border:1px solid #cbd5e1;color:#1e293b;"></textarea>
+                        </div>
+                        
+                        <div>
+                            <button type="button" onclick="rewriteMessageWithAI()" style="background:#e0f2fe;color:#0284c7;border:1px solid #bae6fd;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+                                <i class="fas fa-wand-magic-sparkles"></i> Generate with AI
+                            </button>
+                        </div>
+
+                        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;">
+                            <div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:8px;">Message Preview</div>
+                            <div style="display:flex;gap:10px;align-items:flex-start;">
+                                <div style="color:#d97706;font-size:16px;margin-top:2px;"><i class="fas fa-bell"></i></div>
+                                <div>
+                                    <div style="font-size:13px;font-weight:700;color:#16a34a;margin-bottom:4px;">Lunch Timing Update</div>
+                                    <div style="font-size:12px;color:#475569;line-height:1.5;" id="ann-preview-text">Tomorrow's lunch will be served at 1:00 PM instead of the usual time. Please take note.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display:flex;gap:12px;margin-top:8px;">
+                            <button type="button" class="btn-secondary" style="flex:1;justify-content:center;padding:12px;font-size:14px;font-weight:700;background:white;color:#475569;border:1px solid #cbd5e1;border-radius:8px;">
+                                Save as Draft
+                            </button>
+                            <button type="submit" class="btn-primary" style="flex:1;justify-content:center;padding:12px;font-size:14px;font-weight:700;background:#16a34a;border:none;color:white;border-radius:8px;">
+                                Send
+                            </button>
+                        </div>
+                        <!-- Hidden title for backend compatibility -->
+                        <input type="hidden" name="title" id="ann-title" value="New Announcement">
+                    </form>
+                </div>
+            </div>
+
+            <div class="card">
+                 <div class="card-header">
+                    <div>
+                        <div class="section-title">Recent Announcements</div>
+                        <div class="section-sub">History of sent communications</div>
+                    </div>
+                </div>
+                <div class="card-body" style="max-height:400px;overflow-y:auto;" id="announcement-history">
+                    <!-- Loaded via JS -->
+                    <div style="text-align:center;color:var(--text-muted);font-size:13px;padding:20px;">No announcements found.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================== TAB X — STUDENT OPERATIONS ============================== -->
+    <div id="content-complaints" class="tab-content">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <!-- Complaints Module (Image 11) -->
+            <div class="card lg:col-span-2">
+                <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f1f5f9;padding:20px 24px;">
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <i class="fas fa-leaf" style="color:#16a34a;font-size:20px;"></i>
+                        <div style="font-size:16px;font-weight:700;color:#1e293b;">Complaint Management</div>
+                    </div>
+                    <div style="display:flex;gap:16px;">
+                        <select class="form-input" style="padding:8px 12px;border-radius:8px;font-size:13px;border:1px solid #cbd5e1;color:#475569;min-width:140px;background:white;-webkit-appearance:none;background-image:url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23475569%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');background-repeat:no-repeat;background-position:right 12px top 50%;background-size:10px auto;">
+                            <option>All Status</option>
+                            <option>Open</option>
+                            <option>In Progress</option>
+                            <option>Resolved</option>
+                        </select>
+                        <div style="position:relative;">
+                            <i class="fas fa-search" style="position:absolute;left:12px;top:10px;color:#cbd5e1;font-size:12px;"></i>
+                            <input type="text" placeholder="Search..." class="form-input" style="padding:8px 12px 8px 32px;border-radius:8px;font-size:13px;border:1px solid #cbd5e1;color:#475569;min-width:200px;">
+                        </div>
+                        <div style="display:flex;gap:12px;color:#64748b;align-items:center;margin-left:8px;">
+                            <button style="background:none;border:none;cursor:pointer;color:#64748b;"><i class="fas fa-filter"></i></button>
+                            <button style="background:none;border:none;cursor:pointer;color:#64748b;"><i class="fas fa-times"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="data-table" style="width:100%;text-align:left;border-collapse:collapse;">
+                        <thead>
+                            <tr style="border-bottom:1px solid #f1f5f9;color:#64748b;font-size:12px;">
+                                <th style="padding:16px 24px;font-weight:700;">Student</th>
+                                <th style="padding:16px 24px;font-weight:700;">Category</th>
+                                <th style="padding:16px 24px;font-weight:700;">Subject</th>
+                                <th style="padding:16px 24px;font-weight:700;">Status</th>
+                                <th style="padding:16px 24px;font-weight:700;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ops-complaints" style="font-size:13px;color:#334155;">
+                            <tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted);">Loading complaints...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div> 
+    </div>
+
+    <!-- ============================== LEAVE REQUESTS ============================== -->
+    <div id="content-leave" class="tab-content">
+        <div class="grid grid-cols-1 gap-6">
+            <!-- Leave Requests Module aligned to Image 9 -->
+            <div class="card lg:col-span-2">
+                <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f1f5f9;padding:20px 24px;">
+                    <div>
+                        <div style="font-size:16px;font-weight:700;color:#1e293b;">Leave Requests</div>
+                    </div>
+                    <div style="display:flex;gap:16px;">
+                        <select class="form-input" style="padding:8px 12px;border-radius:8px;font-size:13px;border:1px solid #cbd5e1;color:#475569;min-width:140px;">
+                            <option>All Status</option>
+                            <option>Pending</option>
+                            <option>Approved</option>
+                            <option>Rejected</option>
+                        </select>
+                        <div style="position:relative;">
+                            <i class="fas fa-search" style="position:absolute;left:12px;top:10px;color:#cbd5e1;font-size:12px;"></i>
+                            <input type="text" placeholder="Search students..." class="form-input" style="padding:8px 12px 8px 32px;border-radius:8px;font-size:13px;border:1px solid #cbd5e1;color:#475569;min-width:200px;">
+                        </div>
+                        <div style="display:flex;gap:12px;color:#64748b;align-items:center;margin-left:12px;">
+                            <button style="background:none;border:none;cursor:pointer;color:#64748b;"><i class="fas fa-fingerprint"></i></button>
+                            <button style="background:none;border:none;cursor:pointer;color:#64748b;"><i class="far fa-user"></i></button>
+                            <button style="background:none;border:none;cursor:pointer;color:#64748b;"><i class="fas fa-times"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="data-table" style="width:100%;text-align:left;border-collapse:collapse;">
+                        <thead>
+                            <tr style="border-bottom:1px solid #f1f5f9;color:#475569;font-size:12px;">
+                                <th style="padding:16px 24px;font-weight:700;">Student</th>
+                                <th style="padding:16px 24px;font-weight:700;">Leave Dates</th>
+                                <th style="padding:16px 24px;font-weight:700;">Type</th>
+                                <th style="padding:16px 24px;font-weight:700;">Reason</th>
+                                <th style="padding:16px 24px;font-weight:700;text-align:center;">Status</th>
+                                <th style="padding:16px 24px;font-weight:700;text-align:center;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ops-leave" style="font-size:13px;color:#334155;">
+                            <tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted);">Loading leave requests...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Pagination mock -->
+                <div style="padding:16px;display:flex;justify-content:center;gap:6px;border-top:1px solid #f1f5f9;">
+                    <button style="width:28px;height:28px;border-radius:4px;border:1px solid var(--primary);background:var(--primary);color:white;font-weight:700;font-size:12px;">1</button>
+                    <button style="width:28px;height:28px;border-radius:4px;border:1px solid #e2e8f0;background:white;color:#64748b;font-weight:700;font-size:12px;">2</button>
+                    <button style="width:28px;height:28px;border-radius:4px;border:1px solid #e2e8f0;background:white;color:#64748b;font-weight:700;font-size:12px;">3</button>
+                    <button style="width:28px;height:28px;border-radius:4px;border:1px solid #e2e8f0;background:white;color:#64748b;font-weight:700;font-size:12px;">4</button>
+                    <button style="width:32px;height:28px;border-radius:4px;border:1px solid #e2e8f0;background:white;color:#64748b;font-weight:700;font-size:12px;">30+</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ============================== TAB X — INVENTORY (Image 19) ============================== -->
+    <div id="content-inventory" class="tab-content" style="margin-top:24px;">
+        <div class="card" style="border-radius:24px;border:1px solid #e2e8f0;box-shadow:0 10px 40px rgba(0,0,0,0.05);background:white;padding:24px;">
+            
+            <!-- Header layout -->
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+                <div style="display:flex;align-items:center;gap:12px;font-size:18px;font-weight:800;color:#1e3a8a;">
+                    <i class="fas fa-bullseye" style="color:#94a3b8;font-size:16px;"></i> Ingredients Inventory
+                </div>
+                <div style="display:flex;align-items:center;gap:16px;color:#64748b;font-size:14px;">
+                    <i class="fas fa-list-ul" style="cursor:pointer;"></i>
+                    <i class="fas fa-times" style="cursor:pointer;"></i>
+                    <i class="far fa-user" style="cursor:pointer;"></i>
+                    <button style="background:#16a34a;color:white;border:none;padding:8px 20px;border-radius:100px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(22,163,74,0.3);">
+                        Add Item
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filter Controls -->
+            <div style="display:flex;gap:16px;margin-bottom:24px;">
+                <div style="border:1px solid #e2e8f0;border-radius:100px;padding:8px 16px;background:#f8fafc;display:flex;align-items:center;justify-content:space-between;gap:40px;color:#334155;font-size:13px;font-weight:600;min-width:200px;">
+                    <div style="display:flex;align-items:center;gap:8px;"><i class="fas fa-calendar-alt" style="color:#94a3b8;"></i> Apr 21 - Apr 27, 2025</div>
+                    <i class="fas fa-chevron-down" style="color:#94a3b8;font-size:10px;"></i>
+                </div>
+                <div style="border:1px solid #e2e8f0;border-radius:100px;padding:8px 16px;background:#f8fafc;display:flex;align-items:center;justify-content:space-between;gap:40px;color:#334155;font-size:13px;font-weight:600;min-width:200px;">
+                    <div>All Meals</div>
+                    <i class="fas fa-chevron-down" style="color:#94a3b8;font-size:10px;"></i>
+                </div>
+            </div>
+
+            <!-- Table UI -->
+            <div style="overflow-x:auto;">
+                <table style="width:100%;text-align:left;border-collapse:collapse;min-width:800px;">
+                    <thead>
+                        <tr style="border-bottom:1px solid #f1f5f9;color:#64748b;font-size:13px;font-weight:700;">
+                            <th style="padding:16px 8px;">Ingredient</th>
+                            <th style="padding:16px 8px;">Qty</th>
+                            <th style="padding:16px 8px;">Unit</th>
+                            <th style="padding:16px 8px;">Expiry</th>
+                            <th style="padding:16px 8px;">Status</th>
+                            <th style="padding:16px 8px;text-align:center;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-list" style="color:#1e293b;font-size:14px;font-weight:600;">
+                        <!-- JS Injected Rows -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Low Stock Alerts Box -->
+            <div style="margin-top:24px;border:1px solid #fecaca;border-radius:16px;padding:20px;background:#fff5f5;">
+                <div style="color:#dc2626;font-size:14px;font-weight:800;margin-bottom:16px;">Low Stock Alerts</div>
+                <div id="low-stock-alert-list" style="display:flex;flex-direction:column;gap:12px;">
+                    <!-- JS Injected Alerts -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ============================== TAB 2 — AI PREDICTION ============================== -->
+    <div id="content-ai" class="tab-content">
+        <div style="max-width:820px;margin:0 auto;">
+            <div class="card" style="margin-bottom:20px;">
+                <div class="card-header">
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <div class="icon-badge" style="background:rgba(99,102,241,0.1);color:var(--primary);">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div>
+                            <div class="section-title">Demand Predictor</div>
+                            <div class="section-sub">Input variables to calculate optimal food preparation quantity</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Live menu selector -->
+                    <div style="background:var(--input-bg);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:20px;">
+                        <label class="form-label" style="color:var(--primary);">⚡ Live: Auto-fill from Published Menu</label>
+                        <select id="menu-selector" onchange="autoFillMenu(this.value)" class="form-input" style="margin-top:2px;">
+                            <option value="">— Select a published menu to auto-fill —</option>
+                            {% for menu in menus[::-1] %}
+                                <option value="{{ menu.id }}">{{ menu.date }} | {{ menu.meal_type }} ({{ menu.items[:25] }}...)</option>
+                            {% endfor %}
+                        </select>
+                        <div id="live-indicator" style="display:none;margin-top:8px;font-size:11px;color:var(--success);font-weight:600;align-items:center;gap:6px;">
+                            <span style="width:7px;height:7px;background:var(--success);border-radius:50%;display:inline-block;animation:pulse-dot 1.5s infinite;"></span>
+                            Live monitoring student votes
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" style="margin-bottom:20px;">
+                        <div class="form-group" style="margin:0;">
+                            <label class="form-label">Day of the Week</label>
+                            <select id="pred-day" class="form-input">
+                                <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
+                                <option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin:0;">
+                            <label class="form-label">Meal Type</label>
+                            <select id="pred-meal" class="form-input">
+                                <option>Breakfast</option><option>Lunch</option><option>Snacks</option><option>Dinner</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin:0;">
+                            <label class="form-label">Event Type</label>
+                            <select id="pred-event" class="form-input">
+                                <option>Normal</option><option>Festival</option><option>Holiday</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin:0;">
+                            <label class="form-label">Student "Yes" Votes</label>
+                            <input type="number" id="pred-yes" value="0" class="form-input">
+                        </div>
+                        <div class="form-group" style="margin:0;">
+                            <label class="form-label">Guest Adjustments</label>
+                            <input type="number" id="pred-guest" value="0" class="form-input">
+                        </div>
+                    </div>
+                    <button onclick="runPrediction()" class="btn-primary" style="width:100%;justify-content:center;padding:13px;">
+                        <i class="fas fa-wand-magic-sparkles"></i> Generate AI Prediction
+                    </button>
+                </div>
+            </div>
+
+            <!-- Result card -->
+            <div id="prediction-result" style="display:none;" class="card">
+                <div style="padding:36px;text-align:center;">
+                    <div style="font-size:11px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">
+                        Recommended Preparation Quantity
+                    </div>
+                    <div id="result-val" style="font-size:64px;font-weight:900;color:var(--text-primary);letter-spacing:-3px;line-height:1;">0</div>
+                    <div style="font-size:20px;font-weight:500;color:var(--text-secondary);margin-top:2px;">kilograms</div>
+                    <p style="font-size:13px;color:var(--text-muted);margin-top:12px;">Based on historical data &amp; real-time student feedback.</p>
+                </div>
+            </div>
+
+            <!-- Model Evaluation Card -->
+            <div class="card" style="margin-top:20px;">
+                <div class="card-header" style="justify-content:space-between;">
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <div class="icon-badge" style="background:rgba(52,211,153,0.1);color:var(--success);">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div>
+                            <div class="section-title">Model Diagnostics</div>
+                            <div class="section-sub">XGBoost Evaluation Metrics</div>
+                        </div>
+                    </div>
+                    <button onclick="evaluateModel()" class="btn-primary" style="padding:8px 16px;">Run Eval</button>
+                </div>
+                <div class="card-body">
+                    <div id="eval-result" style="display:none;" class="grid grid-cols-3 gap-4 text-center mt-2">
+                        <div style="padding:12px;background:var(--input-bg);border-radius:12px;border:1px solid var(--border);">
+                            <div style="font-size:10px;color:var(--text-secondary);font-weight:700;text-transform:uppercase;margin-bottom:4px;">MAE</div>
+                            <div id="eval-mae" style="font-size:20px;font-weight:700;color:var(--text-primary);">0</div>
+                        </div>
+                        <div style="padding:12px;background:var(--input-bg);border-radius:12px;border:1px solid var(--border);">
+                            <div style="font-size:10px;color:var(--text-secondary);font-weight:700;text-transform:uppercase;margin-bottom:4px;">RMSE</div>
+                            <div id="eval-rmse" style="font-size:20px;font-weight:700;color:var(--text-primary);">0</div>
+                        </div>
+                        <div style="padding:12px;background:var(--input-bg);border-radius:12px;border:1px solid var(--border);">
+                            <div style="font-size:10px;color:var(--text-secondary);font-weight:700;text-transform:uppercase;margin-bottom:4px;">R²</div>
+                            <div id="eval-r2" style="font-size:20px;font-weight:700;color:var(--text-primary);">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ============================== TAB 3 — DISH ANALYTICS ============================== -->
+    <div id="content-analytics" class="tab-content">
+        <!-- AI Menu Insights (Image 16) -->
+        <div class="card" style="border-radius:24px;border:1px solid #e2e8f0;box-shadow:0 10px 40px rgba(0,0,0,0.05);overflow:hidden;background:#f8fafc;padding:24px;">
+            <!-- Header -->
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div style="width:48px;height:48px;border-radius:50%;background:#3b82f6;overflow:hidden;display:flex;justify-content:center;align-items:center;">
+                        <img src="https://ui-avatars.com/api/?name=AI&background=3b82f6&color=fff&size=48" style="width:100%;height:100%;object-fit:cover;" alt="AI Avatar">
+                    </div>
+                    <div style="font-size:18px;font-weight:800;color:#1e3a8a;">AI Menu Insights</div>
+                </div>
+                <div style="display:flex;gap:16px;color:#475569;font-size:14px;align-items:center;">
+                    <i class="fas fa-moon" style="cursor:pointer;"></i>
+                    <i class="fas fa-bolt" style="cursor:pointer;"></i>
+                    <i class="fas fa-home" style="cursor:pointer;"></i>
+                    <i class="fas fa-times" style="cursor:pointer;"></i>
+                </div>
+            </div>
+
+            <!-- Insights Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                <!-- Most Popular -->
+                <div style="background:white;border-radius:16px;padding:20px;border:1px solid #e2e8f0;box-shadow:0 4px 6px rgba(0,0,0,0.02);">
+                    <div style="font-weight:800;font-size:14px;color:#1e3a8a;margin-bottom:16px;">Most Popular Dishes</div>
+                    <ol style="margin:0;padding-left:20px;font-size:13px;color:#334155;line-height:2.2;font-weight:500;">
+                        <li>Rice</li>
+                        <li>Chapati</li>
+                        <li>Dosa</li>
+                        <li>Sambar</li>
+                        <li>Paneer</li>
+                    </ol>
+                </div>
+
+                <!-- Lower Attendance -->
+                <div style="background:white;border-radius:16px;padding:20px;border:1px solid #e2e8f0;box-shadow:0 4px 6px rgba(0,0,0,0.02);">
+                    <div style="font-weight:800;font-size:14px;color:#1e3a8a;margin-bottom:16px;">Lower Attendance Dishes</div>
+                    <ol style="margin:0;padding-left:20px;font-size:13px;color:#64748b;line-height:2.2;font-weight:500;">
+                        <li>Veg Biryani</li>
+                        <li>Brinjal Curry</li>
+                        <li>Cauliflower</li>
+                        <li>Lemon Rice</li>
+                        <li>Aloo Paratha</li>
+                    </ol>
+                </div>
+
+                <!-- Acceptance Trend Chart Mock -->
+                <div style="background:white;border-radius:16px;padding:20px;border:1px solid #e2e8f0;box-shadow:0 4px 6px rgba(0,0,0,0.02);">
+                    <div style="font-weight:800;font-size:14px;color:#1e3a8a;margin-bottom:16px;">Menu Acceptance Trend</div>
+                    <!-- Minimal CSS Mock of the Bar Chart from Image 16 -->
+                    <div style="display:flex;align-items:flex-end;gap:8px;height:120px;padding-top:10px;border-left:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;padding-left:10px;">
+                        <!-- Using inline styles to simulate stacked bars -->
+                        <div style="flex:1;background:#3b82f6;height:80%;border-radius:2px 2px 0 0;position:relative;"><div style="position:absolute;bottom:0;width:100%;height:40%;background:#10b981;"></div></div>
+                        <div style="flex:1;background:#3b82f6;height:95%;border-radius:2px 2px 0 0;position:relative;"><div style="position:absolute;bottom:0;width:100%;height:50%;background:#10b981;"></div></div>
+                        <div style="flex:1;background:#3b82f6;height:95%;border-radius:2px 2px 0 0;position:relative;"><div style="position:absolute;bottom:0;width:100%;height:60%;background:#10b981;"></div></div>
+                        <div style="flex:1;background:#3b82f6;height:65%;border-radius:2px 2px 0 0;position:relative;"><div style="position:absolute;bottom:0;width:100%;height:30%;background:#10b981;"></div></div>
+                        <div style="flex:1;background:#3b82f6;height:75%;border-radius:2px 2px 0 0;position:relative;"><div style="position:absolute;bottom:0;width:100%;height:45%;background:#10b981;"></div></div>
+                        <div style="flex:1;background:#3b82f6;height:85%;border-radius:2px 2px 0 0;position:relative;"><div style="position:absolute;bottom:0;width:100%;height:35%;background:#10b981;"></div></div>
+                        <div style="flex:1;background:#3b82f6;height:75%;border-radius:2px 2px 0 0;position:relative;"><div style="position:absolute;bottom:0;width:100%;height:55%;background:#10b981;"></div></div>
+                    </div>
+                </div>
+
+                <!-- Food Waste Donut Mock -->
+                <div style="background:white;border-radius:16px;padding:20px;border:1px solid #e2e8f0;box-shadow:0 4px 6px rgba(0,0,0,0.02);display:flex;flex-direction:column;">
+                    <div style="font-weight:800;font-size:14px;color:#1e3a8a;margin-bottom:16px;">Food Waste by Meal</div>
+                    <div style="display:flex;align-items:center;justify-content:center;gap:32px;flex:1;">
+                        <!-- Using CSS conic-gradient to simulate donut chart from image -->
+                        <div style="width:100px;height:100px;border-radius:50%;background:conic-gradient(#3b82f6 0% 12%, #10b981 12% 50%, #0ea5e9 50% 65%, #1d4ed8 65% 100%);position:relative;display:flex;justify-content:center;align-items:center;">
+                            <div style="width:60px;height:60px;background:white;border-radius:50%;"></div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;font-weight:600;color:#334155;">
+                            <div style="display:flex;align-items:center;gap:8px;"><div style="width:8px;height:8px;border-radius:50%;background:#3b82f6;"></div> Breakfast <span style="margin-left:auto;">12%</span></div>
+                            <div style="display:flex;align-items:center;gap:8px;"><div style="width:8px;height:8px;border-radius:50%;background:#10b981;"></div> Lunch <span style="margin-left:auto;">38%</span></div>
+                            <div style="display:flex;align-items:center;gap:8px;"><div style="width:8px;height:8px;border-radius:50%;background:#0ea5e9;"></div> Snacks <span style="margin-left:auto;">15%</span></div>
+                            <div style="display:flex;align-items:center;gap:8px;"><div style="width:8px;height:8px;border-radius:50%;background:#1d4ed8;"></div> Dinner <span style="margin-left:auto;">35%</span></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <button style="width:100%;margin-top:24px;background:#16a34a;color:white;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(22,163,74,0.3);">
+                View Detailed Analysis
+            </button>
+        </div>
+    </div>
+
+
+    <!-- ============================== TAB 4 — CONSUMPTION & WASTE ============================== -->
+    <div id="content-waste" class="tab-content">
+        <!-- KPI row -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="kpi-card">
+                <div>
+                    <div class="kpi-label">Total Prepared</div>
+                    <div class="kpi-value" style="color:var(--text-primary);">{{ total_prepared }}<span style="font-size:16px;font-weight:600;color:var(--text-secondary);"> kg</span></div>
+                </div>
+                <div class="kpi-icon" style="background:rgba(99,102,241,0.12);color:var(--primary);"><i class="fas fa-scale-balanced"></i></div>
+            </div>
+            <div class="kpi-card">
+                <div>
+                    <div class="kpi-label">Total Wastage</div>
+                    <div class="kpi-value" style="color:var(--danger);">{{ total_wastage }}<span style="font-size:16px;font-weight:600;color:var(--text-secondary);"> kg</span></div>
+                </div>
+                <div class="kpi-icon" style="background:rgba(239,68,68,0.12);color:var(--danger);"><i class="fas fa-trash-can"></i></div>
+            </div>
+            <div class="kpi-card">
+                <div>
+                    <div class="kpi-label">Avg Waste Rate</div>
+                    <div class="kpi-value" style="color:var(--warning);">{{ avg_waste_pct }}<span style="font-size:16px;font-weight:600;color:var(--text-secondary);">%</span></div>
+                </div>
+                <div class="kpi-icon" style="background:rgba(245,158,11,0.12);color:var(--warning);"><i class="fas fa-percent"></i></div>
+            </div>
+            <div class="kpi-card">
+                <div>
+                    <div class="kpi-label">Financial Loss</div>
+                    <div class="kpi-value" style="color:var(--danger);">₹{{ total_loss }}</div>
+                </div>
+                <div class="kpi-icon" style="background:rgba(239,68,68,0.12);color:var(--danger);"><i class="fas fa-indian-rupee-sign"></i></div>
+            </div>
+        </div>
+
+        <!-- Record + Chart -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <div class="card col-span-1">
+                <div class="card-header">
+                    <div>
+                        <div class="section-title"><i class="fas fa-clipboard-check" style="color:var(--primary);margin-right:6px;"></i>Record Consumption</div>
+                        <div class="section-sub">Log actual meal quantities</div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('record_consumption') }}" method="POST">
+                        <div class="form-group">
+                            <label class="form-label">Meal Instance</label>
+                            <select name="menu_id" class="form-input" required>
+                                <option value="">— Choose Meal —</option>
+                                {% for menu in menus[::-1] %}
+                                    <option value="{{ menu.id }}">{{ menu.date }} | {{ menu.meal_type }} ({{ menu.items[:22] }}...)</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Prepared Quantity (kg)</label>
+                            <input type="number" step="0.1" name="prepared_qty" placeholder="e.g. 150.0" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Consumed Quantity (kg)</label>
+                            <input type="number" step="0.1" name="consumed_qty" placeholder="e.g. 132.5" class="form-input" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom:20px;">
+                            <label class="form-label">Unit Cost per kg (₹)</label>
+                            <input type="number" step="0.5" name="cost_per_unit" value="80" class="form-input" required>
+                        </div>
+                        <button type="submit" class="btn-primary" style="width:100%;justify-content:center;">
+                            <i class="fas fa-floppy-disk"></i> Compute &amp; Save
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card lg:col-span-2">
+                <div class="card-header">
+                    <div>
+                        <div class="section-title">Meal Prepared vs Consumed Trends</div>
+                        <div class="section-sub">Visualizing food quantity discrepancies over time</div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div style="position:relative;height:260px;">
+                        <canvas id="wasteTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logs + Recommendations -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <div class="card lg:col-span-2">
+                <div class="card-header">
+                    <div class="section-title">Wastage Logging History</div>
+                    <span class="badge badge-danger">{{ consumption_logs|length }} Records</span>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>Meal Info</th><th>Dishes</th><th style="text-align:center;">Prepared / Eaten</th><th style="text-align:center;">Wastage</th><th style="text-align:right;">Cost Loss</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for log in consumption_logs %}
+                            <tr>
+                                <td>
+                                    <div style="font-weight:700;font-size:13px;">{{ log.menu.date }}</div>
+                                    <div style="font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;">{{ log.menu.meal_type }}</div>
+                                </td>
+                                <td style="color:var(--text-secondary);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ log.menu.items }}">{{ log.menu.items }}</td>
+                                <td style="text-align:center;">
+                                    <span style="font-weight:700;color:var(--primary);">{{ log.prepared_qty }} kg</span>
+                                    <span style="color:var(--text-muted);font-size:11px;"> / {{ log.consumed_qty }} kg</span>
+                                </td>
+                                <td style="text-align:center;">
+                                    <span class="badge {% if log.wastage_percent > 25 %}badge-danger{% elif log.wastage_percent > 10 %}badge-warning{% else %}badge-success{% endif %}">
+                                        {{ log.wastage_qty }} kg ({{ log.wastage_percent }}%)
+                                    </span>
+                                </td>
+                                <td style="text-align:right;font-weight:700;color:var(--danger);">₹{{ log.total_loss }}</td>
+                            </tr>
+                            {% endfor %}
+                            {% if not consumption_logs %}
+                            <tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px;">No consumption logs yet.</td></tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card col-span-1">
+                <div class="card-header">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div class="icon-badge" style="background:rgba(245,158,11,0.1);color:var(--warning);">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <div>
+                            <div class="section-title">Waste Minimization</div>
+                            <div class="section-sub">Rule-based alerts</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body" style="overflow-y:auto;max-height:360px;display:flex;flex-direction:column;gap:10px;">
+                    {% for rec in active_recommendations %}
+                    <div style="background:var(--input-bg);border:1px solid var(--border);border-radius:12px;padding:14px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                            <span class="badge badge-warning">{{ rec.meal_type }}</span>
+                            <span style="font-size:11px;color:var(--text-secondary);">{{ rec.date }}</span>
+                        </div>
+                        <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ rec.items }}">{{ rec.items }}</div>
+                        <p style="font-size:12px;color:var(--text-secondary);font-style:italic;line-height:1.5;">"{{ rec.text }}"</p>
+                    </div>
+                    {% endfor %}
+                    {% if not active_recommendations %}
+                    <div style="text-align:center;padding:40px 20px;">
+                        <div style="width:48px;height:48px;background:rgba(16,185,129,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;color:var(--success);font-size:20px;">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div style="font-weight:700;color:var(--text-primary);font-size:13px;">Perfect Scaling!</div>
+                        <div style="color:var(--text-secondary);font-size:12px;margin-top:4px;">No high-wastage alerts detected.</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ============================== TAB 5 — AI ASSISTANT ============================== -->
+    <div id="content-agent" class="tab-content">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
+            <!-- AI Chat Panel -->
+            <div class="card lg:col-span-5 flex flex-col" style="height:720px;">
+                <div class="card-header">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div class="icon-badge" style="background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div>
+                            <div class="section-title">WasteZero AI Assistant</div>
+                            <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--success);font-weight:600;margin-top:2px;">
+                                <span style="width:6px;height:6px;background:var(--success);border-radius:50%;display:inline-block;animation:pulse-dot 1.5s infinite;"></span>
+                                Active NLP Engine
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="clearAdminChat()" class="btn-secondary" style="font-size:11px;padding:6px 10px;">
+                        <i class="fas fa-trash-can"></i> Clear
+                    </button>
+                </div>
+
+                <!-- Quick prompts -->
+                <div style="padding:12px 16px;display:flex;gap:6px;overflow-x:auto;border-bottom:1px solid var(--border);">
+                    <button onclick="sendAdminPrompt('What is the waste percentage today?')" class="prompt-chip">📊 Today's Waste</button>
+                    <button onclick="sendAdminPrompt('Generate weekly report')" class="prompt-chip">📋 Weekly Report</button>
+                    <button onclick="sendAdminPrompt('Predict future waste')" class="prompt-chip">🔮 Forecast</button>
+                    <button onclick="sendAdminPrompt('Top student complaints')" class="prompt-chip">📝 Complaints</button>
+                </div>
+
+                <!-- Messages -->
+                <div id="admin-chat-messages" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;background:var(--body-bg);">
+                    <div style="display:flex;align-items:flex-start;gap:10px;">
+                        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-dark));display:flex;align-items:center;justify-content:center;color:white;font-size:12px;flex-shrink:0;">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="chat-bubble-ai">
+                            <p style="font-weight:700;margin-bottom:4px;">👋 Hello, Admin!</p>
+                            <p>I'm your WasteZero AI assistant. I can analyze waste statistics, spot anomalies, forecast trends, and generate reports.</p>
+                            <p style="margin-top:8px;font-size:12px;color:var(--primary);font-weight:600;">How can I assist you today?</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input -->
+                <div style="padding:14px 16px;border-top:1px solid var(--border);display:flex;gap:8px;background:var(--card-bg);">
+                    <input type="text" id="admin-chat-input" placeholder="Ask about waste trends, reports, anomalies..."
+                        onkeypress="if(event.key==='Enter') sendAdminMessage()"
+                        class="form-input" style="flex:1;">
+                    <button onclick="sendAdminMessage()" class="btn-primary" style="padding:10px 18px;">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right column -->
+            <div class="lg:col-span-7" style="display:flex;flex-direction:column;gap:20px;">
+                <!-- ML Insights -->
+                <div class="card">
+                    <div class="card-header">
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <div class="icon-badge" style="background:rgba(139,92,246,0.1);color:#a78bfa;">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <div>
+                                <div class="section-title">AI Machine Learning Insights</div>
+                                <div class="section-sub">Autonomous signals from live database logs</div>
+                            </div>
+                        </div>
+                        <button onclick="loadAIInsights()" class="btn-secondary" style="font-size:11px;padding:6px 12px;">
+                            <i class="fas fa-rotate"></i> Refresh
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                            <div class="ml-card" style="background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.15);">
+                                <span style="font-size:10px;font-weight:700;color:var(--danger);text-transform:uppercase;letter-spacing:0.5px;">Anomaly Scanner</span>
+                                <div style="font-size:13px;font-weight:700;color:var(--text-primary);" id="anomaly-summary-title">Scanning...</div>
+                                <p style="font-size:11px;color:var(--text-secondary);line-height:1.5;" id="anomaly-summary-text">Loading...</p>
+                            </div>
+                            <div class="ml-card" style="background:rgba(139,92,246,0.05);border:1px solid rgba(139,92,246,0.15);">
+                                <span style="font-size:10px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:0.5px;">Pattern Profiler</span>
+                                <div style="font-size:13px;font-weight:700;color:var(--text-primary);" id="cluster-summary-title">3 Meal Patterns</div>
+                                <p style="font-size:11px;color:var(--text-secondary);line-height:1.5;" id="cluster-summary-text">Categorizing meals...</p>
+                            </div>
+                            <div class="ml-card" style="background:rgba(6,182,212,0.05);border:1px solid rgba(6,182,212,0.15);">
+                                <span style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;">Forecast Engine</span>
+                                <div style="font-size:13px;font-weight:700;color:var(--text-primary);" id="forecast-summary-title">Waste Forecast</div>
+                                <p style="font-size:11px;color:var(--text-secondary);line-height:1.5;" id="forecast-summary-text">Computing trend...</p>
+                            </div>
+                        </div>
+
+                        <div style="background:var(--input-bg);border:1px solid var(--border);border-radius:12px;padding:14px;">
+                            <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:10px;display:flex;align-items:center;gap:6px;">
+                                <i class="fas fa-lightbulb" style="color:var(--warning);"></i> Actionable Recommendations
+                            </div>
+                            <div id="agent-recommendations-list" style="display:flex;flex-direction:column;gap:8px;max-height:150px;overflow-y:auto;">
+                                <p style="text-align:center;color:var(--text-muted);font-size:12px;padding:16px 0;">Loading smart recommendations...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reports Generator -->
+                <div class="card" style="flex:1;">
+                    <div class="card-header">
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <div class="icon-badge" style="background:rgba(99,102,241,0.1);color:var(--primary);">
+                                <i class="fas fa-file-lines"></i>
+                            </div>
+                            <div>
+                                <div class="section-title">Automated Executive Reports</div>
+                                <div class="section-sub">Generate comprehensive AI reports in 1 click</div>
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:6px;">
+                            <button onclick="generateReport('daily')" class="btn-secondary" style="font-size:11px;padding:7px 12px;">+ Daily</button>
+                            <button onclick="generateReport('weekly')" class="btn-primary" style="font-size:11px;padding:7px 12px;box-shadow:none;">+ Weekly</button>
+                            <button onclick="generateReport('monthly')" style="display:inline-flex;align-items:center;gap:6px;padding:7px 12px;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:white;border-radius:8px;font-size:11px;font-weight:600;border:none;cursor:pointer;transition:all 0.2s;font-family:'Inter',sans-serif;">+ Monthly</button>
+                        </div>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table class="data-table">
+                            <thead><tr><th>Report Title</th><th>Scope</th><th>Generated At</th><th style="text-align:right;">Action</th></tr></thead>
+                            <tbody id="reports-table-body">
+                                {% for r in ai_reports %}
+                                <tr>
+                                    <td style="font-weight:600;font-size:13px;">{{ r.title }}</td>
+                                    <td><span class="badge badge-primary">{{ r.period }}</span></td>
+                                    <td style="color:var(--text-muted);font-size:12px;">{{ r.generated_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td style="text-align:right;">
+                                        <button onclick="viewReport({{ r.id }})" class="btn-primary" style="font-size:11px;padding:6px 14px;box-shadow:none;">
+                                            <i class="fas fa-eye"></i> View
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% if not ai_reports %}
+                                <tr id="no-reports-row">
+                                    <td colspan="4" style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px;">No reports yet. Click a button above to generate.</td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ============================== REPORT MODAL ============================== -->
+    <div id="report-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);z-index:999;align-items:center;justify-content:center;padding:20px;">
+        <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:20px;max-width:760px;width:100%;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 25px 60px rgba(0,0,0,0.5);overflow:hidden;" class="fade-in">
+            <div style="padding:20px 24px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;display:flex;justify-content:space-between;align-items:center;">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <i class="fas fa-file-lines" style="font-size:20px;"></i>
+                    <div>
+                        <div style="font-weight:700;font-size:16px;" id="modal-report-title">Report</div>
+                        <div style="font-size:11px;opacity:0.75;" id="modal-report-date"></div>
+                    </div>
+                </div>
+                <button onclick="closeReportModal()" style="background:transparent;border:none;color:rgba(255,255,255,0.8);font-size:20px;cursor:pointer;padding:4px;">
+                    <i class="fas fa-xmark"></i>
+                </button>
+            </div>
+            <div id="modal-report-content" style="padding:28px;overflow-y:auto;flex:1;font-size:13px;line-height:1.7;color:var(--text-primary);">Loading report...</div>
+            <div style="padding:14px 24px;background:var(--input-bg);border-top:1px solid var(--border);display:flex;justify-content:flex-end;">
+                <button onclick="closeReportModal()" class="btn-secondary">Close</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Responsive fix -->
+<style>
+@media (max-width: 768px) {
+    .dash-tab { padding: 8px 12px; font-size: 11px; }
+    .card-header, .card-body { padding: 16px; }
+    .data-table tbody td { padding: 10px; font-size: 12px; }
+}
+</style>
+
+<script>
+    /* ===== TAB SWITCHER (Sidebar Integration) ===== */
+    function activateTab(tab) {
+        document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+        
+        // Map sidebar tab ids to content section ids
+        let contentId;
+        switch(tab) {
+            case 'overview': contentId = 'content-waste'; break; // Use Waste as overview for now
+            case 'menu': contentId = 'content-menu'; break;
+            case 'ai': contentId = 'content-ai'; break;
+            case 'ops': contentId = 'content-ops'; break;
+            case 'inventory': contentId = 'content-inventory'; break;
+            case 'comms': contentId = 'content-comms'; break;
+            case 'agent': contentId = 'content-agent'; break;
+            default: contentId = 'content-' + tab;
+        }
+        
+        const contentEl = document.getElementById(contentId);
+        if (contentEl) contentEl.style.display = 'block';
+
+        if (contentId === 'content-analytics' || contentId === 'content-waste') loadWasteAnalytics();
+        if (contentId === 'content-comms') fetchAnnouncements();
+        if (contentId === 'content-ops') fetchOperationsData();
+        if (contentId === 'content-inventory') fetchInventory();
+        if (contentId === 'content-agent') { loadAIInsights(); loadAIReports(); }
+    }
+    
+    // Initial Load setup (triggered from layout.html or by default)
+    document.addEventListener('DOMContentLoaded', () => {
+        // Defaults to 'waste' which acts as overview
+        document.getElementById('content-waste').style.display = 'block';
+        loadWasteAnalytics(); 
+    });
+
+    async function aiMealAction(actionType) {
+        const outDiv = document.getElementById('ai-meal-output');
+        const contentDiv = document.getElementById('ai-meal-content');
+        
+        outDiv.style.display = 'block';
+        contentDiv.innerHTML = '<div style="display:flex;align-items:center;gap:8px;"><i class="fas fa-spinner fa-spin" style="color:var(--primary);"></i> AI is processing your request...</div>';
+        
+        try {
+            const res = await fetch('/api/ai_meal_assistant', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ action: actionType })
+            });
+            const data = await res.json();
+            
+            if (data.error) {
+                contentDiv.innerHTML = `<span style="color:var(--danger);"><i class="fas fa-circle-xmark" style="margin-right:6px;"></i>${data.error}</span>`;
+            } else {
+                contentDiv.innerHTML = marked.parse(data.result);
+            }
+        } catch (e) {
+            contentDiv.innerHTML = `<span style="color:var(--danger);"><i class="fas fa-circle-exclamation" style="margin-right:6px;"></i>Connection error. Please try again later.</span>`;
+        }
+    }
+
+    /* ===== COMMUNICATION CENTER ===== */
+    async function fetchAnnouncements() {
+        const container = document.getElementById('announcement-history');
+        try {
+            const res = await fetch('/api/announcements');
+            const data = await res.json();
+            if (data.error || data.length === 0) {
+                container.innerHTML = `<div style="text-align:center;color:var(--text-muted);font-size:13px;padding:20px;">No announcements found.</div>`;
+                return;
+            }
+            container.innerHTML = data.map(ann => `
+                <div style="border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:12px;last-child{border-bottom:none;}">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                        <span style="font-weight:700;color:var(--text-primary);">${ann.title}</span>
+                        <span style="font-size:11px;color:var(--text-muted);">${ann.created_at}</span>
+                    </div>
+                    <div style="margin-bottom:6px;"><span class="badge badge-primary">${ann.category}</span></div>
+                    <p style="font-size:13px;color:var(--text-secondary);">${ann.message}</p>
+                </div>
+            `).join('');
+        } catch (e) {
+            container.innerHTML = `<div style="text-align:center;color:var(--danger);font-size:13px;padding:20px;">Failed to load history.</div>`;
+        }
+    }
+
+    async function rewriteMessageWithAI() {
+        const title = document.getElementById('ann-title').value;
+        const msg = document.getElementById('ann-message').value;
+        if (!msg) { alert("Please write a draft in the Message box first."); return; }
+        
+        try {
+            document.getElementById('ann-message').value = "AI is rewriting your message safely...";
+            const res = await fetch('/api/announcements/ai-rewrite', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ draft: msg, title: title })
+            });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('ann-message').value = data.rewritten;
+            } else {
+                alert(data.error || "Failed to rewrite");
+                document.getElementById('ann-message').value = msg;
+            }
+        } catch (e) {
+            alert("Error connecting to AI assistant.");
+            document.getElementById('ann-message').value = msg;
+        }
+    }
+
+    // Submit Announcement Event Intercept
+    document.getElementById('announcement-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const data = new FormData(this);
+        const btn = this.querySelector('button[type="submit"]');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+        btn.disabled = true;
+        try {
+            const res = await fetch(this.action, {
+                method: 'POST',
+                body: data
+            });
+            const result = await res.json();
+            if (result.success) {
+                alert('Announcement successfully sent to all students.');
+                this.reset();
+                fetchAnnouncements();
+            } else {
+                alert(result.error || 'Failed to send announcement');
+            }
+        } catch (e) {
+            alert('Network error while sending.');
+        } finally {
+             btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Announcement';
+             btn.disabled = false;
+        }
+    });
+
+    /* Init first tab */
+    document.getElementById('content-menu').style.display = 'block';
+
+    /* ===== MODEL EVAL ===== */
+    async function evaluateModel() {
+        const resultDiv = document.getElementById('eval-result');
+        document.getElementById('eval-mae').innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        document.getElementById('eval-rmse').innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        document.getElementById('eval-r2').innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        resultDiv.style.display = 'grid';
+        
+        try {
+            const res = await fetch('/api/predict/evaluate');
+            const data = await res.json();
+            if (data.error) { alert(data.error); resultDiv.style.display = 'none'; return; }
+            document.getElementById('eval-mae').innerText = data.mae;
+            document.getElementById('eval-rmse').innerText = data.rmse;
+            document.getElementById('eval-r2').innerText = data.r2 || 'N/A';
+        } catch(e) { alert('Failed to evaluate model'); resultDiv.style.display = 'none'; }
+    }
+
+    /* ===== CHAT ===== */
+    let adminSessionId = 'admin_' + Math.random().toString(36).substr(2, 9);
+
+    function sendAdminPrompt(text) {
+        document.getElementById('admin-chat-input').value = text;
+        sendAdminMessage();
+    }
+
+    function clearAdminChat() {
+        document.getElementById('admin-chat-messages').innerHTML = `
+            <div style="display:flex;align-items:flex-start;gap:10px;">
+                <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-dark));display:flex;align-items:center;justify-content:center;color:white;font-size:12px;flex-shrink:0;"><i class="fas fa-robot"></i></div>
+                <div class="chat-bubble-ai"><p style="font-weight:700;margin-bottom:4px;">Chat cleared!</p><p>How can I assist you now?</p></div>
+            </div>`;
+        adminSessionId = 'admin_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    async function sendAdminMessage() {
+        const input = document.getElementById('admin-chat-input');
+        const text = input.value.trim();
+        if (!text) return;
+        const container = document.getElementById('admin-chat-messages');
+
+        container.innerHTML += `<div style="display:flex;justify-content:flex-end;"><div class="chat-bubble-user">${text}</div></div>`;
+        input.value = '';
+        container.scrollTop = container.scrollHeight;
+
+        const typingId = 'typing-' + Date.now();
+        container.innerHTML += `
+            <div id="${typingId}" style="display:flex;align-items:flex-start;gap:10px;">
+                <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-dark));display:flex;align-items:center;justify-content:center;color:white;font-size:12px;flex-shrink:0;"><i class="fas fa-robot"></i></div>
+                <div class="chat-bubble-ai" style="font-size:12px;color:var(--text-muted);font-style:italic;">Working on it...</div>
+            </div>`;
+        container.scrollTop = container.scrollHeight;
+
+        try {
+            const res = await fetch('/api/ai/chat', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ message: text, session_id: adminSessionId }) });
+            const data = await res.json();
+            document.getElementById(typingId)?.remove();
+            const parsed = typeof marked !== 'undefined' ? marked.parse(data.response) : data.response;
+            container.innerHTML += `
+                <div style="display:flex;align-items:flex-start;gap:10px;">
+                    <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-dark));display:flex;align-items:center;justify-content:center;color:white;font-size:12px;flex-shrink:0;"><i class="fas fa-robot"></i></div>
+                    <div class="chat-bubble-ai">${parsed}</div>
+                </div>`;
+            container.scrollTop = container.scrollHeight;
+        } catch(err) {
+            document.getElementById(typingId)?.remove();
+            container.innerHTML += `
+                <div style="display:flex;align-items:flex-start;gap:10px;">
+                    <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-dark));display:flex;align-items:center;justify-content:center;color:white;font-size:12px;flex-shrink:0;"><i class="fas fa-robot"></i></div>
+                    <div class="chat-bubble-ai" style="border-color:rgba(239,68,68,0.2);color:var(--danger);">Error fetching AI response. Please try again.</div>
+                </div>`;
+        }
+    }
+
+    /* ===== AI INSIGHTS ===== */
+    async function loadAIInsights() {
+        try {
+            const res = await fetch('/api/ai/insights');
+            const data = await res.json();
+            const anom = data.anomalies;
+            if (anom?.anomalies) {
+                document.getElementById('anomaly-summary-title').innerText = `${anom.anomalies.length} Anomalies Found`;
+                document.getElementById('anomaly-summary-text').innerText = anom.summary;
+            }
+            if (data.clusters) {
+                document.getElementById('cluster-summary-title').innerText = 'Meal Profiles (3 Groups)';
+                document.getElementById('cluster-summary-text').innerText = data.clusters.summary;
+            }
+            if (data.forecast) {
+                document.getElementById('forecast-summary-title').innerText = `Trend: ${data.forecast.trend_direction || 'Stable'}`;
+                document.getElementById('forecast-summary-text').innerText = data.forecast.summary;
+            }
+            const recs = data.recommendations || [];
+            const recsContainer = document.getElementById('agent-recommendations-list');
+            if (recs.length > 0) {
+                recsContainer.innerHTML = recs.map(r => `
+                    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;align-items:flex-start;gap:8px;font-size:12px;">
+                        <span style="font-size:15px;flex-shrink:0;">${r.icon}</span>
+                        <div><div style="font-weight:700;color:var(--text-primary);margin-bottom:2px;">${r.title}</div><p style="color:var(--text-secondary);">${r.text}</p></div>
+                    </div>`).join('');
+            } else {
+                recsContainer.innerHTML = `<p style="text-align:center;color:var(--text-muted);font-size:12px;padding:12px 0;">No active recommendations.</p>`;
+            }
+        } catch(e) { console.error('AI insights error:', e); }
+    }
+
+    /* ===== REPORTS ===== */
+    async function generateReport(period) {
+        try {
+            const res = await fetch('/api/ai/generate_report', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ period }) });
+            const data = await res.json();
+            if (data.id) { viewReport(data.id); loadAIReports(); }
+        } catch(e) { alert('Failed to generate report.'); }
+    }
+
+    async function loadAIReports() {
+        try {
+            const res = await fetch('/api/ai/reports');
+            const data = await res.json();
+            const tbody = document.getElementById('reports-table-body');
+            if (data.reports?.length > 0) {
+                tbody.innerHTML = data.reports.map(r => `
+                    <tr style="border-bottom:1px solid var(--border);">
+                        <td style="padding:13px 16px;font-weight:600;font-size:13px;color:var(--text-primary);">${r.title}</td>
+                        <td style="padding:13px 16px;"><span class="badge badge-primary">${r.period}</span></td>
+                        <td style="padding:13px 16px;font-size:12px;color:var(--text-muted);">${r.generated_at}</td>
+                        <td style="padding:13px 16px;text-align:right;">
+                            <button onclick="viewReport(${r.id})" class="btn-primary" style="font-size:11px;padding:6px 14px;box-shadow:none;"><i class="fas fa-eye"></i> View</button>
+                        </td>
+                    </tr>`).join('');
+            }
+        } catch(e) { console.error('Reports error:', e); }
+    }
+
+    async function viewReport(reportId) {
+        try {
+            const res = await fetch(`/api/ai/report/${reportId}`);
+            const data = await res.json();
+            document.getElementById('modal-report-title').innerText = data.title;
+            document.getElementById('modal-report-date').innerText = `Generated at ${data.generated_at}`;
+            const parsed = typeof marked !== 'undefined' ? marked.parse(data.content) : data.content;
+            document.getElementById('modal-report-content').innerHTML = parsed;
+            document.getElementById('report-modal').style.display = 'flex';
+        } catch(e) { alert('Could not load report content.'); }
+    }
+
+    function closeReportModal() { document.getElementById('report-modal').style.display = 'none'; }
+
+    /* ===== AUTO-FILL MENU ===== */
+    let monitorInterval;
+    async function autoFillMenu(menuId) {
+        if (!menuId) { document.getElementById('live-indicator').style.display = 'none'; clearInterval(monitorInterval); return; }
+        const fetchStats = async () => {
+            const res = await fetch(`/api/menu_stats/${menuId}`);
+            const data = await res.json();
+            if (data.error) return;
+            document.getElementById('pred-day').value   = data.day;
+            document.getElementById('pred-meal').value  = data.meal;
+            document.getElementById('pred-event').value = data.event;
+            document.getElementById('pred-yes').value   = data.yes_count;
+            document.getElementById('live-indicator').style.display = 'flex';
+        };
+        await fetchStats();
+        clearInterval(monitorInterval);
+        monitorInterval = setInterval(fetchStats, 5000);
+    }
+
+    /* ===== PREDICTION ===== */
+    async function runPrediction() {
+        const data = {
+            day: document.getElementById('pred-day').value,
+            meal: document.getElementById('pred-meal').value,
+            event: document.getElementById('pred-event').value,
+            yes_count: document.getElementById('pred-yes').value,
+            guest_count: document.getElementById('pred-guest').value
+        };
+        const res = await fetch('/api/predict_quantity', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
+        const result = await res.json();
+        document.getElementById('result-val').innerText = result.prediction;
+        document.getElementById('prediction-result').style.display = 'block';
+    }
+
+    /* ===== CHARTS (THEME-AWARE) ===== */
+    function copyPreviousMenu() {
+        alert("Copying previous week's menu is currently a mock action in UI.");
+    }
+
+    // --- OPERATIONS LOGIC ---
+    async function fetchOperationsData() {
+        // Complaints
+        try {
+            const compRes = await fetch('/api/complaints');
+            const compData = await compRes.json();
+            const compDiv = document.getElementById('ops-complaints');
+            if (compData.length === 0) {
+                compDiv.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:32px;color:#94a3b8;">No complaints found.</td></tr>`;
+            } else {
+                compDiv.innerHTML = compData.map(c => {
+                    let statusLabel = '';
+                    if(c.status === 'Open') statusLabel = `<span style="padding:4px 10px;border-radius:100px;background:#fee2e2;color:#dc2626;font-weight:700;font-size:10px;">Open</span>`;
+                    else if(c.status === 'In Progress') statusLabel = `<span style="padding:4px 10px;border-radius:100px;background:#fef3c7;color:#d97706;font-weight:700;font-size:10px;">In Progress</span>`;
+                    else statusLabel = `<span style="padding:4px 10px;border-radius:100px;background:#dcfce7;color:#16a34a;font-weight:700;font-size:10px;">Resolved</span>`;
+
+                    let subject = "Issue Details";
+                    if (c.category === "Food Quality") subject = "Food too spicy";
+                    else if (c.category === "Cleanliness") subject = "Mess cleaning";
+                    else if (c.category === "Menu") subject = "Repeated dish";
+                    else if (c.category === "Meal Timing") subject = "Too late";
+
+                    return `
+                    <tr style="border-bottom:1px solid #f8fafc;background:white;transition:all 0.2s;">
+                        <td style="padding:16px 24px;font-weight:700;color:#1e293b;">${c.student_id}</td>
+                        <td style="padding:16px 24px;color:#64748b;">${c.category}</td>
+                        <td style="padding:16px 24px;color:#64748b;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${subject}</td>
+                        <td style="padding:16px 24px;">${statusLabel}</td>
+                        <td style="padding:16px 24px;">
+                            <div style="display:flex;gap:12px;">
+                                <a href="#" style="color:#3b82f6;text-decoration:none;font-size:12px;font-weight:600;">View</a>
+                                ${c.status !== 'Resolved' ? `<a href="#" onclick="updateComplaintStatus(${c.id}, {value:'Resolved'})" style="color:#3b82f6;text-decoration:none;font-size:12px;font-weight:600;">Reply</a>` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `}).join('');
+            }
+        } catch (e) {
+            console.error('Failure fetching complaints');
+        }
+
+        // Leave
+        try {
+            const leaveRes = await fetch('/api/leave');
+            const leaveData = await leaveRes.json();
+            const leaveDiv = document.getElementById('ops-leave');
+            if (leaveData.length === 0) {
+                leaveDiv.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:32px;color:#94a3b8;">No leave requests found.</td></tr>`;
+            } else {
+                leaveDiv.innerHTML = leaveData.map(L => {
+                    let statusLabel = '';
+                    if(L.status === 'Pending') statusLabel = `<span style="padding:6px 12px;border-radius:100px;background:#fef3c7;color:#d97706;font-weight:700;font-size:11px;">Pending</span>`;
+                    else if(L.status === 'Approved') statusLabel = `<span style="padding:6px 12px;border-radius:100px;background:#d1fae5;color:#059669;font-weight:700;font-size:11px;">Approved</span>`;
+                    else statusLabel = `<span style="padding:6px 12px;border-radius:100px;background:#fee2e2;color:#dc2626;font-weight:700;font-size:11px;">Rejected</span>`;
+
+                    return `
+                    <tr style="border-bottom:1px solid #f8fafc;background:white;transition:all 0.2s;">
+                        <td style="padding:16px 24px;font-weight:700;color:#1e293b;">${L.student_id}</td>
+                        <td style="padding:16px 24px;color:#475569;">${L.start_date.slice(5)} to ${L.end_date.slice(5)}</td>
+                        <td style="padding:16px 24px;color:#3b82f6;font-weight:500;">${L.leave_type || 'Personal'}</td>
+                        <td style="padding:16px 24px;color:#475569;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${L.reason || 'N/A'}</td>
+                        <td style="padding:16px 24px;text-align:center;">${statusLabel}</td>
+                        <td style="padding:16px 24px;text-align:center;">
+                            ${L.status === 'Pending' ? `
+                                <div style="display:flex;flex-direction:column;gap:4px;align-items:center;">
+                                    <button onclick="updateLeave(${L.id}, 'Approved')" style="padding:4px 12px;background:var(--success);color:white;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;width:70px;">Approve</button>
+                                    <button onclick="updateLeave(${L.id}, 'Rejected')" style="padding:4px 12px;background:var(--danger);color:white;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;width:70px;">Reject</button>
+                                </div>
+                            ` : `<span style="color:#cbd5e1;font-size:11px;">-</span>`}
+                        </td>
+                    </tr>
+                `}).join('');
+            }
+        } catch (e) {
+            console.error('Failure fetching leave requests');
+        }
+    }
+
+    async function updateComplaintStatus(id, selectElem) {
+        await fetch(`/api/complaints/${id}/update`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ status: selectElem.value })
+        });
+        fetchOperationsData();
+    }
+    async function updateComplaintNote(id) {
+        const note = document.getElementById(`comp-note-${id}`).value;
+        await fetch(`/api/complaints/${id}/update`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ admin_note: note })
+        });
+        fetchOperationsData();
+    }
+    async function updateLeave(id, statusStr) {
+        await fetch(`/api/leave/${id}/update`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ status: statusStr })
+        });
+        fetchOperationsData();
+    }
+    
+    // --- INVENTORY LOGIC ---
+    async function fetchInventory() {
+        try {
+            const res = await fetch('/api/inventory');
+            const data = await res.json();
+            const tbody = document.getElementById('inventory-list');
+            const alertsDiv = document.getElementById('low-stock-alert-list');
+            
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:20px;color:#94a3b8;">No inventory found.</td></tr>`;
+                alertsDiv.innerHTML = `<span style="font-size:12px;color:#94a3b8;">No low stock alerts.</span>`;
+            } else {
+                let tbodyHTML = '';
+                let alertHTML = '';
+                
+                data.forEach(i => {
+                    const isLow = i.quantity <= i.min_stock;
+                    
+                    // Design mock for dynamic status layout based exactly on Image 19
+                    let statusPill = isLow 
+                        ? `<div style="background:#fee2e2;color:#ef4444;border-radius:100px;padding:6px 14px;font-size:11px;font-weight:700;display:inline-flex;align-items:center;gap:6px;"><i class="fas fa-bell"></i> Low Stock</div>`
+                        : `<div style="background:#dcfce7;color:#16a34a;border-radius:100px;padding:6px 14px;font-size:11px;font-weight:700;display:inline-flex;align-items:center;gap:6px;"><i class="fas fa-moon"></i> OK</div>`;
+                    
+                    // Generate pseudo Expiry Date to match mockup structurally (Backend doesn't have expiry currently)
+                    const mockExpiry = "2025-09-30"; 
+
+                    tbodyHTML += `
+                    <tr style="border-bottom:1px solid #f1f5f9;">
+                        <td style="padding:16px 8px;">${i.name}</td>
+                        <td style="padding:16px 8px;">${i.quantity}</td>
+                        <td style="padding:16px 8px;">${i.unit}</td>
+                        <td style="padding:16px 8px;font-weight:500;">${mockExpiry}</td>
+                        <td style="padding:16px 8px;">${statusPill}</td>
+                        <td style="padding:16px 8px;text-align:center;"><i class="fas fa-times" style="color:#10b981;cursor:pointer;"></i></td>
+                    </tr>`;
+
+                    if(isLow) {
+                        alertHTML += `
+                        <div style="display:flex;align-items:center;gap:12px;color:#ef4444;font-size:13px;font-weight:700;">
+                            <i class="fas fa-bell"></i>
+                            ${i.name} - ${i.quantity} ${i.unit} <span style="color:#60a5fa;">[Minimum ${i.min_stock} ${i.unit}]</span>
+                        </div>`;
+                    }
+                });
+
+                tbody.innerHTML = tbodyHTML;
+                if(alertHTML === '') {
+                    alertsDiv.innerHTML = `<span style="font-size:12px;color:#16a34a;font-weight:600;"><i class="fas fa-check-circle" style="margin-right:6px;"></i>All stock levels optimal.</span>`;
+                } else {
+                    alertsDiv.innerHTML = alertHTML;
+                }
+            }
+        } catch (e) {
+            console.error('Fetch inventory fail', e);
+        }
+    }
+    
+    async function submitInventory(e) {
+        e.preventDefault();
+        const body = {
+            name: document.getElementById('inv-name').value,
+            quantity: document.getElementById('inv-qty').value,
+            unit: document.getElementById('inv-unit').value,
+            min_stock: document.getElementById('inv-min').value
+        };
+        await fetch('/api/inventory/add', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body) });
+        e.target.reset();
+        fetchInventory();
+    }
+
+    async function updateInventory(id) {
+        const body = {
+            quantity: document.getElementById(`inv-qty-${id}`).value,
+            min_stock: document.getElementById(`inv-min-${id}`).value
+        };
+        await fetch(`/api/inventory/${id}/update`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body) });
+        fetchInventory();
+    }
+    
+    // --- KITCHEN STATUS TRIGGER (FOR MENU VIEW) ---
+    async function updateMenuKitchenStatus(menuId, statusString) {
+        await fetch(`/api/menu/${menuId}/status`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ kitchen_status: statusString })
+        });
+        alert('Kitchen Status Updated');
+        // You'd ideally reload menus here
+    }
+
+    function getChartColors() {
+        const style = getComputedStyle(document.documentElement);
+        return {
+            grid: style.getPropertyValue('--chart-grid').trim() || 'rgba(0,0,0,0.06)',
+            text: style.getPropertyValue('--text-secondary').trim() || '#64748b',
+            primary: style.getPropertyValue('--text-primary').trim() || '#f1f5f9'
+        };
+    }
+
+    let chart;
+    async function loadAnalytics() {
+        const res = await fetch('/api/analytics');
+        const data = await res.json();
+        const ctx = document.getElementById('skippedChart').getContext('2d');
+        const colors = getChartColors();
+        if (chart) chart.destroy();
+        chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.labels,
+                datasets: [{ label: 'Student Rejections', data: data.counts, backgroundColor: 'rgba(99,102,241,0.8)', borderRadius: 8 }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: colors.grid }, ticks: { color: colors.text } },
+                    x: { grid: { display: false }, ticks: { color: colors.text, maxRotation: 45 } }
+                }
+            }
+        });
+
+        const list = document.getElementById('feedback-list');
+        list.innerHTML = data.feedback.map(f => `
+            <div class="feedback-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                    <span style="font-weight:700;font-size:13px;color:var(--text-primary);">${f.student_id}</span>
+                    <span style="font-size:11px;color:var(--text-muted);">${f.time}</span>
+                </div>
+                <p style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;">Dish: <strong style="color:var(--primary);">${f.dish}</strong></p>
+                <p style="font-size:12px;color:var(--text-secondary);font-style:italic;">"${f.reason}"</p>
+            </div>`).join('') || `<p style="text-align:center;color:var(--text-muted);padding:20px;font-size:13px;">No negative feedback yet.</p>`;
+    }
+
+    let wasteChart;
+    async function loadWasteAnalytics() {
+        const res = await fetch('/api/waste_analytics');
+        const data = await res.json();
+        const ctx = document.getElementById('wasteTrendChart').getContext('2d');
+        const colors = getChartColors();
+        if (wasteChart) wasteChart.destroy();
+        wasteChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.labels,
+                datasets: [
+                    { label:'Prepared (kg)', data:data.prepared, borderColor:'#6366f1', backgroundColor:'rgba(99,102,241,0.08)', borderWidth:2, tension:0.4, fill:true, pointRadius:3, pointBackgroundColor:'#6366f1' },
+                    { label:'Consumed (kg)', data:data.consumed, borderColor:'#10b981', backgroundColor:'rgba(16,185,129,0.08)', borderWidth:2, tension:0.4, fill:true, pointRadius:3, pointBackgroundColor:'#10b981' },
+                    { label:'Wastage (kg)', data:data.wastage, borderColor:'#ef4444', backgroundColor:'rgba(239,68,68,0.05)', borderWidth:2, borderDash:[5,5], tension:0.4, fill:false, pointRadius:3, pointBackgroundColor:'#ef4444' }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { position:'top', labels: { boxWidth:10, font:{family:'Inter',size:11}, padding:16, color: colors.text } } },
+                scales: {
+                    y: { beginAtZero:true, grid:{ color: colors.grid }, ticks:{ font:{family:'Inter',size:11}, color: colors.text }, title:{ display:true, text:'Quantity (kg)', font:{family:'Inter',weight:'bold',size:11}, color: colors.text } },
+                    x: { grid:{ display:false }, ticks:{ maxRotation:45, minRotation:45, font:{size:10}, color: colors.text } }
+                }
+            }
+        });
+    }
+
+    /* ===== DEEPLINK ===== */
+    window.addEventListener('DOMContentLoaded', () => {
+        const tab = new URLSearchParams(window.location.search).get('tab');
+        if (tab) switchTab(tab);
+    });
+</script>
+{% endblock %}
