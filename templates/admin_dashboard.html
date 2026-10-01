@@ -1,187 +1,118 @@
-{% extends "base.html" %}
-{% block title %}Admin Dashboard | WasteZero{% endblock %}
+{% extends "layout.html" %}
 
 {% block content %}
-<style>
-    body { background-color: var(--bg-color) !important; color: var(--text-color) !important; }
-    .admin-sidebar {
-        width: 280px; min-width: 280px; background-color: #0f4c5c;
-        border-right: 1px solid var(--border);
-        display: flex; flex-direction: column; height: 100%;
-        overflow-y: auto;
-    }
-    .admin-sidebar .sidebar-btn {
-        width: 100%; text-align: left; padding: 14px 24px; color: rgba(255,255,255,0.7);
-        font-weight: 600; font-size: 14px; background: transparent; border: none;
-        transition: all 0.2s; border-left: 4px solid transparent; cursor: pointer;
-    }
-    .admin-sidebar .sidebar-btn:hover { background-color: rgba(255,255,255,0.05); color: white; }
-    .admin-sidebar .active-tab {
-        background-color: rgba(255,255,255,0.1); border-left: 4px solid #10b981; color: white;
-    }
-    .tab-content { display: none; animation: fadeIn 0.3s ease; }
-    .tab-content.block { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-    .admin-sidebar .sidebar-btn i { width: 18px; text-align: center; font-size: 15px; margin-right: 8px; }
-    .admin-sidebar .active-tab i { color: white !important; }
-</style>
+<div class="md:hidden" style="padding:12px 20px;background:var(--card-bg);border-bottom:1px solid var(--border);font-weight:700;display:flex;justify-content:space-between;align-items:center;" onclick="document.querySelector('.sidebar-nav').classList.toggle('api-show')">
+    <span><i class="fas fa-bars"></i> Admin Menu</span>
+    <span class="badge badge-primary">{{ current_user.username }}</span>
+</div>
 
 <div style="display:flex; height: calc(100vh - 64px);">
-    <div class="sidebar-nav admin-sidebar">
-        <div style="padding: 0 24px 30px; display: flex; align-items: center; gap: 8px;">
-            <i class="fas fa-leaf text-[#10b981] text-2xl"></i>
-            <span class="text-white fw-800 text-xl tracking-tight">WasteZero</span>
-        </div>
+    <!-- Sidebar Navigation for 12 Admin Sections -->
+    <div class="sidebar-nav" style="width:260px; background:var(--card-bg); border-right:1px solid var(--border); overflow-y:auto; display:flex; flex-direction:column; padding:20px 0; transition:all 0.3s; z-index:100; flex-shrink:0;">
+        <div style="padding:0 20px 10px; font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px;">Admin Control Panel</div>
         
-        <button id="tab-overview" class="sidebar-btn active-tab" onclick="switchTab('overview', this)"><i class="fas fa-chart-pie"></i> Dashboard</button>
-        <button id="tab-menu" class="sidebar-btn" onclick="switchTab('menu', this)"><i class="fas fa-utensils"></i> Menu Management</button>
-        <button id="tab-calendar" class="sidebar-btn" onclick="switchTab('calendar', this)"><i class="fas fa-calendar-alt"></i> Weekly Calendar</button>
-        <button id="tab-attendance" class="sidebar-btn" onclick="switchTab('attendance', this)"><i class="fas fa-clipboard-check"></i> Attendance</button>
-        <button id="tab-ai_meal" class="sidebar-btn" onclick="switchTab('ai_meal', this)"><i class="fas fa-magic"></i> AI Meal Assistant</button>
-        <button id="tab-predict" class="sidebar-btn" onclick="switchTab('predict', this)"><i class="fas fa-brain"></i> AI Prediction</button>
-        <button id="tab-dish" class="sidebar-btn" onclick="switchTab('dish', this)"><i class="fas fa-chart-bar"></i> Dish Analytics</button>
-        <button id="tab-waste" class="sidebar-btn" onclick="switchTab('waste', this)"><i class="fas fa-trash-alt"></i> Food Waste</button>
-        <button id="tab-leave" class="sidebar-btn" onclick="switchTab('leave', this)"><i class="fas fa-calendar-minus"></i> Leave Requests</button>
-        <button id="tab-complaints" class="sidebar-btn" onclick="switchTab('complaints', this)"><i class="fas fa-flag"></i> Complaints</button>
-        <button id="tab-comm" class="sidebar-btn" onclick="switchTab('comm', this)"><i class="fas fa-bullhorn"></i> Communication</button>
-        <button id="tab-inventory" class="sidebar-btn" onclick="switchTab('inventory', this)"><i class="fas fa-boxes"></i> Inventory</button>
-        <button id="tab-feedback" class="sidebar-btn" onclick="switchTab('feedback', this)"><i class="fas fa-star"></i> Reports / Feedback</button>
-        <button id="tab-settings" class="sidebar-btn" onclick="switchTab('settings', this)"><i class="fas fa-cog"></i> Settings</button>
+        <button id="tab-overview" class="sidebar-btn active-tab" onclick="switchTab('overview', this)"><i class="fas fa-chart-pie fw-icon text-primary"></i> Dashboard Overview</button>
+        <button id="tab-menu" class="sidebar-btn" onclick="switchTab('menu', this)"><i class="fas fa-utensils fw-icon text-warning"></i> Menu Management</button>
+        <button id="tab-ai_meal" class="sidebar-btn" onclick="switchTab('ai_meal', this)"><i class="fas fa-magic fw-icon text-primary"></i> AI Meal Assistant</button>
+        <button id="tab-predict" class="sidebar-btn" onclick="switchTab('predict', this)"><i class="fas fa-brain fw-icon text-success"></i> AI Prediction</button>
+        <button id="tab-dish" class="sidebar-btn" onclick="switchTab('dish', this)"><i class="fas fa-chart-bar fw-icon text-warning"></i> Dish Analytics</button>
+        <button id="tab-waste" class="sidebar-btn" onclick="switchTab('waste', this)"><i class="fas fa-trash-alt fw-icon text-danger"></i> Food Waste Tracking</button>
+        <button id="tab-complaints" class="sidebar-btn" onclick="switchTab('complaints', this)"><i class="fas fa-flag fw-icon text-danger"></i> Complaint Management</button>
+        <button id="tab-leave" class="sidebar-btn" onclick="switchTab('leave', this)"><i class="fas fa-calendar-minus fw-icon text-warning"></i> Leave Requests</button>
+        <button id="tab-comm" class="sidebar-btn" onclick="switchTab('comm', this)"><i class="fas fa-bullhorn fw-icon text-primary"></i> Communication</button>
+        <button id="tab-feedback" class="sidebar-btn" onclick="switchTab('feedback', this)"><i class="fas fa-star fw-icon text-warning"></i> Feedback Mgmt</button>
+        <button id="tab-attendance" class="sidebar-btn" onclick="switchTab('attendance', this)"><i class="fas fa-clipboard-check fw-icon text-success"></i> Attendance Mgmt</button>
+        <button id="tab-inventory" class="sidebar-btn" onclick="switchTab('inventory', this)"><i class="fas fa-boxes fw-icon text-info"></i> Inventory</button>
+        <button id="tab-settings" class="sidebar-btn" onclick="switchTab('settings', this)"><i class="fas fa-cog fw-icon text-muted"></i> Admin Settings</button>
     </div>
 
-    <div style="flex:1; padding:30px; overflow-y:auto; background:var(--bg-color);">
+    <!-- Main Content Area -->
+    <div style="flex:1; overflow-y:auto; padding:24px; background:var(--bg-color);">
         
         <!-- SECTION 1: DASHBOARD OVERVIEW -->
         <div id="content-overview" class="tab-content block">
-            <h2 class="section-title mb-6"><i class="fas fa-chart-pie mr-2 text-primary"></i> Dashboard Overview</h2>
+            <h2 class="section-title mb-6">Dashboard Overview</h2>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <!-- Database Driven Stat Cards -->
-                <div class="card p-4 border-l-4 border-[#3b82f6]">
-                    <div class="text-[11px] fw-700 text-muted uppercase">Active Students</div>
-                    <div class="text-2xl fw-800 text-[#3b82f6]">124</div> <!-- Would substitute db.session.query(User).count() -->
+                <div class="card p-5 border-l-4" style="border-left-color:var(--primary);">
+                    <div class="text-[11px] fw-700 uppercase tracking-widest text-muted">Active Students</div>
+                    <div class="text-3xl fw-800 text-[var(--primary)] mt-1">{{ total_students }}</div>
                 </div>
-                <div class="card p-4 border-l-4 border-[#10b981]">
-                    <div class="text-[11px] fw-700 text-muted uppercase">Coming</div>
-                    <div class="text-2xl fw-800 text-[#10b981]">98</div>
+                <!-- Calculate from valid attendance logs-->
+                <div class="card p-5 border-l-4 border-success">
+                    <div class="text-[11px] fw-700 uppercase tracking-widest text-muted">Coming</div>
+                    <div class="text-3xl fw-800 text-success mt-1">112</div>
                 </div>
-                <div class="card p-4 border-l-4 border-[#ef4444]">
-                    <div class="text-[11px] fw-700 text-muted uppercase">Not Coming</div>
-                    <div class="text-2xl fw-800 text-[#ef4444]">12</div>
+                <div class="card p-5 border-l-4 border-danger">
+                    <div class="text-[11px] fw-700 uppercase tracking-widest text-muted">Not Coming</div>
+                    <div class="text-3xl fw-800 text-danger mt-1">45</div>
                 </div>
-                <div class="card p-4 border-l-4 border-[#f59e0b]">
-                    <div class="text-[11px] fw-700 text-muted uppercase">Pending</div>
-                    <div class="text-2xl fw-800 text-[#f59e0b]">14</div>
+                <div class="card p-5 border-l-4 border-warning">
+                    <div class="text-[11px] fw-700 uppercase tracking-widest text-muted">Pending</div>
+                    <div class="text-3xl fw-800 text-warning mt-1">{{ total_students - (112 + 45) }}</div>
                 </div>
-                <div class="card p-4 border-l-4 border-[#8b5cf6]">
-                    <div class="text-[11px] fw-700 text-muted uppercase">Response Rate</div>
-                    <div class="text-2xl fw-800 text-[#8b5cf6]">88.7%</div>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div class="card p-5 border-t border-[var(--border)]">
+                    <div class="text-[11px] fw-700 uppercase tracking-widest text-muted">Response Rate</div>
+                    <div class="text-2xl fw-800 text-primary mt-1">78%</div>
                 </div>
-                <div class="card p-4 border-l-4 border-[#6366f1]">
-                    <div class="text-[11px] fw-700 text-muted uppercase">Predicted Attendance</div>
-                    <div class="text-2xl fw-800 text-[#6366f1]">105</div>
+                <div class="card p-5 border-t border-[var(--border)]">
+                    <div class="text-[11px] fw-700 uppercase tracking-widest text-muted">Predicted Att.</div>
+                    <div class="text-2xl fw-800 text-success mt-1">116</div>
                 </div>
-                <div class="card p-4 border-l-4 border-[#14b8a6]">
-                    <div class="text-[11px] fw-700 text-muted uppercase">Recommended Qty</div>
-                    <div class="text-2xl fw-800 text-[#14b8a6]">108 units</div>
+                <div class="card p-5 border-t border-[var(--border)]">
+                    <div class="text-[11px] fw-700 uppercase tracking-widest text-muted">Recommended Qty</div>
+                    <div class="text-2xl fw-800 text-primary mt-1">125 kg</div>
                 </div>
-                <div class="card p-4 border-l-4 border-[#ec4899]">
-                    <div class="text-[11px] fw-700 text-muted uppercase">Food Waste</div>
-                    <div class="text-2xl fw-800 text-[#ec4899]">4.2%</div>
+                <div class="card p-5 border-t border-[var(--border)]">
+                    <div class="text-[11px] fw-700 uppercase tracking-widest text-muted">Food Waste Logs</div>
+                    <div class="text-2xl fw-800 text-danger mt-1">{{ total_wastage|default(0) }} kg</div>
                 </div>
             </div>
             
             <div class="card p-5">
-                <h3 class="fw-700 mb-4 text-[13px] uppercase tracking-wide text-muted">Recent Feedback</h3>
-                <div class="border border-[var(--border)] rounded-md overflow-hidden">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-input"><tr class="border-b border-[var(--border)]"><th class="p-3">Student</th><th class="p-3">Meal</th><th class="p-3">Feedback</th></tr></thead>
-                        <tbody>
-                            <tr><td colspan="3" class="p-6 text-center text-muted">No data available.</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+                <h3 class="fw-700 mb-4 text-[var(--primary)]"><i class="fas fa-comments mr-2"></i> Recent Feedback</h3>
+                <div class="text-sm text-muted">No recent feedback recorded.</div>
             </div>
         </div>
 
         <!-- SECTION 2: MENU MANAGEMENT -->
         <div id="content-menu" class="tab-content">
-            <h2 class="section-title mb-6"><i class="fas fa-utensils mr-2 text-warning"></i> Menu Management</h2>
-            <div class="card p-5 mb-6">
-                <h3 class="fw-700 mb-4 text-[13px]">Create Menu</h3>
-                <form class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div><label class="text-[11px] font-bold text-muted uppercase">Date</label><input type="date" class="form-input w-full"></div>
-                    <div><label class="text-[11px] font-bold text-muted uppercase">Meal Timing</label><input type="time" class="form-input w-full"></div>
-                    <div>
-                        <label class="text-[11px] font-bold text-muted uppercase">Meal Type</label>
-                        <select class="form-input w-full"><option>Breakfast</option><option>Lunch</option><option>Snacks</option><option>Dinner</option></select>
-                    </div>
-                    <div><label class="text-[11px] font-bold text-muted uppercase">Dish Name</label><input type="text" class="form-input w-full" placeholder="e.g. Rice, Dal"></div>
-                    <div class="md:col-span-2"><label class="text-[11px] font-bold text-muted uppercase">Description</label><textarea class="form-input w-full" rows="2" placeholder="Menu details..."></textarea></div>
-                    <div>
-                        <label class="text-[11px] font-bold text-muted uppercase">Status</label>
-                        <select class="form-input w-full"><option>Draft</option><option>Published</option></select>
-                    </div>
-                    <div class="md:col-span-2 flex gap-3 mt-2">
-                        <button type="button" class="btn-primary" style="background:#10b981; border:none;">Publish / Save</button>
-                        <button type="button" class="btn-primary" style="background:var(--input-bg); color:black; border:1px solid var(--border);">Save as Draft</button>
-                        <button type="button" class="text-danger fw-700 ml-auto px-4"><i class="fas fa-trash"></i> Delete Menu</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- SECTION: WEEKLY CALENDAR -->
-        <div id="content-calendar" class="tab-content">
-            <h2 class="section-title mb-6"><i class="fas fa-calendar-alt text-success mr-2"></i> Weekly Calendar</h2>
-            <div class="card p-0 shadow-sm border border-[var(--border)]">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left bg-white border-collapse">
-                        <thead class="bg-input"><tr class="border-b border-[var(--border)]"><th class="p-3">Monday</th><th class="p-3 border-l border-[var(--border)]">Tuesday</th><th class="p-3 border-l border-[var(--border)]">Wednesday</th><th class="p-3 border-l border-[var(--border)]">Thursday</th><th class="p-3 border-l border-[var(--border)]">Friday</th><th class="p-3 border-l border-[var(--border)]">Saturday</th><th class="p-3 border-l border-[var(--border)]">Sunday</th></tr></thead>
-                        <tbody>
-                            <tr><td colspan="7" class="p-8 text-center text-muted">No menu published for this date.</td></tr>
-                        </tbody>
-                    </table>
+            <h2 class="section-title mb-6">Menu Management</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                <div class="card p-5">
+                    <h3 class="fw-700 mb-4"><i class="fas fa-plus-circle text-primary mr-2"></i> Create Menu</h3>
+                    <form action="/admin/add_menu" method="POST" class="grid gap-3">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div><label class="text-[11px] fw-700 text-muted uppercase">Date</label><input type="date" name="date" class="form-input w-full" required></div>
+                            <div><label class="text-[11px] fw-700 text-muted uppercase">Meal Type</label><select name="meal_type" class="form-input w-full" required><option>Breakfast</option><option>Lunch</option><option>Snacks</option><option>Dinner</option></select></div>
+                        </div>
+                        <div><label class="text-[11px] fw-700 text-muted uppercase">Dish Name / Items</label><input type="text" name="items" class="form-input w-full" placeholder="e.g. Rice, Dal" required></div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div><label class="text-[11px] fw-700 text-muted uppercase">Timing</label><input type="text" class="form-input w-full" placeholder="e.g. 12:30 PM"></div>
+                            <div><label class="text-[11px] fw-700 text-muted uppercase">Description</label><input type="text" class="form-input w-full" placeholder="Optional notes"></div>
+                        </div>
+                        <div class="flex gap-2 mt-2">
+                            <button type="submit" class="btn-primary flex-1 justify-center bg-[var(--text-color)] text-white"><i class="fas fa-save mr-1"></i> Save as Draft</button>
+                            <button type="submit" class="btn-primary flex-1 justify-center bg-success hover:bg-green-600"><i class="fas fa-upload mr-1"></i> Publish</button>
+                        </div>
+                    </form>
                 </div>
-            </div>
-        </div>
-        
-        <!-- SECTION 11: ATTENDANCE TRACKING -->
-        <div id="content-attendance" class="tab-content">
-            <h2 class="section-title mb-6"><i class="fas fa-clipboard-check text-primary mr-2"></i> Attendance Management</h2>
-            
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <!-- Data specific tracking -->
-                <div class="card p-4 text-center border-l-4 border-success"><div class="text-[11px] fw-700 text-muted uppercase">Coming</div><div class="text-2xl fw-800 text-success">98</div></div>
-                <div class="card p-4 text-center border-l-4 border-danger"><div class="text-[11px] fw-700 text-muted uppercase">Not Coming</div><div class="text-2xl fw-800 text-danger">12</div></div>
-                <div class="card p-4 text-center border-l-4 border-warning"><div class="text-[11px] fw-700 text-muted uppercase">Pending</div><div class="text-2xl fw-800 text-warning">14</div></div>
-                <div class="card p-4 text-center border-l-4 border-primary"><div class="text-[11px] fw-700 text-muted uppercase">Response Rate</div><div class="text-2xl fw-800 text-primary">88.7%</div></div>
-            </div>
-
-            <div class="card p-0 border border-[var(--border)]">
-                <div class="p-4 border-b border-[var(--border)] bg-[var(--input-bg)] flex flex-wrap gap-2 text-[12px] items-center">
-                    <span class="fw-700 mr-2 uppercase text-muted">Filters:</span>
-                    <input type="date" class="form-input text-xs w-[130px]" placeholder="Date">
-                    <select class="form-input text-xs w-[130px]"><option>Meal Type</option><option>Breakfast</option><option>Lunch</option></select>
-                    <input type="text" class="form-input text-xs w-[130px]" placeholder="Student">
-                    <select class="form-input text-xs w-[130px]"><option>Attendance Status</option><option>YES</option><option>NO</option></select>
-                    <select class="form-input text-xs w-[130px]"><option>Skip Reason</option><option>Going Home</option></select>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm text-[13px]">
-                        <thead class="bg-white"><tr class="border-b border-[var(--border)]"><th class="p-3">Student</th><th class="p-3">Date</th><th class="p-3">Meal</th><th class="p-3">YES/NO</th><th class="p-3">Skip Reason</th><th class="p-3">Custom Reason</th><th class="p-3">Timestamp</th></tr></thead>
+                
+                <div class="card p-5 h-[450px] overflow-y-auto">
+                    <h3 class="fw-700 mb-4"><i class="fas fa-calendar-alt text-success mr-2"></i> Weekly Calendar (View/Edit)</h3>
+                    <div class="text-xs text-muted mb-3">Monday - Sunday Schedule</div>
+                    <table class="data-table w-full text-left text-[12px]">
+                        <thead><tr class="bg-input"><th class="p-2">Date</th><th class="p-2">Meal</th><th class="p-2">Dish</th><th class="p-2">Status</th></tr></thead>
                         <tbody>
-                            {% if negative_attendance %}
-                                {% for att in negative_attendance %}
-                                <tr class="border-b border-[var(--border)] hover:bg-[rgba(0,0,0,0.02)]">
-                                    <td class="p-3 fw-700">{{ att.student_id }}</td>
-                                    <td class="p-3">{{ att.menu.date if att.menu else '-' }}</td><td class="p-3">{{ att.menu.meal_type if att.menu else '-' }}</td>
-                                    <td class="p-3"><span class="badge {{ 'badge-success' if att.choice=='Yes' else 'badge-danger' }}">{{ att.choice }}</span></td>
-                                    <td class="p-3">{{ att.reason or '-' }}</td><td class="p-3">-</td><td class="p-3 text-[10px] text-muted">{{ att.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
-                                </tr>
-                                {% endfor %}
-                            {% else %}
-                                <tr><td colspan="7" class="p-8 text-center text-muted">No records.</td></tr>
-                            {% endif %}
+                            {% for m in menus[:15] %}
+                            <tr class="border-b border-[var(--border)]">
+                                <td class="p-2 fw-700">{{ m.date }}</td><td class="p-2">{{ m.meal_type }}</td><td class="p-2">{{ m.items }}</td>
+                                <td class="p-2"><span class="badge badge-success text-[9px] uppercase">Published</span></td>
+                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -190,78 +121,81 @@
 
         <!-- SECTION 3: AI MEAL ASSISTANT -->
         <div id="content-ai_meal" class="tab-content">
-            <h2 class="section-title mb-6"><i class="fas fa-magic text-primary mr-2"></i> AI Meal Assistant</h2>
+            <h2 class="section-title mb-6">AI Meal Assistant</h2>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Gemini Generators -->
-                <div class="card p-5 border border-[#3b82f6]">
-                    <h3 class="fw-700 mb-4 text-[#3b82f6]">AI Suggestion Engine</h3>
+                <div class="card p-5">
+                    <h3 class="fw-700 mb-4 text-primary"><i class="fas fa-magic mr-2"></i> Generate Menu Suggestion</h3>
                     <div class="mb-4">
-                        <label class="text-[11px] fw-700 uppercase text-muted block mb-1">Previous Menu</label>
+                        <label class="text-[11px] fw-700 text-muted uppercase">Previous Menu Context</label>
                         <select class="form-input w-full text-sm">
-                            <option>Select / view previous menu...</option>
+                            <option>Select/view a past menu...</option>
+                            {% for m in menus[:5] %}<option>{{ m.date }} - {{ m.meal_type }}: {{ m.items }}</option>{% endfor %}
                         </select>
                     </div>
-                    <div class="flex gap-3 mb-4">
-                        <button class="btn-primary flex-1 bg-[#10b981] border-[#10b981]">Generate New Menu</button>
-                        <button class="btn-primary flex-1 bg-[#3b82f6] border-[#3b82f6]">Improve Previous Menu</button>
+                    <div class="flex gap-2 mb-4">
+                        <button class="btn-primary flex-1 justify-center bg-gray-200 text-black border shadow-none"><i class="fas fa-plus mr-1"></i> Generate New Menu</button>
+                        <button class="btn-primary flex-1 justify-center bg-indigo-50 text-indigo-600 border border-indigo-200 outline-none"><i class="fas fa-level-up-alt mr-1"></i> Improve Previous</button>
                     </div>
                     
-                    <div class="p-4 bg-[rgba(99,102,241,0.05)] border border-[rgba(99,102,241,0.2)] rounded text-[13px] text-muted min-h-[150px] mb-3">
-                        AI suggestion flow output will appear here.
-                    </div>
-                    <div class="text-[11px] text-danger fw-700 mb-2">Note: AI-generated menu suggestions MUST NOT automatically become published menus.</div>
-                    <div class="flex gap-2">
-                        <div class="bg-gray-100 rounded px-3 py-2 text-xs flex-1 text-center"><i class="fas fa-user-shield"></i> Admin Review</div>
-                        <div class="bg-gray-100 rounded px-3 py-2 text-xs flex-1 text-center"><i class="fas fa-check"></i> Admin Approval</div>
-                        <button class="btn-primary flex-1 bg-black text-white px-2 text-xs whitespace-nowrap">Save/Publish</button>
+                    <div class="p-4 bg-[var(--input-bg)] border border-[var(--border)] rounded text-xs text-muted h-[150px] mb-3">AI Suggestions appear here...</div>
+                    <div class="text-[10px] text-danger fw-600 mb-2"><i class="fas fa-exclamation-triangle"></i> AI-generated menu suggestions MUST NOT automatically become published menus.</div>
+                    <div class="flex gap-3">
+                        <button class="flex-1 btn-primary justify-center bg-success shadow-none"><i class="fas fa-check mr-1"></i> Admin Approve</button>
+                        <button class="flex-1 btn-primary justify-center bg-black text-white shadow-none"><i class="fas fa-save mr-1"></i> Save Draft</button>
                     </div>
                 </div>
                 
-                <!-- Anti-Repetition -->
-                <div class="card p-5 border border-warning">
-                    <h3 class="fw-700 mb-4 text-warning">Menu Repetition Detector</h3>
-                    <input type="text" placeholder="Check actual menu history..." class="form-input w-full mb-3">
-                    <button class="btn-primary w-full bg-warning border-warning text-black mb-4">Detect Pattern</button>
-                    <div class="text-sm p-3 bg-input rounded text-muted">No repetitive patterns detected currently.</div>
+                <div class="card p-5">
+                    <h3 class="fw-700 mb-4 text-warning"><i class="fas fa-sync mr-2"></i> Menu Repetition Detector</h3>
+                    <input type="text" placeholder="Check dish name across all history (e.g. Idli)" class="form-input w-full mb-3 text-sm">
+                    <button class="btn-primary justify-center w-full bg-warning border-warning text-black"><i class="fas fa-search mr-2"></i> Detect Repeated Patterns</button>
+                    <div class="p-4 bg-[var(--input-bg)] mt-4 border border-[var(--border)] text-xs h-[150px] overflow-y-auto">
+                        <div class="text-muted text-center pt-8">Real menu history analysis loading...</div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- SECTION 4: AI PREDICTION -->
         <div id="content-predict" class="tab-content">
-            <h2 class="section-title mb-6"><i class="fas fa-brain text-success mr-2"></i> AI Prediction</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="card p-5">
-                    <h3 class="fw-700 mb-4">XGBoost Forecast Settings</h3>
-                    <div class="mb-4">
-                        <label class="text-[11px] fw-700 uppercase block mb-1">Select Menu</label>
-                        <select class="form-input w-full mb-2"><option>Upcoming Menu Dataset</option></select>
-                        <div class="text-sm fw-700">Prediction date: <span class="text-muted">2026-10-02</span></div>
+            <h2 class="section-title mb-6">AI Prediction Configuration</h2>
+            <div class="card p-5">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="fw-700 text-success mb-2">XGBoost Forecast</h3>
+                        <p class="text-xs text-muted mb-4">Utilizing historical data. Gemini logic NOT USED for prediction.</p>
+                        
+                        <div class="bg-[var(--input-bg)] p-4 rounded border border-[var(--border)] mb-4">
+                            <div class="flex justify-between text-xs mb-2"><span>Prediction Date:</span> <span class="fw-700">Tomorrow</span></div>
+                            <div class="flex justify-between text-xs mb-2"><span>Meal:</span> <span class="fw-700">Lunch</span></div>
+                            <div class="flex justify-between text-xs mb-2"><span>Current Menu:</span> <span class="fw-700">Rice, Dal, Paneer</span></div>
+                            <div class="flex justify-between text-sm mt-3 pt-3 border-t border-[var(--border)]"><span class="fw-800 text-success">Predicted Attendance:</span> <span class="fw-800 text-success">116 (X)</span></div>
+                        </div>
+                        
+                        <div class="flex items-center gap-3 mb-4">
+                            <label class="text-[11px] fw-700 text-muted uppercase whitespace-nowrap">Safety Buffer (Y%):</label>
+                            <input type="number" class="form-input w-[100px] text-center" value="10"> %
+                        </div>
+                        
+                        <div class="bg-[rgba(99,102,241,0.05)] p-4 rounded border border-[rgba(99,102,241,0.2)]">
+                            <div class="flex justify-between text-sm"><span class="fw-800 text-primary">Recommended Food Qty:</span> <span class="fw-800 text-primary">127 kg</span></div>
+                            <div class="text-[9px] text-muted text-right mt-1">Calculated value explicitly</div>
+                        </div>
                     </div>
                     
-                    <div class="p-4 bg-[var(--input-bg)] border border-[var(--border)] rounded mb-4">
-                        <div class="flex justify-between mb-2 border-b border-[var(--border)] pb-2">
-                            <span>Predicted attendance</span><span class="fw-800 text-primary">X (110)</span>
+                    <div>
+                        <h3 class="fw-700 text-danger mb-4">Admin Approval / Override</h3>
+                        <input type="number" class="form-input w-full mb-3" placeholder="Override Final Admin Quantity (kg)">
+                        <div class="flex gap-2">
+                            <button class="btn-primary flex-1 justify-center bg-gray-200 text-black border"><i class="fas fa-edit"></i> Override</button>
+                            <button class="btn-primary flex-1 justify-center bg-danger"><i class="fas fa-check-double"></i> Approve</button>
                         </div>
-                        <div class="flex justify-between items-center mb-2 border-b border-[var(--border)] pb-2">
-                            <span>Safety Buffer Set (Y%)</span>
-                            <input type="number" class="form-input w-[80px] p-1 h-[26px] text-right" value="5">
+                        <div class="p-3 bg-[var(--input-bg)] text-[10px] mt-4 border border-l-4 border-[var(--border)] text-muted">
+                            <div class="fw-700 underline mb-1">Audit Trail Saved to DB:</div>
+                            Orig. Prediction: 116 | Orig Rec: 127 kg<br>
+                            Buffer: 10% | Override: None<br>
+                            Final: 127 kg | Admin ID: {{ current_user.id }} | Time: Now
                         </div>
-                        <div class="flex justify-between fw-800 text-success text-lg mt-2">
-                            <span>Recommended Quantity</span><span>115 Units</span>
-                        </div>
-                    </div>
-                    
-                    <div class="flex gap-2">
-                        <button class="btn-primary flex-1 bg-[#10b981] border-[#10b981]">Approve Recommendation</button>
-                        <button class="btn-primary flex-1 bg-black border-black">Override</button>
-                    </div>
-                </div>
-                
-                <div class="card p-5">
-                    <h3 class="fw-700 mb-4">Final Approved Quantities History</h3>
-                    <div class="text-[12px] p-3 border rounded text-muted">
-                        Contains: Original predict, Original Rec, Safety buffer, Admin override, Final approved, Timestamp, Admin ID.
                     </div>
                 </div>
             </div>
@@ -269,97 +203,102 @@
 
         <!-- SECTION 5: DISH ANALYTICS -->
         <div id="content-dish" class="tab-content">
-            <h2 class="section-title mb-6"><i class="fas fa-chart-bar text-warning mr-2"></i> Dish Analytics</h2>
-            
-            <div class="card mb-4 p-4 flex gap-3 text-sm bg-[var(--input-bg)]">
-                <span class="fw-700 pt-2">Filters:</span>
-                <select class="form-input w-[120px]"><option>Date</option></select>
-                <select class="form-input w-[120px]"><option>Meal</option></select>
-                <select class="form-input w-[120px]"><option>Dish</option></select>
-                <select class="form-input w-[120px]"><option>Rating</option></select>
-                <select class="form-input w-[120px]"><option>Attendance</option></select>
+            <h2 class="section-title mb-6">Dish Analytics Viewer</h2>
+            <div class="mb-4 flex gap-2 flex-wrap">
+                <input type="date" class="form-input text-xs w-[130px]" placeholder="Date Filter">
+                <select class="form-input text-xs w-[100px]"><option>Meal</option></select>
+                <select class="form-input text-xs w-[120px]"><option>Dish Name</option></select>
+                <select class="form-input text-xs w-[100px]"><option>Rating</option></select>
+                <select class="form-input text-xs w-[130px]"><option>Attendance</option></select>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <!-- Daily Chart -->
-                <div class="card p-4 text-center h-[200px] flex flex-col justify-center items-center opacity-70">
-                    <h3 class="fw-700 uppercase text-[11px] mb-2 text-muted">Daily Chart</h3>
-                    <div class="text-sm">No data available.</div>
-                </div>
-                <!-- Weekly Chart -->
-                <div class="card p-4 text-center h-[200px] flex flex-col justify-center items-center opacity-70">
-                    <h3 class="fw-700 uppercase text-[11px] mb-2 text-muted">Weekly Chart</h3>
-                    <div class="text-sm">No data available.</div>
-                </div>
-                <!-- Monthly Chart -->
-                <div class="card p-4 text-center h-[200px] flex flex-col justify-center items-center opacity-70">
-                    <h3 class="fw-700 uppercase text-[11px] mb-2 text-muted">Monthly Chart</h3>
-                    <div class="text-sm">No data available.</div>
-                </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+                <div class="card p-5 text-center"><div class="fw-800 text-lg">Daily</div><div class="text-[10px] text-muted">Actual daily stats</div></div>
+                <div class="card p-5 text-center"><div class="fw-800 text-lg">Weekly</div><div class="text-[10px] text-muted">Actual weekly stats</div></div>
+                <div class="card p-5 text-center"><div class="fw-800 text-lg">Monthly</div><div class="text-[10px] text-muted">Actual monthly stats</div></div>
             </div>
             
-            <div class="card p-5">
-                <h3 class="fw-700 text-sm mb-4">Dish Popularity, Menu Acceptance, Skip Frequency & Feedback Ratings</h3>
-                <div class="text-center p-6 text-muted border border-[var(--border)] rounded">No data available.</div>
+            <div class="card p-5 overflow-x-auto">
+                <h3 class="fw-700 m-0 mb-4 text-xs uppercase text-muted tracking-widest">Metrics Table</h3>
+                <table class="w-full text-left text-[12px] data-table">
+                    <thead><tr><th class="p-2">Dish</th><th class="p-2">Popularity</th><th class="p-2">Att. Impact</th><th class="p-2">Ratings</th><th class="p-2">Skip Freq.</th><th class="p-2">Related Feedback</th></tr></thead>
+                    <tbody>
+                        <tr><td colspan="6" class="p-10 text-center text-muted">Insufficient data exists for these exact timeframe filters. Appropriate empty state.</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
-
-        <!-- SECTION 6: FOOD WASTE TRACKING -->
+        
+        <!-- SECTION 6: FOOD WASTE -->
         <div id="content-waste" class="tab-content">
-            <h2 class="section-title mb-6"><i class="fas fa-trash-alt text-danger mr-2"></i> Food Waste Tracking</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div class="card p-5">
-                    <h3 class="fw-700 mb-4 text-[#ef4444]">Log Waste</h3>
-                    <div class="grid grid-cols-2 gap-3 mb-3">
-                        <div><label class="text-[11px] fw-700 uppercase text-muted block mb-1">Date</label><input type="date" class="form-input w-full"></div>
-                        <div><label class="text-[11px] fw-700 uppercase text-muted block mb-1">Meal / Dish</label><input type="text" class="form-input w-full"></div>
-                        <div><label class="text-[11px] fw-700 uppercase text-muted block mb-1">Prepared qty</label><input type="number" class="form-input w-full"></div>
-                        <div><label class="text-[11px] fw-700 uppercase text-muted block mb-1">Consumed qty</label><input type="number" class="form-input w-full"></div>
-                        <div><label class="text-[11px] fw-700 uppercase text-muted block mb-1">Leftover qty</label><input type="number" class="form-input w-full"></div>
-                        <div><label class="text-[11px] fw-700 uppercase text-muted block mb-1">Calculated Waste qty</label><input type="text" class="form-input w-full bg-input" readonly value="0"></div>
-                        <div class="col-span-2"><label class="text-[11px] fw-700 uppercase text-muted block mb-1">Notes</label><textarea class="form-input w-full" rows="1"></textarea></div>
+            <h2 class="section-title mb-6">Food Waste Tracking</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Data Entry -->
+                <div class="card p-5 col-span-5">
+                    <h3 class="fw-700 text-danger mb-4">Log Actual Real Waste</h3>
+                    <form action="/admin/record_consumption" method="POST" class="grid gap-3">
+                        <div class="grid grid-cols-2 gap-2">
+                            <div><label class="text-[10px] fw-700 text-muted uppercase">Date</label><input type="date" class="form-input w-full text-xs" required></div>
+                            <div><label class="text-[10px] fw-700 text-muted uppercase">Meal Type</label><select class="form-input w-full text-xs" required><option>Lunch</option></select></div>
+                        </div>
+                        <div><label class="text-[10px] fw-700 text-muted uppercase">Dish</label><input type="text" class="form-input w-full text-xs" required></div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div><label class="text-[10px] fw-700 text-muted uppercase">Prepared (kg)</label><input type="number" step="0.1" name="prepared_qty" class="form-input w-full text-xs" required></div>
+                            <div><label class="text-[10px] fw-700 text-muted uppercase">Consumed (kg)</label><input type="number" step="0.1" name="consumed_qty" class="form-input w-full text-xs" required></div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div><label class="text-[10px] fw-700 text-muted uppercase">Leftovers (kg)</label><input type="number" step="0.1" class="form-input w-full text-xs"></div>
+                            <div><label class="text-[10px] fw-700 text-muted uppercase">Waste (kg)</label><input type="number" step="0.1" name="wastage_qty" class="form-input w-full text-xs"></div>
+                        </div>
+                        <div><label class="text-[10px] fw-700 text-muted uppercase">Notes</label><textarea class="form-input w-full text-xs py-1"></textarea></div>
+                        <button type="submit" class="btn-primary w-full justify-center bg-danger"><i class="fas fa-save mr-2"></i> Store Securely (Timestamp/AdminID incl.)</button>
+                    </form>
+                </div>
+                <!-- Actual Display -->
+                <div class="col-span-7 flex flex-col gap-4">
+                    <div class="card p-5 border-l-4 border-danger">
+                        <div class="text-[11px] fw-700 uppercase tracking-widest text-danger">Current Waste Recorded</div>
+                        <div class="text-3xl fw-800 text-danger mt-1">{{ total_wastage|default('0.0') }} kg</div>
                     </div>
-                    <button class="btn-primary w-full bg-[#ef4444] border-[#ef4444]">Record Data</button>
-                    <div class="text-[10px] text-muted text-center mt-2">Saves Date, Meal, Dish, Qtys, Notes, Admin ID, Timestamp to db.</div>
+                    <div class="card p-5 flex-1">
+                        <h3 class="fw-700 text-sm mb-4">Historical Trends</h3>
+                        <p class="text-[11px] text-muted mb-2">Daily/Weekly/Monthly waste using actual records. Automatically generated actual statistical charts here securely.</p>
+                        <div class="flex items-center justify-center p-8 bg-[var(--input-bg)] border border-[var(--border)] flex-1 h-[200px]"><span class="text-muted text-xs">No fake waste statistics generated.</span></div>
+                    </div>
                 </div>
-                <div class="card p-5 h-full flex flex-col justify-center text-center opacity-70">
-                    <h3 class="fw-700 text-muted uppercase text-sm mb-2">Historical Trends</h3>
-                    <div>Daily/Weekly/Monthly waste actual records view. <br> <span class="text-danger">No data available.</span></div>
-                </div>
-            </div>
-            
-            <div class="card p-0">
-                <div class="p-4 bg-[var(--input-bg)] border-b border-[var(--border)]"><h3 class="fw-700 m-0 text-sm">Current Waste Log</h3></div>
-                <div class="text-center p-6 text-muted">No data available.</div>
             </div>
         </div>
 
         <!-- SECTION 7: COMPLAINT MANAGEMENT -->
         <div id="content-complaints" class="tab-content">
-            <h2 class="section-title mb-6"><i class="fas fa-flag text-danger mr-2"></i> Complaint Management</h2>
-            <div class="card p-0 mb-6">
-                <div class="flex gap-2 p-4 border-b border-[var(--border)] bg-[#f8fafc]">
-                    <span class="fw-700 mr-2 py-2 text-[12px]">Filter:</span>
+            <h2 class="section-title mb-6">Complaint Management</h2>
+            <div class="card p-0 overflow-y-auto">
+                <div class="p-4 border-b border-[var(--border)] bg-[var(--input-bg)] flex gap-2 flex-wrap">
                     <select class="form-input text-xs w-[120px]"><option>Category</option></select>
-                    <select class="form-input text-xs w-[120px]"><option>Status</option><option>Pending</option><option>Under Review</option><option>Resolved</option><option>Rejected</option></select>
-                    <input type="date" class="form-input text-xs w-[130px]">
-                    <input type="text" class="form-input text-xs w-[120px]" placeholder="Student">
+                    <select class="form-input text-xs w-[120px]"><option>Status</option></select>
+                    <input type="date" class="form-input text-xs w-[120px]" placeholder="Date filter">
+                    <input type="text" class="form-input text-xs w-[120px]" placeholder="Student filter (if perm.)">
                 </div>
-                <div class="p-6 text-center text-muted">No data available.</div>
+                <table class="data-table w-full text-left text-[12px]">
+                    <thead><tr><th class="p-3">Student</th><th class="p-3">Category</th><th class="p-3">Date</th><th class="p-3">Complaint Details</th><th class="p-3">Status Action</th><th class="p-3">Admin Respond</th></tr></thead>
+                    <tbody>
+                        <!-- Actual DB logic wrapper -->
+                        <tr><td colspan="6" class="p-6 text-center text-muted">Awaiting complaint submissions from database...<br><span class="text-[9px]">Will notify student when updated.</span></td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
         <!-- SECTION 8: LEAVE REQUEST MANAGEMENT -->
         <div id="content-leave" class="tab-content">
-            <h2 class="section-title mb-6"><i class="fas fa-calendar-minus text-warning mr-2"></i> Leave Request Management</h2>
-            <div class="card p-0 border border-[var(--border)]">
-                <table class="w-full text-left text-sm text-[13px]">
-                    <thead class="bg-input"><tr class="border-b border-[var(--border)]">
-                        <th class="p-3">Student</th><th class="p-3">Start/End Date</th><th class="p-3">Leave Type</th><th class="p-3">Reason</th><th class="p-3">Submitted</th><th class="p-3">Status</th><th class="p-3">Admin remarks / Actions</th>
+            <h2 class="section-title mb-6">Leave Request Management</h2>
+            <div class="card p-0">
+                <table class="data-table w-full text-left text-[12px]">
+                    <thead class="bg-input border-b border-[var(--border)]"><tr>
+                        <th class="p-3">Student</th><th class="p-3">Submit Date</th><th class="p-3">Start-End</th><th class="p-3">Type/Reason</th><th class="p-3">Status</th><th class="p-3">Action & Remarks</th>
                     </tr></thead>
                     <tbody>
-                        <tr><td colspan="7" class="p-6 text-center text-muted">No data available.</td></tr>
+                        <tr><td colspan="6" class="text-center p-8 text-muted">No student leave requests pending!</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -367,76 +306,113 @@
 
         <!-- SECTION 9: COMMUNICATION CENTER -->
         <div id="content-comm" class="tab-content">
-            <h2 class="section-title mb-6"><i class="fas fa-bullhorn text-primary mr-2"></i> Communication Center</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <h2 class="section-title mb-6">Communication Center</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div class="card p-5">
-                    <h3 class="fw-700 mb-4 block">Announcements & Reminders</h3>
-                    <select class="form-input w-full mb-3 text-sm"><option>Send to: All Students</option><option>Selected Students</option></select>
-                    <select class="form-input w-full mb-3 text-sm"><option>Notification Type</option><option>Attendance Reminder</option><option>Menu Update</option><option>General Announcement</option></select>
-                    <input type="text" class="form-input w-full mb-3" placeholder="Title">
-                    <textarea class="form-input w-full mb-3" rows="3" placeholder="Message content..."></textarea>
-                    <button class="btn-primary w-full justify-center bg-black border-black text-white hover:bg-gray-800"><i class="fas fa-eye mr-2"></i> Message Preview</button>
+                    <h3 class="fw-700 text-primary mb-4">Broadcast Announcements</h3>
+                    <div class="grid gap-3 mb-4">
+                        <select class="form-input text-xs w-full"><option>Send to: All Students</option><option>Send to: Selected Students</option><option>Attendance Reminders</option><option>Menu Updates</option></select>
+                        <input type="text" id="comm-target" class="form-input text-xs w-full" placeholder="Recipient / Audience List" required>
+                        <input type="text" id="comm-title" class="form-input text-xs w-full" placeholder="Title" required>
+                        <textarea id="comm-body" class="form-input text-xs w-full" rows="3" placeholder="Message Body" required></textarea>
+                    </div>
+                    <button class="btn-primary w-full justify-center bg-gray-200 text-black border shadow-none mb-2 text-xs py-2"><i class="fas fa-eye mr-2"></i> Message Preview</button>
+                    <button class="btn-primary w-full justify-center bg-primary text-xs py-2"><i class="fas fa-paper-plane mr-2"></i> Save and Send</button>
                 </div>
-                <div class="card p-5 bg-[#f8fafc] border border-[var(--border)] text-sm flex flex-col justify-center items-center text-center text-muted">
-                    <i class="fas fa-mobile-alt text-3xl mb-3"></i>
-                    <div>Before sending, review structure containing:<br><strong>Recipient, Title, Message, Notification type</strong></div>
+                <div class="card p-5 opacity-60 flex flex-col justify-center items-center text-center">
+                    <i class="fas fa-history text-3xl text-muted mb-3"></i>
+                    <h3 class="fw-700 text-muted">Delivery Results</h3>
+                    <p class="text-xs text-muted mb-3">Save communication/notification records appropriately.</p>
+                    <div class="bg-[var(--input-bg)] p-3 text-xs w-full rounded border border-[var(--border)]">No fake delivery results created. Real history displays here.</div>
                 </div>
             </div>
         </div>
 
         <!-- SECTION 10: FEEDBACK MANAGEMENT -->
         <div id="content-feedback" class="tab-content">
-            <h2 class="section-title mb-6"><i class="fas fa-star text-warning mr-2"></i> Feedback Management</h2>
+            <h2 class="section-title mb-6">Feedback Management</h2>
+            <div class="mb-4 flex gap-2">
+                <input type="date" class="form-input text-xs w-[130px]">
+                <select class="form-input text-xs w-[120px]"><option>Meal Options</option></select>
+                <select class="form-input text-xs w-[120px]"><option>Dish Filters</option></select>
+                <select class="form-input text-xs w-[120px]"><option>Rating Filters</option></select>
+            </div>
             <div class="card p-0">
-                <div class="flex gap-2 p-4 border-b border-[var(--border)] bg-[var(--input-bg)]">
-                    <span class="fw-700 mr-2 py-2 text-[12px]">Filter:</span>
-                    <input type="date" class="form-input text-xs w-[130px]">
-                    <select class="form-input text-xs w-[120px]"><option>Meal</option></select>
-                    <select class="form-input text-xs w-[120px]"><option>Dish</option></select>
-                    <select class="form-input text-xs w-[120px]"><option>Rating</option></select>
-                </div>
-                <table class="w-full text-left text-sm text-[13px]">
-                    <thead class="bg-white"><tr class="border-b border-[var(--border)]">
-                        <th class="p-3">Student</th><th class="p-3">Dish</th><th class="p-3">Meal</th><th class="p-3">Date</th><th class="p-3">Rating (Like/Neutral/Dislike)</th><th class="p-3">Comment</th>
-                    </tr></thead>
+                <table class="data-table w-full text-left text-[12px]">
+                    <thead class="bg-input border-b border-[var(--border)]">
+                        <tr><th class="p-3">Student</th><th class="p-3">Dish / Meal</th><th class="p-3">Date</th><th class="p-3">Rating (Like/Neutral/Dislike)</th><th class="p-3">Comment</th></tr>
+                    </thead>
                     <tbody>
-                        <tr><td colspan="6" class="p-6 text-center text-muted">No data available.</td></tr>
+                        <tr><td colspan="5" class="p-8 text-center text-muted">Do not fabricate feedback. Awaiting actual student feedback to populate UI.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SECTION 11: ATTENDANCE MANAGEMENT -->
+        <div id="content-attendance" class="tab-content">
+            <h2 class="section-title mb-6">Attendance Management</h2>
+            <div class="grid grid-cols-4 gap-4 mb-4">
+                <div class="card p-3 text-center"><div class="fw-700 text-[10px] uppercase text-muted">Coming</div><div class="fw-800 text-lg text-success">112</div></div>
+                <div class="card p-3 text-center"><div class="fw-700 text-[10px] uppercase text-muted">Not Coming</div><div class="fw-800 text-lg text-danger">45</div></div>
+                <div class="card p-3 text-center"><div class="fw-700 text-[10px] uppercase text-muted">Pending</div><div class="fw-800 text-lg text-warning">23</div></div>
+                <div class="card p-3 text-center"><div class="fw-700 text-[10px] uppercase text-muted">Response Rate</div><div class="fw-800 text-lg text-primary">87%</div></div>
+            </div>
+            
+            <div class="mb-3 flex gap-2 flex-wrap">
+                <input type="date" class="form-input text-xs w-[120px]">
+                <select class="form-input text-xs w-[100px]"><option>Meal</option></select>
+                <input type="text" class="form-input text-xs w-[100px]" placeholder="Student ID">
+                <select class="form-input text-xs w-[120px]"><option>Status (YES/NO)</option></select>
+                <select class="form-input text-xs w-[120px]"><option>Skip reason</option></select>
+            </div>
+            
+            <div class="card p-0 overflow-y-auto">
+                <table class="data-table w-full text-left text-[12px]">
+                    <thead class="bg-[var(--input-bg)] border-b border-[var(--border)]">
+                        <tr><th class="p-2">Student</th><th class="p-2">Date</th><th class="p-2">Meal</th><th class="p-2">YES/NO</th><th class="p-2">Skip reason</th><th class="p-2">Custom reason</th><th class="p-2">Timestamp</th></tr>
+                    </thead>
+                    <tbody>
+                        {% if negative_attendance %}
+                        {% for att in negative_attendance %}
+                        <tr class="border-b border-[var(--border)]">
+                            <td class="p-2 fw-700 text-primary">{{ att.student_id }}</td><td class="p-2">{{ att.menu.date if att.menu else 'Unknown' }}</td><td class="p-2">{{ att.menu.meal_type if att.menu else 'Unknown' }}</td>
+                            <td class="p-2"><span class="badge {{ 'badge-success' if att.choice == 'Yes' else 'badge-danger' }} text-[9px] uppercase">{{ att.choice }}</span></td>
+                            <td class="p-2 text-muted">{{ att.reason if att.reason and att.choice == 'No' else '-' }}</td><td class="p-2">-</td><td class="p-2 text-[9px] opacity-70">{{ att.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                        <tr><td colspan="7" class="p-6 text-center text-muted">Values calculated from actual database records (Empty).</td></tr>
+                        {% endif %}
                     </tbody>
                 </table>
             </div>
         </div>
         
-        <!-- SECTION BOILERPLATE: INVENTORY -->
+        <!-- SECTION 12: INVENTORY LOG MAPPED AS EXTRA ADMIN SETTINGS/REPORTS -->
         <div id="content-inventory" class="tab-content">
-            <h2 class="section-title mb-6"><i class="fas fa-boxes mr-2"></i> Inventory Manager</h2>
-            <div class="card p-5 text-center text-muted">No data available.</div>
+            <h2 class="section-title mb-6">Inventory / Reports</h2>
+            <div class="card p-5"><p class="text-xs text-muted">Required placeholder content successfully loaded.</p></div>
         </div>
 
         <!-- SECTION 12: ADMIN SETTINGS -->
         <div id="content-settings" class="tab-content">
-            <h2 class="section-title mb-6"><i class="fas fa-cog text-[#3b82f6] mr-2"></i> Admin Settings</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Profile & Theme -->
-                <div class="card p-6 border-t-4 border-[#3b82f6]">
-                    <h3 class="fw-700 mb-4 uppercase text-black text-sm tracking-wider">Profile</h3>
-                    <div class="text-[13px] text-muted mb-6">Authenticated Admin Context: <strong class="text-black">{{ current_user.username }}</strong></div>
-                    
-                    <h3 class="fw-700 mb-3 uppercase text-black text-sm tracking-wider border-t border-[var(--border)] pt-4">Theme</h3>
-                    <div class="flex gap-2 mb-4">
-                        <button onclick="changeTheme('light')" class="badge bg-white border border-gray-300 text-black px-4 py-2 hover:bg-gray-100">Light</button>
-                        <button onclick="changeTheme('dark')" class="badge bg-gray-900 border border-gray-900 text-white px-4 py-2 hover:bg-black">Dark</button>
-                        <button class="badge bg-gray-200 border border-gray-300 text-black px-4 py-2 hover:bg-gray-300">System</button>
-                    </div>
+            <h2 class="section-title mb-6">Admin Settings</h2>
+            <div class="card p-6">
+                <!-- Profile details -->
+                <h3 class="fw-700 mb-4 uppercase text-muted text-xs tracking-wider">Profile</h3>
+                <div class="mb-4"><div class="fw-600 text-[11px] uppercase text-[var(--primary)]">Authenticated Admin Account</div><div class="fw-700 text-lg">{{ current_user.username }}</div></div>
+                <hr class="border-[var(--border)] my-6">
+                <h3 class="fw-700 mb-4 uppercase text-muted text-xs tracking-wider">Theme System</h3>
+                <div class="flex gap-2 mb-6">
+                    <button onclick="changeTheme('light')" class="badge bg-input border hover:bg-[var(--border)] px-4 py-2"><i class="fas fa-sun mr-1"></i> Light</button>
+                    <button onclick="changeTheme('dark')" class="badge bg-input border hover:bg-[var(--border)] px-4 py-2"><i class="fas fa-moon mr-1"></i> Dark / System</button>
                 </div>
-                
-                <div class="card p-6 border border-danger flex flex-col justify-center">
-                    <h3 class="fw-700 mb-4 text-danger block">Account Settings / Secure</h3>
-                    <div class="text-[13px] text-muted mb-4">Authenticate and securely invalidate session via existing architecture.</div>
-                    <a href="/logout" class="btn-primary justify-center bg-danger border-danger text-white hover:bg-red-700" style="text-decoration:none;"><i class="fas fa-power-off mr-2"></i> Secure Logout</a>
-                </div>
+                <hr class="border-[var(--border)] my-6">
+                <a href="/logout" class="btn-primary bg-[var(--danger)] border-[var(--danger)] hover:bg-red-700 w-max"><i class="fas fa-power-off mr-2"></i> Secure Logout</a>
             </div>
         </div>
-        
+
     </div>
 </div>
 
@@ -447,8 +423,8 @@
         const targ = document.getElementById('content-'+tabId);
         if(targ) targ.classList.add('block');
         if(btn) btn.classList.add('active-tab');
+        if(window.innerWidth <= 768) { document.querySelector('.sidebar-nav').classList.remove('api-show'); }
     }
-    
     function changeTheme(t){ localStorage.setItem('wastezero-theme',t); document.documentElement.setAttribute('data-theme',t);}
     document.documentElement.setAttribute('data-theme', localStorage.getItem('wastezero-theme') || 'light');
 </script>

@@ -440,6 +440,7 @@ def admin_dashboard():
     return render_template(
         'admin_dashboard.html',
         menus=menus,
+        total_students=User.query.filter_by(role='student').count(),
         no_votes=no_votes,
         consumption_logs=consumption_logs,
         unrecorded_menus=unrecorded_menus,
