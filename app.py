@@ -1124,15 +1124,31 @@ def update_inventory(ing_id):
     db.session.commit()
     return jsonify({"success": True})
 
-@app.route('/api/feedback', methods=['POST'])
+@app.route('/api/feedback', methods=['GET', 'POST'])
 @login_required
 def submit_feedback():
-    if current_user.role != 'student': return jsonify({"error": "Unauthorized"}), 403
-    data = request.json
-    fb = Feedback(student_id=current_user.student_id, menu_id=data.get('menu_id'), rating=data.get('rating'), comments=data.get('comments', ''))
-    db.session.add(fb)
-    db.session.commit()
-    return jsonify({"success": True})
+    if request.method == 'POST':
+        if current_user.role != 'student': return jsonify({"error": "Unauthorized"}), 403
+        data = request.json
+        fb = Feedback(student_id=current_user.student_id, menu_id=data.get('menu_id'), rating=data.get('rating'), comments=data.get('comments', ''))
+        db.session.add(fb)
+        db.session.commit()
+        return jsonify({"success": True})
+    
+    # GET method for Admin
+    if current_user.role != 'admin':
+        return jsonify({"error": "Unauthorized"}), 403
+    fbs = db.session.query(Feedback, MenuEntry).join(MenuEntry).order_by(Feedback.timestamp.desc()).all()
+    return jsonify([{
+        "id": f.Feedback.id,
+        "student_id": f.Feedback.student_id,
+        "dish": f.MenuEntry.items,
+        "meal": f.MenuEntry.meal_type,
+        "date": f.MenuEntry.date,
+        "rating": f.Feedback.rating,
+        "comments": f.Feedback.comments,
+        "timestamp": f.Feedback.timestamp.strftime('%Y-%m-%d %H:%M')
+    } for f in fbs]))
 
 @app.route('/api/menu/<int:menu_id>/status', methods=['POST'])
 @login_required

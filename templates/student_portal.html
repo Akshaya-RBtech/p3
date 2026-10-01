@@ -220,13 +220,10 @@
                     <div id="comp-status" class="mt-3 text-center text-xs fw-600 hidden"></div>
                 </div>
                 
-                <div class="card p-5 flex flex-col h-full opacity-70">
-                    <h3 class="fw-700 mb-4 text-muted"><i class="fas fa-history mr-2"></i> Complaint History</h3>
-                    <div class="flex-1 flex items-center justify-center border-2 border-dashed border-[var(--border)] rounded-lg">
-                        <div class="text-center text-sm text-muted p-4">
-                            History is available via Admin console for MVP.<br>
-                            Your submitted complaints are logged safely!
-                        </div>
+                <div class="card p-5 flex flex-col h-full">
+                    <h3 class="fw-700 mb-4"><i class="fas fa-history mr-2 text-primary"></i> Complaint History</h3>
+                    <div id="stu-comp-list" class="flex-1 flex flex-col gap-3 overflow-y-auto max-h-[300px]">
+                        <div class="text-center text-sm text-muted p-4"><i class="fas fa-spinner fa-spin mr-2"></i> Loading history...</div>
                     </div>
                 </div>
             </div>
@@ -263,6 +260,12 @@
                         <button type="submit" class="btn-primary w-full justify-center bg-warning border-warning"><i class="fas fa-paper-plane mr-2"></i> Submit Leave Request</button>
                     </form>
                     <div id="leave-status" class="mt-3 text-center text-xs fw-600 hidden"></div>
+                </div>
+                <div class="card p-5 flex flex-col h-full">
+                    <h3 class="fw-700 mb-4"><i class="fas fa-history mr-2 text-warning"></i> Leave History</h3>
+                    <div id="stu-leave-list" class="flex-1 flex flex-col gap-2 overflow-y-auto max-h-[300px]">
+                        <div class="text-center text-sm text-muted p-4"><i class="fas fa-spinner fa-spin mr-2"></i> Loading history...</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -318,6 +321,9 @@ function switchTab(tabId, btn) {
     }
     
     // Load data dynamically based on tab
+    if (tabId === 'notifications' || tabId === 'complaints' || tabId === 'leave') {
+        loadStudentHistory();
+    }
     if (tabId === 'notifications') {
         loadStudentNotifications();
     }
@@ -471,9 +477,28 @@ async function readAllNotifs() {
     } catch(e){}
 }
 
+
+async function loadStudentHistory() {
+    try {
+        const cRes = await fetch('/api/complaints');
+        const cData = await cRes.json();
+        const cDiv = document.getElementById('stu-comp-list');
+        if(cDiv && cData.length===0) cDiv.innerHTML='<div class="text-muted text-[11px] p-3 text-center">No complaints filed.</div>';
+        else if(cDiv) cDiv.innerHTML = cData.map(c => `<div class="bg-[var(--input-bg)] border border-[var(--border)] p-3 rounded"><div class="flex justify-between items-center"><span class="fw-700 text-[11px] text-primary">${c.category}</span><span class="badge ${c.status==='Resolved'?'badge-success':c.status==='Open'?'badge-danger':'badge-warning'} text-[10px]">${c.status}</span></div><div class="text-[11px] mt-2 mb-2">${c.description}</div>${c.admin_note ? `<div class="text-[10px] text-muted border-t pt-1 border-[var(--border)]"><i class="fas fa-reply mr-1"></i> ${c.admin_note}</div>` : ''}</div>`).join('');
+    } catch(e){}
+    try {
+        const lRes = await fetch('/api/leave');
+        const lData = await lRes.json();
+        const lDiv = document.getElementById('stu-leave-list');
+        if(lDiv && lData.length===0) lDiv.innerHTML='<div class="text-muted text-[11px] p-3 text-center">No leave requests found.</div>';
+        else if(lDiv) lDiv.innerHTML = lData.map(l => `<div class="bg-[var(--input-bg)] border border-[var(--border)] p-3 rounded"><div class="flex justify-between items-center"><span class="fw-700 text-[11px] text-primary">${l.start_date} to ${l.end_date}</span><span class="badge ${l.status==='Approved'?'badge-success':l.status==='Rejected'?'badge-danger':'badge-warning'} text-[10px]">${l.status}</span></div><div class="text-[11px] mt-1 text-muted">Reason: ${l.reason||'None'}</div></div>`).join('');
+    } catch(e){}
+}
+
 // Initialize home tab on load
 document.addEventListener("DOMContentLoaded", () => {
     loadStudentNotifications();
+    loadStudentHistory();
 });
 
 // Operations APIs

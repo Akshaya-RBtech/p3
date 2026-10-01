@@ -490,11 +490,12 @@
         
         // Feedback Form
         try {
+            const fbRes = await fetch('/api/feedback');
+            const fbData = await fbRes.json();
             const fbTable = document.getElementById('ops-feedback');
-            // Assuming no dedicated feedback json endpoint, this requires just reloading if it's templated or leaving it.
-            // MVP template loads the layout correctly. 
-            if(fbTable && fbTable.innerHTML.includes('Mapping feedback')) {
-                fbTable.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-muted">Feedback logs loaded securely! Connect Database Endpoint to view real-time streams.</td></tr>`;
+            if (fbTable) {
+                if (fbData.length === 0) fbTable.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-muted">No feedback recorded.</td></tr>`;
+                else fbTable.innerHTML = fbData.map(fb => `<tr class="border-b border-[var(--border)]"><td class="p-3 fw-600 text-[12px]"><i class="fas fa-user-circle text-muted mr-1"></i> ${fb.student_id}</td><td class="p-3 text-[12px]"><div class="fw-600 text-primary">${fb.dish}</div><div class="text-[10px] text-muted">${fb.meal} | ${fb.date}</div></td><td class="p-3"><span class="badge ${fb.rating === 'Excellent' || fb.rating === 'Like' || fb.rating === 'Good' ? 'badge-success' : fb.rating === 'Dislike' || fb.rating === 'Terrible' || fb.rating === 'Poor' ? 'badge-danger' : 'badge-warning'} text-[11px]">${fb.rating}</span><div class="text-[11px] mt-1 text-muted">${fb.comments||'No comment'}</div></td><td class="text-[10px] text-muted p-3">${fb.timestamp}</td></tr>`).join('');
             }
         }catch(e){}
     }
