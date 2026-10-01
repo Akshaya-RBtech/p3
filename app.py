@@ -620,8 +620,17 @@ def rewrite_announcement():
             "contents": [{"parts": [{"text": f"Rewrite the following draft announcement to clearly and professionally inform students in a hostel. Keep facts. \nTitle: {title}\nDraft: {draft}"}]}]
         }
         resp = requests.post(url, json=payload).json()
-        rewritten = resp.get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text', draft)
-        return jsonify({'success': True, 'rewritten': rewritten.strip()})
+        if 'error' in resp:
+            return jsonify({'error': f"Gemini API Error: {resp['error'].get('message', 'Auth failed')}"}), 401
+            
+        candidates = resp.get('candidates', [])
+        if not candidates:
+            return jsonify({'error': 'No response generated from AI.'}), 500
+            
+        rewritten = candidates[0].get('content', {}).get('parts', [{}])[0].get('text', draft)
+        return jsonify({'success': True, 'rewritten': rewritten.strip() if rewritten else draft})
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': 'Network connection to AI failed.'}), 503
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -668,7 +677,7 @@ def student_portal():
     my_votes = Vote.query.filter_by(student_id=current_user.student_id).all()
     voted_menu_ids = [v.menu_id for v in my_votes]
     
-    return render_template('student_portal.html', menus=upcoming_menus, voted_ids=voted_menu_ids)
+    return render_template('student_portal.html', menus=upcoming_menus, voted_ids=voted_menu_ids, today=today, tomorrow=tomorrow)
 
 @app.route('/api/menu_stats/<int:menu_id>')
 @login_required

@@ -1,0 +1,2 @@
+[Firebase] Configured for project: gen-lang-client-0798508405
+Model trained and saved.

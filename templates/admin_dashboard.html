@@ -11,18 +11,20 @@
     <div class="sidebar-nav" style="width:260px; background:var(--card-bg); border-right:1px solid var(--border); overflow-y:auto; display:flex; flex-direction:column; padding:20px 0; transition:all 0.3s; z-index:100; flex-shrink:0;">
         <div style="padding:0 20px 10px; font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px;">Admin Control Panel</div>
         
-        <button id="tab-overview" class="sidebar-btn active-tab" onclick="switchTab('overview', this)"><i class="fas fa-chart-pie fw-icon text-primary"></i> Dashboard Overview</button>
+        <button id="tab-overview" class="sidebar-btn active-tab" onclick="switchTab('overview', this)"><i class="fas fa-chart-pie fw-icon text-primary"></i> Dashboard</button>
         <button id="tab-menu" class="sidebar-btn" onclick="switchTab('menu', this)"><i class="fas fa-utensils fw-icon text-warning"></i> Menu Management</button>
+        <button id="tab-calendar" class="sidebar-btn" onclick="switchTab('calendar', this)"><i class="fas fa-calendar-alt fw-icon text-success"></i> Weekly Calendar</button>
+        <button id="tab-attendance" class="sidebar-btn" onclick="switchTab('attendance', this)"><i class="fas fa-clipboard-check fw-icon text-success"></i> Attendance</button>
         <button id="tab-ai_meal" class="sidebar-btn" onclick="switchTab('ai_meal', this)"><i class="fas fa-magic fw-icon text-primary"></i> AI Meal Assistant</button>
-        <button id="tab-predict" class="sidebar-btn" onclick="switchTab('predict', this)"><i class="fas fa-brain fw-icon text-success"></i> AI Prediction</button>
+        <button id="tab-predict" class="sidebar-btn" onclick="switchTab('predict', this)"><i class="fas fa-brain fw-icon text-primary"></i> AI Prediction</button>
         <button id="tab-dish" class="sidebar-btn" onclick="switchTab('dish', this)"><i class="fas fa-chart-bar fw-icon text-warning"></i> Dish Analytics</button>
-        <button id="tab-waste" class="sidebar-btn" onclick="switchTab('waste', this)"><i class="fas fa-trash-alt fw-icon text-danger"></i> Food Waste Tracking</button>
-        <button id="tab-complaints" class="sidebar-btn" onclick="switchTab('complaints', this)"><i class="fas fa-flag fw-icon text-danger"></i> Complaint Management</button>
-        <button id="tab-leave" class="sidebar-btn" onclick="switchTab('leave', this)"><i class="fas fa-calendar-minus fw-icon text-warning"></i> Leave Request Management</button>
-        <button id="tab-comm" class="sidebar-btn" onclick="switchTab('comm', this)"><i class="fas fa-bullhorn fw-icon text-primary"></i> Communication Center</button>
-        <button id="tab-feedback" class="sidebar-btn" onclick="switchTab('feedback', this)"><i class="fas fa-star fw-icon text-warning"></i> Feedback Management</button>
-        <button id="tab-attendance" class="sidebar-btn" onclick="switchTab('attendance', this)"><i class="fas fa-clipboard-check fw-icon text-success"></i> Attendance Management</button>
-        <button id="tab-settings" class="sidebar-btn" onclick="switchTab('settings', this)"><i class="fas fa-cog fw-icon text-muted"></i> Admin Settings</button>
+        <button id="tab-waste" class="sidebar-btn" onclick="switchTab('waste', this)"><i class="fas fa-trash-alt fw-icon text-danger"></i> Food Waste</button>
+        <button id="tab-inventory" class="sidebar-btn" onclick="switchTab('inventory', this)"><i class="fas fa-boxes fw-icon text-warning"></i> Inventory</button>
+        <button id="tab-leave" class="sidebar-btn" onclick="switchTab('leave', this)"><i class="fas fa-calendar-minus fw-icon text-warning"></i> Leave Requests</button>
+        <button id="tab-complaints" class="sidebar-btn" onclick="switchTab('complaints', this)"><i class="fas fa-flag fw-icon text-danger"></i> Complaints</button>
+        <button id="tab-comm" class="sidebar-btn" onclick="switchTab('comm', this)"><i class="fas fa-bullhorn fw-icon text-primary"></i> Communication</button>
+        <button id="tab-feedback" class="sidebar-btn" onclick="switchTab('feedback', this)"><i class="fas fa-star fw-icon text-warning"></i> Feedback</button>
+        <button id="tab-settings" class="sidebar-btn" onclick="switchTab('settings', this)"><i class="fas fa-cog fw-icon text-muted"></i> Settings</button>
     </div>
 
     <!-- Main Content Area -->
@@ -129,6 +131,16 @@
                     </table>
                 </div>
                 <div class="text-center p-3 mt-2 text-xs text-[var(--primary)] cursor-pointer hover:underline fw-600">View Complete Menu Log →</div>
+        </div>
+
+        <!-- ======================= SECTION: WEEKLY CALENDAR ======================= -->
+        <div id="content-calendar" class="tab-content">
+            <h2 class="section-title mb-6"><i class="fas fa-calendar-alt text-success mr-2"></i> Weekly Calendar</h2>
+            <div class="card p-10 text-center">
+                <i class="fas fa-calendar-plus text-5xl text-[var(--border)] mb-4 block"></i>
+                <h3 class="fw-700 text-lg">Calendar View</h3>
+                <p class="text-muted text-sm max-w-md mx-auto">This section displays the master schedule of all upcoming planned meals across the week.</p>
+                <button onclick="switchTab('menu')" class="btn-primary mt-4"><i class="fas fa-edit mr-2"></i> Go to Menu Management</button>
             </div>
         </div>
 
@@ -245,6 +257,17 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+
+        <!-- ======================= SECTION: INVENTORY ======================= -->
+        <div id="content-inventory" class="tab-content">
+            <h2 class="section-title mb-6"><i class="fas fa-boxes text-warning mr-2"></i> Kitchen Inventory</h2>
+            <div class="card p-10 text-center">
+                <i class="fas fa-box-open text-5xl text-[var(--border)] mb-4 block"></i>
+                <h3 class="fw-700 text-lg">Inventory Management</h3>
+                <p class="text-muted text-sm max-w-md mx-auto">Track raw materials, predict stock depletion, and set minimum threshold alerts here.</p>
+                <div class="mt-4 inline-block badge bg-input borderpx-4 py-2 text-muted fw-600"><i class="fas fa-info-circle text-primary mr-1"></i> Module Pending DB Integration</div>
             </div>
         </div>
 

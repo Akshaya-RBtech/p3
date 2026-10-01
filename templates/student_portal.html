@@ -11,17 +11,19 @@
     <div class="sidebar-nav" style="width:250px; background:var(--card-bg); border-right:1px solid var(--border); overflow-y:auto; display:flex; flex-direction:column; padding:20px 0; transition:all 0.3s; z-index:100;">
         <div style="padding:0 20px 10px; font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px;">Student Portal</div>
         
-        <button id="tab-home" class="sidebar-btn active-tab" onclick="switchTab('home', this)"><i class="fas fa-home fw-icon"></i> Home Dashboard</button>
-        <button id="tab-calendar" class="sidebar-btn" onclick="switchTab('calendar', this)"><i class="fas fa-calendar-alt fw-icon"></i> Weekly Meal Calendar</button>
-        <button id="tab-assistant" class="sidebar-btn" onclick="switchTab('assistant', this)"><i class="fas fa-robot fw-icon text-primary"></i> Student AI Assistant</button>
+        <button id="tab-home" class="sidebar-btn active-tab" onclick="switchTab('home', this)"><i class="fas fa-home fw-icon text-primary"></i> Dashboard</button>
+        <button id="tab-calendar" class="sidebar-btn" onclick="switchTab('calendar', this)"><i class="fas fa-calendar-alt fw-icon text-warning"></i> Meal Calendar</button>
+        <button id="tab-attendance" class="sidebar-btn" onclick="switchTab('attendance', this)"><i class="fas fa-clipboard-check fw-icon text-success"></i> Attendance</button>
+        <button id="tab-assistant" class="sidebar-btn" onclick="switchTab('assistant', this)"><i class="fas fa-robot fw-icon text-primary"></i> AI Assistant</button>
         <button id="tab-notifications" class="sidebar-btn" onclick="switchTab('notifications', this)"><i class="fas fa-bell fw-icon text-warning"></i> Notifications</button>
-        <button id="tab-feedback" class="sidebar-btn" onclick="switchTab('feedback', this)"><i class="fas fa-star fw-icon text-warning"></i> Food Feedback</button>
-        <button id="tab-complaints" class="sidebar-btn" onclick="switchTab('complaints', this)"><i class="fas fa-flag fw-icon text-danger"></i> Student Complaints</button>
-        <button id="tab-leave" class="sidebar-btn" onclick="switchTab('leave', this)"><i class="fas fa-calendar-minus fw-icon text-warning"></i> Student Leave Requests</button>
-        <button id="tab-profile" class="sidebar-btn" onclick="switchTab('profile', this)"><i class="fas fa-user-circle fw-icon"></i> Student Profile</button>
+        <button id="tab-feedback" class="sidebar-btn" onclick="switchTab('feedback', this)"><i class="fas fa-star fw-icon text-warning"></i> Feedback</button>
+        <button id="tab-leave" class="sidebar-btn" onclick="switchTab('leave', this)"><i class="fas fa-calendar-minus fw-icon text-warning"></i> Leave Request</button>
+        <button id="tab-complaints" class="sidebar-btn" onclick="switchTab('complaints', this)"><i class="fas fa-flag fw-icon text-danger"></i> Complaints</button>
+        <button id="tab-profile" class="sidebar-btn" onclick="switchTab('profile', this)"><i class="fas fa-user-circle fw-icon text-primary"></i> Profile</button>
+        <button id="tab-settings" class="sidebar-btn" onclick="switchTab('settings', this)"><i class="fas fa-cog fw-icon text-muted"></i> Settings</button>
         
         <div style="margin-top:auto; padding:20px;">
-            <a href="/logout" class="sidebar-btn" style="text-decoration:none; color:var(--danger); display:block; padding:10px 20px;"><i class="fas fa-sign-out-alt fw-icon"></i> Logout</a>
+            <a href="{{ url_for('logout') }}" class="sidebar-btn" style="text-decoration:none; color:var(--danger); display:block; padding:10px 20px;"><i class="fas fa-sign-out-alt fw-icon"></i> Logout</a>
         </div>
     </div>
 
@@ -35,33 +37,62 @@
                 <p class="text-muted" style="font-size:13px;margin-top:4px;">Today's Overview & Quick Actions</p>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
-                <!-- Status Card -->
-                <div class="card p-5" style="border-left:4px solid var(--primary);">
-                    <div class="text-[11px] fw-700 text-muted uppercase mb-1">Today's Meals</div>
-                    <div class="text-2xl fw-800">{{ menus|length }}</div>
-                    <div class="text-xs text-muted mt-2">Active menus published</div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Left Column: Today's Meals -->
+                <div class="lg:col-span-2">
+                    <div class="card p-6 h-full border-t-4" style="border-top-color:var(--primary);">
+                        <h3 class="fw-700 text-lg mb-4 flex items-center"><i class="fas fa-utensils text-primary mr-2"></i> Today's Meals</h3>
+                        {% set today_menus = menus|selectattr("date", "equalto", today)|list %}
+                        {% if today_menus %}
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {% for m in today_menus %}
+                                <div class="p-4 bg-[var(--input-bg)] border border-[var(--border)] rounded flex gap-4 items-center">
+                                    <div class="w-12 h-12 bg-white rounded shadow-sm flex items-center justify-center text-2xl">
+                                        {% if m.meal_type == 'Breakfast' %}🌅{% elif m.meal_type == 'Lunch' %}☀️{% elif m.meal_type == 'Dinner' %}🌙{% else %}🍪{% endif %}
+                                    </div>
+                                    <div>
+                                        <div class="fw-700 text-[15px]">{{ m.meal_type }}</div>
+                                        <div class="text-xs text-muted mb-1">{{ m.items[:40] }}...</div>
+                                        <div class="text-[10px] fw-600 bg-white border border-[var(--border)] px-2 py-1 rounded inline-block"><i class="far fa-clock"></i> 
+                                            {% if m.meal_type == 'Breakfast' %}7:30 - 9:00 AM{% elif m.meal_type == 'Lunch' %}12:30 - 2:00 PM{% elif m.meal_type == 'Snacks' %}4:30 - 5:30 PM{% else %}7:30 - 9:00 PM{% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center p-8 text-muted"><i class="fas fa-bed text-3xl mb-2 block"></i> No meals scheduled for today.</div>
+                        {% endif %}
+                    </div>
                 </div>
-                <!-- Attendance Card -->
-                <div class="card p-5" style="border-left:4px solid var(--success);">
-                    <div class="text-[11px] fw-700 text-muted uppercase mb-1">Attendance</div>
-                    <div class="text-2xl fw-800">Present</div>
-                    <div class="text-xs text-muted mt-2">No active leave today</div>
-                </div>
-                <!-- Notif Card -->
-                <div class="card p-5" style="border-left:4px solid var(--warning);">
-                    <div class="text-[11px] fw-700 text-muted uppercase mb-1">Alerts</div>
-                    <div class="text-2xl fw-800" id="home-alert-count">0</div>
-                    <div class="text-xs text-muted mt-2">Unread notifications</div>
-                </div>
-            </div>
-
-            <div class="card p-6 mb-6">
-                <h3 class="fw-700 mb-4"><i class="fas fa-bolt text-warning mr-2"></i> Quick Actions</h3>
-                <div class="flex flex-wrap gap-3">
-                    <button onclick="document.getElementById('tab-calendar').click()" class="btn-primary"><i class="fas fa-check-circle mr-2"></i> Vote on Meals</button>
-                    <button onclick="document.getElementById('tab-complaints').click()" class="badge bg-input border" style="cursor:pointer;padding:10px 15px;"><i class="fas fa-flag text-danger mr-2"></i> Report Issue</button>
-                    <button onclick="document.getElementById('tab-assistant').click()" class="badge bg-input border" style="cursor:pointer;padding:10px 15px;"><i class="fas fa-robot text-primary mr-2"></i> Ask AI</button>
+                
+                <!-- Right Column: Stats & Notifications -->
+                <div class="flex flex-col gap-6">
+                    <div class="card p-6 border-t-4" style="border-top-color:var(--success);">
+                        <h3 class="fw-700 mb-4 text-sm uppercase text-muted tracking-wider"><i class="fas fa-chart-pie mr-2"></i> Quick Stats</h3>
+                        <div class="flex justify-between items-center bg-[var(--input-bg)] p-4 rounded border border-[var(--border)]">
+                            <div class="text-center">
+                                <div class="text-2xl fw-800 text-success">{{ voted_ids|length }}</div>
+                                <div class="text-[10px] fw-700 uppercase mt-1">Confirmed</div>
+                            </div>
+                            <div class="w-px h-10 bg-[var(--border)]"></div>
+                            <div class="text-center">
+                                <div class="text-2xl fw-800 text-warning">{{ menus|length - voted_ids|length }}</div>
+                                <div class="text-[10px] fw-700 uppercase mt-1">Pending</div>
+                            </div>
+                            <div class="w-px h-10 bg-[var(--border)]"></div>
+                            <div class="text-center">
+                                <div class="text-2xl fw-800 text-danger">0</div>
+                                <div class="text-[10px] fw-700 uppercase mt-1">Skipped</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card p-6 flex-1 flex flex-col items-center justify-center bg-[var(--primary)] text-white text-center cursor-pointer hover:opacity-90 transition-opacity" onclick="document.getElementById('tab-calendar').click()">
+                        <i class="fas fa-calendar-check text-4xl mb-3"></i>
+                        <h3 class="fw-800 text-lg">Tomorrow's Attendance</h3>
+                        <p class="text-sm opacity-80 mt-1">Tap to confirm your upcoming meals.</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -126,6 +157,41 @@
                 <p class="text-muted text-sm max-w-md mx-auto">There are currently no active menus to display in the calendar view.</p>
             </div>
             {% endif %}
+        </div>
+        
+        <!-- Attendance -->
+        <div id="content-attendance" class="tab-content">
+            <h2 class="section-title mb-6"><i class="fas fa-clipboard-check text-success mr-2"></i> Attendance Tracker</h2>
+            <div class="card p-6">
+                <p class="text-muted text-sm mb-4">View your historical meal attendance and voting history.</p>
+                <div class="overflow-x-auto">
+                    <table class="data-table w-full">
+                        <thead><tr>
+                            <th class="p-3 bg-[var(--input-bg)]">Date</th>
+                            <th class="p-3 bg-[var(--input-bg)]">Meal Info</th>
+                            <th class="p-3 bg-[var(--input-bg)]">Status / Reason</th>
+                        </tr></thead>
+                        <tbody>
+                            {% for m in menus %}
+                                {% set vote = m.votes|selectattr("user_id", "equalto", current_user.id)|first %}
+                                {% if vote %}
+                                <tr class="border-b border-[var(--border)]">
+                                    <td class="p-3">{{ m.date }}</td>
+                                    <td class="p-3"><span class="badge badge-primary">{{ m.meal_type }}</span> <span class="text-xs text-muted ml-2">{{ m.items[:30] }}...</span></td>
+                                    <td class="p-3">
+                                        {% if vote.is_coming %}
+                                            <span class="text-success fw-700 text-[11px]"><i class="fas fa-check-circle"></i> Coming</span>
+                                        {% else %}
+                                            <span class="text-danger fw-700 text-[11px]"><i class="fas fa-times-circle"></i> Not Coming ({{ vote.skip_reason|default('Other') }})</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
         <!-- Student AI Assistant -->
@@ -277,7 +343,7 @@
                 <div class="card p-6">
                     <div class="flex items-center gap-4 mb-6">
                         <div class="w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center text-2xl fw-700">
-                            {{ current_user.username[:1].upper() }}
+                            {{ current_user.username[:1].upper() if current_user.username else 'U' }}
                         </div>
                         <div>
                             <h3 class="text-lg fw-800">{{ current_user.full_name or current_user.username }}</h3>
@@ -287,17 +353,26 @@
                     
                     <div class="mb-4">
                         <label class="text-[11px] fw-600 text-muted uppercase">Email Address</label>
-                        <div class="fw-700 px-3 py-2 bg-input rounded mt-1">{{ current_user.email or current_user.username + '@wastezero.local' }}</div>
+                        <div class="fw-700 px-3 py-2 bg-input rounded mt-1">{{ current_user.email or ((current_user.username or 'student') ~ '@wastezero.local') }}</div>
                     </div>
                     
-                    <hr class="border-[var(--border)] my-6">
-                    
-                    <h3 class="fw-700 mb-3 uppercase text-muted text-[11px]">Theme Settings</h3>
-                    <div class="flex gap-2">
-                        <button onclick="selectTheme('light')" class="badge bg-input border" style="cursor:pointer;"><i class="fas fa-sun mr-1"></i> Light</button>
-                        <button onclick="selectTheme('dark')" class="badge bg-input border" style="cursor:pointer;"><i class="fas fa-moon mr-1"></i> Dark</button>
-                        <button onclick="selectTheme('dark-blue')" class="badge bg-input border" style="cursor:pointer;"><i class="fas fa-water mr-1"></i> Deep Blue</button>
-                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Application Settings -->
+        <div id="content-settings" class="tab-content">
+            <h2 class="section-title mb-6"><i class="fas fa-cog text-muted mr-2"></i> Application Settings</h2>
+            <div class="card p-6 text-center max-w-sm mx-auto mt-10 shadow-sm border border-[var(--border)]">
+                <div class="text-[32px] text-muted mb-4"><i class="fas fa-palette"></i></div>
+                <h3 class="text-lg fw-700 mb-2 text-[var(--text-primary)]">Theme Appearance</h3>
+                <p class="text-[13px] text-muted mb-6">Choose how the application looks to you.</p>
+                
+                <div class="flex flex-col gap-3">
+                    <button onclick="selectTheme('light')" class="badge bg-input border hover:bg-[var(--border)] transition-colors text-left" style="cursor:pointer;padding:12px;font-size:14px;"><i class="fas fa-sun mr-3 text-warning"></i> Light Mode</button>
+                    <button onclick="selectTheme('dark')" class="badge bg-input border hover:bg-[var(--border)] transition-colors text-left" style="cursor:pointer;padding:12px;font-size:14px;"><i class="fas fa-moon mr-3 text-primary"></i> Dark Mode</button>
+                    <button onclick="selectTheme('dark-blue')" class="badge bg-input border hover:bg-[var(--border)] transition-colors text-left" style="cursor:pointer;padding:12px;font-size:14px;"><i class="fas fa-water mr-3 text-[var(--link-color)]"></i> Deep Blue Mode</button>
+                    <button onclick="selectTheme('system')" class="badge bg-input border hover:bg-[var(--border)] transition-colors text-left" style="cursor:pointer;padding:12px;font-size:14px;"><i class="fas fa-desktop mr-3 text-muted"></i> System Default</button>
                 </div>
             </div>
         </div>
@@ -446,7 +521,7 @@ async function loadStudentNotifications() {
         document.getElementById('home-alert-count').innerText = unreadCount;
         
         if(!data.notifications || data.notifications.length === 0) {
-            container.innerHTML = '<div class="text-center p-8 text-muted"><i class="fas fa-bell-slash text-2xl mb-3 block"></i>No notifications found. You're all caught up!</div>';
+            container.innerHTML = '<div class="text-center p-8 text-muted"><i class="fas fa-bell-slash text-2xl mb-3 block"></i>No notifications found. You are all caught up!</div>';
             return;
         }
         

@@ -54,10 +54,10 @@
 
         /* ── LIGHT THEME ── */
         :root[data-theme="light"] {
-            --primary: #4f46e5;
-            --primary-dark: #3730a3;
-            --primary-light: #818cf8;
-            --accent: #06b6d4;
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --primary-light: #34d399;
+            --accent: #22c55e;
             --success: #10b981;
             --warning: #f59e0b;
             --danger: #ef4444;
@@ -90,10 +90,10 @@
 
         /* ── DARK THEME ── */
         :root[data-theme="dark"] {
-            --primary: #818cf8;
-            --primary-dark: #4338ca;
-            --primary-light: #a5b4fc;
-            --accent: #22d3ee;
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --primary-light: #34d399;
+            --accent: #22c55e;
             --success: #34d399;
             --warning: #fbbf24;
             --danger: #f87171;
@@ -158,6 +158,16 @@
             --flash-bg: linear-gradient(135deg, rgba(96,165,250,0.08), rgba(56,189,248,0.08));
             --flash-text: #c8dcf8;
             --chart-grid: rgba(96,165,250,0.08);
+        }
+
+        /* ===========================
+           TAB ISOLATION FIX
+           =========================== */
+        .tab-content {
+            display: none;
+        }
+        .tab-content.block, .tab-content.active {
+            display: block;
         }
 
         /* ===========================
@@ -764,9 +774,9 @@
             {% if current_user.is_authenticated %}
                 <div class="header-user">
                     <div class="user-avatar">
-                        {{ current_user.username[0].upper() }}
+                        {{ current_user.username[:1].upper() if current_user.username else 'U' }}
                     </div>
-                    <span class="user-name-text">{{ current_user.username }}</span>
+                    <span class="user-name-text">{{ current_user.username or 'User' }}</span>
                 </div>
                 <a href="{{ url_for('logout') }}" class="btn-logout">
                     <i class="fas fa-arrow-right-from-bracket"></i>
