@@ -1148,7 +1148,7 @@ def submit_feedback():
         "rating": f.Feedback.rating,
         "comments": f.Feedback.comments,
         "timestamp": f.Feedback.timestamp.strftime('%Y-%m-%d %H:%M')
-    } for f in fbs]))
+    } for f in fbs])
 
 @app.route('/api/menu/<int:menu_id>/status', methods=['POST'])
 @login_required
