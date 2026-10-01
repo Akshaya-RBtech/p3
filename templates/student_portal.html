@@ -167,6 +167,50 @@
             <div id="leave-status" style="margin-top:10px;font-size:12px;display:none;font-weight:600;text-align:center;"></div>
         </div>
     </div>
+    
+    <!-- Operations History Sections -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
+        <!-- Complaint History -->
+        <div class="card" style="padding:20px;max-height:300px;overflow-y:auto;">
+            <h3 style="font-size:14px;font-weight:700;margin-bottom:12px;color:var(--text-secondary);text-transform:uppercase;">Complaint History</h3>
+            {% if complaints %}
+                {% for c in complaints %}
+                <div style="padding:10px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;background:var(--card-bg);">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                        <span style="font-size:12px;font-weight:600;">{{ c.category }}</span>
+                        <span class="badge {{ 'badge-warning' if c.status == 'Open' or c.status == 'In Progress' else ('badge-success' if c.status == 'Resolved' else 'badge-danger') }}" style="font-size:10px;">{{ c.status }}</span>
+                    </div>
+                    <p style="font-size:12px;color:var(--text-primary);margin-bottom:6px;">{{ c.description }}</p>
+                    {% if c.admin_note %}
+                    <div style="padding:6px;background:rgba(99,102,241,0.05);border-left:3px solid var(--primary);font-size:11px;color:var(--text-muted);border-radius:4px;">
+                        <strong style="color:var(--primary);">Admin:</strong> {{ c.admin_note }}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <div style="text-align:center;font-size:12px;color:var(--text-muted);padding:10px;">No complaints filed yet.</div>
+            {% endif %}
+        </div>
+        
+        <!-- Leave History -->
+        <div class="card" style="padding:20px;max-height:300px;overflow-y:auto;">
+            <h3 style="font-size:14px;font-weight:700;margin-bottom:12px;color:var(--text-secondary);text-transform:uppercase;">Leave Requests History</h3>
+            {% if leaves %}
+                {% for L in leaves %}
+                <div style="padding:10px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;background:var(--card-bg);">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                        <span style="font-size:11px;font-weight:600;color:var(--text-muted);">{{ L.start_date }} to {{ L.end_date }}</span>
+                        <span class="badge {{ 'badge-warning' if L.status == 'Pending' else ('badge-success' if L.status == 'Approved' else 'badge-danger') }}" style="font-size:10px;">{{ L.status }}</span>
+                    </div>
+                    <p style="font-size:12px;color:var(--text-primary);">Reason: {{ L.reason or 'None' }}</p>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div style="text-align:center;font-size:12px;color:var(--text-muted);padding:10px;">No leave requests.</div>
+            {% endif %}
+        </div>
+    </div>
 
 
     <!-- AI Assistant Section -->
@@ -349,6 +393,15 @@
         const reason = document.getElementById('leave-reason').value;
         const btn = e.target.querySelector('button');
         const st = document.getElementById('leave-status');
+        
+        if (new Date(end) < new Date(start)) {
+            st.style.display = 'block';
+            st.style.color = 'var(--danger)';
+            st.innerText = '❌ End date cannot be earlier than start date.';
+            setTimeout(() => st.style.display='none', 4000);
+            return;
+        }
+
         btn.disabled = true;
 
         try {

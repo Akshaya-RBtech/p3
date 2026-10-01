@@ -893,7 +893,10 @@ def student_portal():
     my_votes = Vote.query.filter_by(student_id=current_user.student_id).all()
     voted_menu_ids = [v.menu_id for v in my_votes]
     
-    return render_template('student_portal.html', menus=upcoming_menus, voted_ids=voted_menu_ids)
+    my_complaints = Complaint.query.filter_by(student_id=current_user.student_id).order_by(Complaint.created_at.desc()).all()
+    my_leaves = LeaveRequest.query.filter_by(student_id=current_user.student_id).order_by(LeaveRequest.created_at.desc()).all()
+    
+    return render_template('student_portal.html', menus=upcoming_menus, voted_ids=voted_menu_ids, complaints=my_complaints, leaves=my_leaves)
 
 @app.route('/api/menu_stats/<int:menu_id>')
 @login_required
