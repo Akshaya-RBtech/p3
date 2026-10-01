@@ -1,0 +1,7 @@
+/admin/dashboard -> 200
+/api/announcements -> 200
+/api/waste_analytics -> 200
+/api/complaints -> 200
+/api/leave -> 200
+/api/feedback -> 200
+/api/attendance_records -> 404
