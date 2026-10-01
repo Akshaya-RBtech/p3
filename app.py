@@ -15,10 +15,6 @@ from models import db, User, MenuEntry, Vote, FoodPredictor, FoodConsumption, AI
 from ai_engine import WasteAnalyticsAI
 from datetime import datetime, timedelta
 
-if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
-
-
 app = Flask(__name__)
 from services.firebase_service import init_firebase, verify_id_token, get_firebase_config
 from services.rag_service import rag_index
@@ -284,31 +280,23 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        flash('Please enable JavaScript to login securely.', 'error')
-        return redirect(url_for('login'))
-    return render_template('login.html', type='Admin')
+    if request.method == 'GET':
+        return render_template('login.html', type='Admin')
 
 @app.route('/admin/setup', methods=['GET', 'POST'])
 def admin_setup():
-    if request.method == 'POST':
-        flash('Please enable JavaScript to register.', 'error')
-        return redirect(url_for('admin_setup'))
-    return render_template('register.html', type='Admin')
+    if request.method == 'GET':
+        return render_template('register.html', type='Admin')
 
 @app.route('/student/register', methods=['GET', 'POST'])
 def student_register():
-    if request.method == 'POST':
-        flash('Please enable JavaScript to register.', 'error')
-        return redirect(url_for('student_register'))
-    return render_template('register.html', type='Student')
+    if request.method == 'GET':
+        return render_template('register.html', type='Student')
 
 @app.route('/student/login', methods=['GET', 'POST'])
 def student_login():
-    if request.method == 'POST':
-        flash('Please enable JavaScript to login securely.', 'error')
-        return redirect(url_for('student_login'))
-    return render_template('login.html', type='Student')
+    if request.method == 'GET':
+        return render_template('login.html', type='Student')
 
 # ── Firebase Config Endpoint ──
 @app.route('/api/firebase-config')
@@ -451,15 +439,9 @@ def admin_dashboard():
     unrecorded_menus = [m for m in menus if m.consumption is None]
     ai_reports = AIReport.query.order_by(AIReport.generated_at.desc()).limit(10).all()
     
-    # Calculate weekly menus for admin
-    today = datetime.now().strftime('%Y-%m-%d')
-    end_of_week = (datetime.now() + timedelta(days=6)).strftime('%Y-%m-%d')
-    weekly_menus = MenuEntry.query.filter(MenuEntry.date >= today, MenuEntry.date <= end_of_week).order_by(MenuEntry.date).all()
-    
     return render_template(
         'admin_dashboard.html',
         menus=menus,
-        weekly_menus=weekly_menus,
         no_votes=no_votes,
         consumption_logs=consumption_logs,
         unrecorded_menus=unrecorded_menus,
@@ -591,60 +573,6 @@ def predict_quantity():
         int(data['yes_count']), int(data['guest_count'])
     )
     return jsonify({'prediction': round(prediction, 2)})
-
-@app.route('/api/ai_meal_assistant', methods=['POST'])
-@login_required
-def ai_meal_assistant():
-    if current_user.role != 'admin':
-        return jsonify({'error': 'Unauthorized'}), 403
-        
-    data = request.json
-    action = data.get('action')
-    
-    try:
-        if not GEMINI_API_KEY:
-            raise Exception("No API Key")
-        model = genai.GenerativeModel('gemini-1.5-flash')
-        
-        menus = MenuEntry.query.order_by(MenuEntry.date.desc()).limit(14).all()
-        menu_text = "\n".join([f"{m.date} - {m.meal_type}: {m.items}" for m in menus]) if menus else "No recent menus available in the database."
-        
-        if action == 'previous':
-            prompt = f"Given these recent menus:\n{menu_text}\n\nGroup them logically into a weekly structure that an Admin can copy-paste to set as next week's draft. Use markdown tables."
-            result = model.generate_content(prompt).text
-        
-        elif action == 'generate':
-            prompt = f"Act as a professional hostel menu planner. Given our recent history:\n{menu_text}\n\nGenerate a brand new, highly nutritious, and exciting 7-day menu (Breakfast, Lunch, Dinner). Avoid heavy repetition of these past dishes. Format the output elegantly in Markdown."
-            result = model.generate_content(prompt).text
-        
-        elif action == 'improve':
-            feedbacks = db.session.query(Vote).filter(Vote.choice == 'No').limit(20).all()
-            fb_text = "\n".join([f"Menu ID {f.menu_id}: student said '{f.reason}'" for f in feedbacks]) if feedbacks else "No negative feedback available."
-            prompt = f"Given past menus:\n{menu_text}\nAnd student negative feedback/skip reasons:\n{fb_text}\n\nSuggest 3-5 highly concrete improvements to the menu to boost student attendance. Format beautifully in Markdown."
-            result = model.generate_content(prompt).text
-            
-        elif action == 'repetition':
-            prompt = f"Analyze these recent menus for repetitive ingredients or exactly repeated dishes over a short span:\n{menu_text}\n\nList the repetitions found and provide 3 alternative dish recommendations for each highlighted repetition. Format in Markdown."
-            result = model.generate_content(prompt).text
-            
-        else:
-            return jsonify({'error': 'Unknown action'})
-            
-        return jsonify({'result': result})
-    except Exception as e:
-        fallback_msg = ""
-        if action == 'previous':
-            fallback_msg = "### 📋 Last Week's Mock Menu\n*Monday*: Rice, Sambar\n*Tuesday*: Chapati, Dal...\n\n*(AI is offline, showing offline fallback)*"
-        elif action == 'generate':
-            fallback_msg = "### 👨‍🍳 Offline AI Master Menu\n**Breakfast**: Poha\n**Lunch**: Veg Biryani\n**Dinner**: Roti, Paneer\n\n*(AI is offline, showing mock generation)*"
-        elif action == 'improve':
-            fallback_msg = "### 📈 Menu Improvements\n1. Add more protein.\n2. Reduce spice level in Sambar based on offline feedback rules.\n3. Offer fruit twice a week.\n\n*(AI is offline)*"
-        elif action == 'repetition':
-            fallback_msg = "### 🔍 Repetition Analysis\nNo severe repetitions found recently based on offline heuristic.\n\n*(AI is offline)*"
-        else:
-            fallback_msg = f"AI is offline, but I received your action: {action}"
-            
-        return jsonify({'result': fallback_msg})
 
 # --- Announcements & Notifications ---
 @app.route('/api/announcements', methods=['GET'])
@@ -844,13 +772,13 @@ def update_leave(leave_id):
             # Look up menus in range
             menus = MenuEntry.query.filter_by(date=date_str, published=True).all()
             for m in menus:
-                v = Vote.query.filter_by(student_id=leave.student_id, menu_id=m.id).first()
+                # Mark as 'no' for attendance
+                v = Vote.query.filter_by(student_id=leave.student_id, date=date_str, meal_type=m.meal_type).first()
                 if not v:
-                    v = Vote(student_id=leave.student_id, menu_id=m.id, choice='No', reason='Approved Hostel Leave')
+                    v = Vote(student_id=leave.student_id, date=date_str, meal_type=m.meal_type)
                     db.session.add(v)
-                else:
-                    v.choice = 'No'
-                    v.reason = 'Approved Hostel Leave'
+                v.vote = 'no'
+                v.skip_reason = 'Approved Hostel Leave'
             curr_date += delta
         db.session.commit()
         
@@ -960,17 +888,12 @@ def student_portal():
     tomorrow = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
     today = datetime.now().strftime('%Y-%m-%d')
     
-    upcoming_menus = MenuEntry.query.filter(MenuEntry.date.in_([today, tomorrow])).order_by(MenuEntry.date).all()
-    
-    # Get menus for the entire current week (assume starting today + next 6 days)
-    end_of_week = (datetime.now() + timedelta(days=6)).strftime('%Y-%m-%d')
-    weekly_menus = MenuEntry.query.filter(MenuEntry.date >= today, MenuEntry.date <= end_of_week).order_by(MenuEntry.date).all()
+    upcoming_menus = MenuEntry.query.filter(MenuEntry.date.in_([today, tomorrow])).all()
     
     my_votes = Vote.query.filter_by(student_id=current_user.student_id).all()
     voted_menu_ids = [v.menu_id for v in my_votes]
-    voted_choices = {v.menu_id: v.choice for v in my_votes}
     
-    return render_template('student_portal.html', menus=upcoming_menus, weekly_menus=weekly_menus, voted_ids=voted_menu_ids, voted_choices=voted_choices)
+    return render_template('student_portal.html', menus=upcoming_menus, voted_ids=voted_menu_ids)
 
 @app.route('/api/menu_stats/<int:menu_id>')
 @login_required
