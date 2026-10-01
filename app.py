@@ -1052,18 +1052,20 @@ def handle_leave():
         return jsonify({"success": True, "message": "Leave request submitted."})
     
     if current_user.role == 'admin':
-        reqs = LeaveRequest.query.order_by(LeaveRequest.created_at.desc()).all()
+        reqs = db.session.query(LeaveRequest, User).outerjoin(User, LeaveRequest.student_id == User.student_id).order_by(LeaveRequest.created_at.desc()).all()
     else:
-        reqs = LeaveRequest.query.filter_by(student_id=current_user.student_id).order_by(LeaveRequest.created_at.desc()).all()
+        reqs = db.session.query(LeaveRequest, User).outerjoin(User, LeaveRequest.student_id == User.student_id).filter(LeaveRequest.student_id == current_user.student_id).order_by(LeaveRequest.created_at.desc()).all()
     
     return jsonify([{
-        "id": r.id,
-        "student_id": r.student_id,
-        "start_date": r.start_date,
-        "end_date": r.end_date,
-        "reason": r.reason,
-        "status": r.status,
-        "created_at": r.created_at.strftime('%Y-%m-%d %H:%M')
+        "id": r[0].id,
+        "student_id": r[0].student_id,
+        "student_name": r[1].full_name if r[1] and r[1].full_name else (r[1].username if r[1] else r[0].student_id),
+        "start_date": r[0].start_date,
+        "end_date": r[0].end_date,
+        "type": r[0].leave_type,
+        "reason": r[0].reason,
+        "status": r[0].status,
+        "created_at": r[0].created_at.strftime('%Y-%m-%d %H:%M') if r[0].created_at else ''
     } for r in reqs])
 
 @app.route('/api/leave/<int:leave_id>/update', methods=['POST'])

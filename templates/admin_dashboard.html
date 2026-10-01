@@ -6,25 +6,78 @@
     <span class="badge badge-primary">{{ current_user.username }}</span>
 </div>
 
+<style>
+    .admin-sidebar {
+        width: 260px;
+        background: #0f4c5c;
+        border-right: none;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        padding: 24px 0;
+        transition: all 0.3s;
+        z-index: 100;
+        flex-shrink: 0;
+    }
+    .admin-sidebar .sidebar-btn {
+        padding: 14px 24px;
+        color: rgba(255, 255, 255, 0.7);
+        font-weight: 600;
+        text-align: left;
+        background: transparent;
+        border: none;
+        width: 100%;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        border-radius: 0 100px 100px 0;
+        margin-bottom: 2px;
+        font-size: 13.5px;
+    }
+    .admin-sidebar .sidebar-btn:hover {
+        color: white;
+        background: rgba(255, 255, 255, 0.05);
+    }
+    .admin-sidebar .sidebar-btn.active-tab {
+        background: linear-gradient(90deg, #0284c7 0%, #3b82f6 100%);
+        color: white;
+        font-weight: 700;
+        box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+    }
+    .admin-sidebar .sidebar-btn i {
+        margin-right: 14px;
+        width: 18px;
+        text-align: center;
+        font-size: 15px;
+    }
+    .admin-sidebar .active-tab i {
+        color: white !important;
+    }
+</style>
+
 <div style="display:flex; height: calc(100vh - 64px);">
     <!-- Sidebar Navigation for 12 Admin Sections -->
-    <div class="sidebar-nav" style="width:260px; background:var(--card-bg); border-right:1px solid var(--border); overflow-y:auto; display:flex; flex-direction:column; padding:20px 0; transition:all 0.3s; z-index:100; flex-shrink:0;">
-        <div style="padding:0 20px 10px; font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px;">Admin Control Panel</div>
+    <div class="sidebar-nav admin-sidebar">
+        <div style="padding: 0 24px 30px; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-leaf text-[#10b981] text-2xl"></i>
+            <span class="text-white fw-800 text-xl tracking-tight">WasteZero</span>
+        </div>
         
-        <button id="tab-overview" class="sidebar-btn active-tab" onclick="switchTab('overview', this)"><i class="fas fa-chart-pie fw-icon text-primary"></i> Dashboard</button>
-        <button id="tab-menu" class="sidebar-btn" onclick="switchTab('menu', this)"><i class="fas fa-utensils fw-icon text-warning"></i> Menu Management</button>
-        <button id="tab-calendar" class="sidebar-btn" onclick="switchTab('calendar', this)"><i class="fas fa-calendar-alt fw-icon text-success"></i> Weekly Calendar</button>
-        <button id="tab-attendance" class="sidebar-btn" onclick="switchTab('attendance', this)"><i class="fas fa-clipboard-check fw-icon text-success"></i> Attendance</button>
-        <button id="tab-ai_meal" class="sidebar-btn" onclick="switchTab('ai_meal', this)"><i class="fas fa-magic fw-icon text-primary"></i> AI Meal Assistant</button>
-        <button id="tab-predict" class="sidebar-btn" onclick="switchTab('predict', this)"><i class="fas fa-brain fw-icon text-primary"></i> AI Prediction</button>
-        <button id="tab-dish" class="sidebar-btn" onclick="switchTab('dish', this)"><i class="fas fa-chart-bar fw-icon text-warning"></i> Dish Analytics</button>
-        <button id="tab-waste" class="sidebar-btn" onclick="switchTab('waste', this)"><i class="fas fa-trash-alt fw-icon text-danger"></i> Food Waste</button>
-        <button id="tab-inventory" class="sidebar-btn" onclick="switchTab('inventory', this)"><i class="fas fa-boxes fw-icon text-warning"></i> Inventory</button>
-        <button id="tab-leave" class="sidebar-btn" onclick="switchTab('leave', this)"><i class="fas fa-calendar-minus fw-icon text-warning"></i> Leave Requests</button>
-        <button id="tab-complaints" class="sidebar-btn" onclick="switchTab('complaints', this)"><i class="fas fa-flag fw-icon text-danger"></i> Complaints</button>
-        <button id="tab-comm" class="sidebar-btn" onclick="switchTab('comm', this)"><i class="fas fa-bullhorn fw-icon text-primary"></i> Communication</button>
-        <button id="tab-feedback" class="sidebar-btn" onclick="switchTab('feedback', this)"><i class="fas fa-star fw-icon text-warning"></i> Feedback</button>
-        <button id="tab-settings" class="sidebar-btn" onclick="switchTab('settings', this)"><i class="fas fa-cog fw-icon text-muted"></i> Settings</button>
+        <button id="tab-overview" class="sidebar-btn" onclick="switchTab('overview', this)"><i class="fas fa-chart-pie"></i> Dashboard</button>
+        <button id="tab-menu" class="sidebar-btn" onclick="switchTab('menu', this)"><i class="fas fa-utensils"></i> Menu Management</button>
+        <button id="tab-calendar" class="sidebar-btn" onclick="switchTab('calendar', this)"><i class="fas fa-calendar-alt"></i> Weekly Calendar</button>
+        <button id="tab-attendance" class="sidebar-btn" onclick="switchTab('attendance', this)"><i class="fas fa-clipboard-check"></i> Attendance</button>
+        <button id="tab-ai_meal" class="sidebar-btn" onclick="switchTab('ai_meal', this)"><i class="fas fa-magic"></i> AI Meal Assistant</button>
+        <button id="tab-predict" class="sidebar-btn" onclick="switchTab('predict', this)"><i class="fas fa-brain"></i> AI Prediction</button>
+        <button id="tab-dish" class="sidebar-btn" onclick="switchTab('dish', this)"><i class="fas fa-chart-bar"></i> Dish Analytics</button>
+        <button id="tab-waste" class="sidebar-btn" onclick="switchTab('waste', this)"><i class="fas fa-trash-alt"></i> Food Waste</button>
+        <button id="tab-leave" class="sidebar-btn active-tab" onclick="switchTab('leave', this)"><i class="fas fa-calendar-minus"></i> Leave Requests</button>
+        <button id="tab-complaints" class="sidebar-btn" onclick="switchTab('complaints', this)"><i class="fas fa-flag"></i> Complaints</button>
+        <button id="tab-comm" class="sidebar-btn" onclick="switchTab('comm', this)"><i class="fas fa-bullhorn"></i> Communication</button>
+        <button id="tab-inventory" class="sidebar-btn" onclick="switchTab('inventory', this)"><i class="fas fa-boxes"></i> Inventory</button>
+        <button id="tab-feedback" class="sidebar-btn" onclick="switchTab('feedback', this)"><i class="fas fa-star"></i> Reports</button>
+        <button id="tab-settings" class="sidebar-btn" onclick="switchTab('settings', this)"><i class="fas fa-cog"></i> Settings</button>
     </div>
 
     <!-- Main Content Area -->
@@ -286,15 +339,54 @@
         </div>
 
         <!-- ======================= SECTION 8: LEAVE REQUEST MANAGEMENT ======================= -->
-        <div id="content-leave" class="tab-content">
-            <h2 class="section-title mb-6">Student Leave Requests</h2>
-            <div class="card p-5">
-                <div class="flex justify-between items-center mb-5 border-b border-[var(--border)] pb-3">
-                    <h3 class="fw-700 m-0"><i class="fas fa-calendar-minus text-warning mr-2"></i> Pending Leave Approvals</h3>
-                    <select id="leave-fltr" class="form-input text-xs w-[150px]" onchange="filterOperations()"><option value="All">All Statuses</option><option value="Pending">Pending</option><option value="Approved">Approved</option></select>
+        <div id="content-leave" class="tab-content block">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-[20px] fw-800 text-[var(--text-color)]">Leave Requests</h2>
+                <div class="flex gap-4">
+                    <i class="fas fa-fingerprint text-muted opacity-60 text-lg"></i>
+                    <i class="fas fa-user text-muted opacity-60 text-lg"></i>
+                    <i class="fas fa-times text-muted opacity-60 text-lg"></i>
                 </div>
-                <div id="ops-leave" class="flex flex-col gap-3">
-                    <div class="text-center p-8 text-muted"><i class="fas fa-spinner fa-spin mr-2"></i> Fetching leave applications...</div>
+            </div>
+            
+            <div class="card bg-white rounded-xl shadow-sm border border-[var(--border)] overflow-hidden">
+                <div class="p-5 border-b border-[var(--border)] flex flex-col sm:flex-row gap-4 items-center">
+                    <select id="leave-fltr" class="form-input text-[13px] py-2 px-3 min-w-[150px] border border-[var(--border)] rounded" onchange="filterOperations()">
+                        <option value="All">All Status</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Approved">Approved</option>
+                        <option value="Rejected">Rejected</option>
+                    </select>
+                    <div class="relative flex-1 max-w-sm">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-muted text-sm opacity-50"></i>
+                        <input type="text" placeholder="Search students..." class="form-input text-[13px] py-2 pl-9 pr-3 w-full border border-[var(--border)] rounded" oninput="filterOperations()">
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-[var(--border)] bg-[#f8fafc]">
+                                <th class="py-4 px-6 text-[13px] fw-700 text-[#475569] whitespace-nowrap">Student</th>
+                                <th class="py-4 px-6 text-[13px] fw-700 text-[#475569] whitespace-nowrap">Leave Dates</th>
+                                <th class="py-4 px-6 text-[13px] fw-700 text-[#475569] whitespace-nowrap">Type</th>
+                                <th class="py-4 px-6 text-[13px] fw-700 text-[#475569] whitespace-nowrap">Reason</th>
+                                <th class="py-4 px-6 text-[13px] fw-700 text-[#475569] whitespace-nowrap text-center">Status</th>
+                                <th class="py-4 px-6 text-[13px] fw-700 text-[#475569] whitespace-nowrap text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ops-leave" class="divide-y divide-[var(--border)]">
+                            <tr><td colspan="6" class="p-8 text-center text-muted"><i class="fas fa-spinner fa-spin mr-2"></i> Fetching leave applications...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="p-4 flex justify-center items-center gap-2 border-t border-[var(--border)]">
+                    <button class="w-8 h-8 rounded bg-[#10b981] text-white flex items-center justify-center text-xs fw-700">1</button>
+                    <button class="w-8 h-8 rounded bg-[var(--input-bg)] text-muted flex items-center justify-center text-xs fw-700">2</button>
+                    <button class="w-8 h-8 rounded bg-[var(--input-bg)] text-muted flex items-center justify-center text-xs fw-700">3</button>
+                    <button class="w-8 h-8 rounded bg-[var(--input-bg)] text-muted flex items-center justify-center text-xs fw-700">4</button>
+                    <button class="w-8 h-8 rounded bg-[var(--input-bg)] text-muted flex items-center justify-center text-xs fw-700">»</button>
                 </div>
             </div>
         </div>
@@ -484,28 +576,32 @@
             const leaveDiv = document.getElementById('ops-leave');
             
             if (!leaveData || leaveData.length === 0) {
-                leaveDiv.innerHTML = `<div class="p-6 text-center text-muted col-span-full">No leave requests pending action.</div>`;
+                leaveDiv.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-muted">No leave requests pending action.</td></tr>`;
             } else {
-                leaveDiv.innerHTML = leaveData.map(L => `
-                    <div class="ops-leave-item flex justify-between items-center p-4 bg-[var(--input-bg)] border-b border-[var(--border)] border-l-4" 
-                         data-status="${L.status}" style="border-left-color: ${L.status === 'Pending' ? 'var(--warning)' : L.status === 'Rejected' ? 'var(--danger)' : 'var(--success)'};">
-                        
-                        <div class="flex-1">
-                            <div class="flex items-center gap-3 mb-1">
-                                <span class="fw-800 text-[13px] text-primary"><i class="fas fa-id-card mr-1"></i> ${L.student_id}</span>
-                                <span class="bg-[rgba(99,102,241,0.1)] text-primary text-[10px] px-2 py-0.5 rounded fw-600 block sm:inline">${L.start_date} <i class="fas fa-arrow-right mx-1"></i> ${L.end_date}</span>
-                            </div>
-                            <p class="text-[12px] text-muted m-0"><i class="fas fa-comment-alt mr-1"></i> <strong>Reason:</strong> ${L.reason || 'No written reason supplied'}</p>
-                        </div>
-                        
-                        <div class="flex flex-col sm:flex-row gap-2 ml-4">
+                leaveDiv.innerHTML = leaveData.map(L => {
+                    let badgeClass = "bg-[#fef3c7] text-[#d97706] border border-[#fde68a]"; 
+                    if(L.status === 'Approved') badgeClass = "bg-[#dcfce7] text-[#16a34a] border border-[#bbf7d0]";
+                    else if (L.status === 'Rejected') badgeClass = "bg-[#fee2e2] text-[#ef4444] border border-[#fecaca]";
+                    
+                    return `
+                    <tr class="ops-leave-item" data-status="${L.status}">
+                        <td class="py-4 px-6 text-[13px] fw-700 text-[var(--text-color)]">${L.student_name || L.student_id}</td>
+                        <td class="py-4 px-6 text-[13px] text-[#64748b]">${L.start_date.slice(0,6)} - ${L.end_date.slice(0,6)}</td>
+                        <td class="py-4 px-6 text-[13px] text-[#64748b]">${L.type || 'Personal'}</td>
+                        <td class="py-4 px-6 text-[13px] text-[var(--link-color)]">${L.reason || 'N/A'}</td>
+                        <td class="py-4 px-6 text-center">
+                            <span class="px-3 py-1 rounded-full text-[11px] fw-700 ${badgeClass} inline-block shadow-sm">${L.status}</span>
+                        </td>
+                        <td class="py-4 px-6 text-center">
                             ${L.status === 'Pending' ? `
-                            <button onclick="updateLeave(${L.id}, 'Approved')" class="px-3 py-1.5 bg-success text-white rounded text-[11px] fw-700 shadow-sm hover:brightness-110 transition"><i class="fas fa-check mr-1"></i> Approve</button>
-                            <button onclick="updateLeave(${L.id}, 'Rejected')" class="px-3 py-1.5 bg-danger text-white rounded text-[11px] fw-700 shadow-sm hover:brightness-110 transition"><i class="fas fa-times mr-1"></i> Reject</button>
-                            ` : `<div class="text-[11px] fw-800 px-3 py-1 border rounded ${L.status === 'Approved' ? 'border-success text-success' : 'border-danger text-danger'}"><i class="fas fa-lock mr-1"></i> ${L.status}</div>`}
-                        </div>
-                    </div>
-                `).join('');
+                            <div class="flex justify-center gap-2">
+                                <button onclick="updateLeave(${L.id}, 'Approved')" class="px-3 py-1.5 bg-[#10b981] text-white rounded text-[11px] fw-700 hover:bg-[#059669] transition shadow-sm border border-[#059669]">Approve</button>
+                                <button onclick="updateLeave(${L.id}, 'Rejected')" class="px-3 py-1.5 bg-[#ef4444] text-white rounded text-[11px] fw-700 hover:bg-[#dc2626] transition shadow-sm border border-[#dc2626]">Reject</button>
+                            </div>
+                            ` : `<div style="width: 100px;"></div>`}
+                        </td>
+                    </tr>
+                `}).join('');
             }
         } catch (e) {
             console.warn("Leave fetch failed", e);

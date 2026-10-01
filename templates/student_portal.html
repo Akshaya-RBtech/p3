@@ -6,24 +6,76 @@
     <span class="badge badge-primary">{{ current_user.username }}</span>
 </div>
 
+<style>
+    .student-sidebar {
+        width: 250px;
+        background: #ffffff;
+        border-right: 1px solid #e2e8f0;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        padding: 24px 0;
+        transition: all 0.3s;
+        z-index: 100;
+    }
+    .student-sidebar .sidebar-btn {
+        padding: 12px 24px;
+        color: #475569;
+        font-weight: 600;
+        text-align: left;
+        background: transparent;
+        border: none;
+        width: 90%;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        border-radius: 0 100px 100px 0;
+        margin-bottom: 4px;
+        font-size: 13px;
+    }
+    .student-sidebar .sidebar-btn:hover {
+        background: #f8fafc;
+        color: #1e293b;
+    }
+    .student-sidebar .sidebar-btn.active-tab {
+        background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+        font-weight: 700;
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+    }
+    .student-sidebar .sidebar-btn i {
+        margin-right: 14px;
+        width: 18px;
+        text-align: center;
+        font-size: 15px;
+    }
+    .student-sidebar .active-tab i {
+        color: white !important;
+    }
+</style>
+
 <div style="display:flex; height: calc(100vh - 64px);">
     <!-- Sidebar Navigation for 9 Sections -->
-    <div class="sidebar-nav" style="width:250px; background:var(--card-bg); border-right:1px solid var(--border); overflow-y:auto; display:flex; flex-direction:column; padding:20px 0; transition:all 0.3s; z-index:100;">
-        <div style="padding:0 20px 10px; font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px;">Student Portal</div>
+    <div class="sidebar-nav student-sidebar">
+        <div style="padding: 0 24px 30px; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-leaf text-[#10b981] text-2xl"></i>
+            <span class="text-[#10b981] fw-800 text-xl tracking-tight">WasteZero</span>
+        </div>
         
-        <button id="tab-home" class="sidebar-btn active-tab" onclick="switchTab('home', this)"><i class="fas fa-home fw-icon text-primary"></i> Dashboard</button>
-        <button id="tab-calendar" class="sidebar-btn" onclick="switchTab('calendar', this)"><i class="fas fa-calendar-alt fw-icon text-warning"></i> Meal Calendar</button>
-        <button id="tab-attendance" class="sidebar-btn" onclick="switchTab('attendance', this)"><i class="fas fa-clipboard-check fw-icon text-success"></i> Attendance</button>
-        <button id="tab-assistant" class="sidebar-btn" onclick="switchTab('assistant', this)"><i class="fas fa-robot fw-icon text-primary"></i> AI Assistant</button>
-        <button id="tab-notifications" class="sidebar-btn" onclick="switchTab('notifications', this)"><i class="fas fa-bell fw-icon text-warning"></i> Notifications</button>
-        <button id="tab-feedback" class="sidebar-btn" onclick="switchTab('feedback', this)"><i class="fas fa-star fw-icon text-warning"></i> Feedback</button>
-        <button id="tab-leave" class="sidebar-btn" onclick="switchTab('leave', this)"><i class="fas fa-calendar-minus fw-icon text-warning"></i> Leave Request</button>
-        <button id="tab-complaints" class="sidebar-btn" onclick="switchTab('complaints', this)"><i class="fas fa-flag fw-icon text-danger"></i> Complaints</button>
-        <button id="tab-profile" class="sidebar-btn" onclick="switchTab('profile', this)"><i class="fas fa-user-circle fw-icon text-primary"></i> Profile</button>
-        <button id="tab-settings" class="sidebar-btn" onclick="switchTab('settings', this)"><i class="fas fa-cog fw-icon text-muted"></i> Settings</button>
+        <button id="tab-home" class="sidebar-btn active-tab" onclick="switchTab('home', this)"><i class="fas fa-home"></i> Dashboard</button>
+        <button id="tab-calendar" class="sidebar-btn" onclick="switchTab('calendar', this)"><i class="fas fa-calendar-alt"></i> Meal Calendar</button>
+        <button id="tab-attendance" class="sidebar-btn" onclick="switchTab('attendance', this)"><i class="fas fa-clipboard-check"></i> Attendance</button>
+        <button id="tab-notifications" class="sidebar-btn" onclick="switchTab('notifications', this)"><i class="far fa-bell"></i> Notifications</button>
+        <button id="tab-assistant" class="sidebar-btn" onclick="switchTab('assistant', this)"><i class="fas fa-robot"></i> AI Assistant</button>
+        <button id="tab-feedback" class="sidebar-btn" onclick="switchTab('feedback', this)"><i class="far fa-star"></i> Feedback</button>
+        <button id="tab-leave" class="sidebar-btn" onclick="switchTab('leave', this)"><i class="far fa-calendar-minus"></i> Leave Request</button>
+        <button id="tab-complaints" class="sidebar-btn" onclick="switchTab('complaints', this)"><i class="far fa-flag"></i> Complaints</button>
+        <button id="tab-profile" class="sidebar-btn" onclick="switchTab('profile', this)"><i class="far fa-user-circle"></i> Profile</button>
+        <button id="tab-settings" class="sidebar-btn" onclick="switchTab('settings', this)"><i class="fas fa-cog"></i> Settings</button>
         
         <div style="margin-top:auto; padding:20px;">
-            <a href="{{ url_for('logout') }}" class="sidebar-btn" style="text-decoration:none; color:var(--danger); display:block; padding:10px 20px;"><i class="fas fa-sign-out-alt fw-icon"></i> Logout</a>
+            <a href="{{ url_for('logout') }}" class="sidebar-btn" style="text-decoration:none; color:#ef4444; width:100%; border-radius:8px;"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </div>
     </div>
 
@@ -31,68 +83,140 @@
     <div style="flex:1; padding:30px; overflow-y:auto; background:var(--bg-color);">
         
         <!-- Home Dashboard -->
+        <!-- Home Dashboard (Exactly matches Image 4) -->
         <div id="content-home" class="tab-content block">
-            <div style="margin-bottom:24px;">
-                <h1 style="font-size:24px;font-weight:800;letter-spacing:-0.4px;">Hello, <span class="text-primary">{{ current_user.username }}</span> 👋</h1>
-                <p class="text-muted" style="font-size:13px;margin-top:4px;">Today's Overview & Quick Actions</p>
-            </div>
             
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Dashboard Header area -->
+            <div class="flex items-center justify-between mb-8 pb-4 border-b border-[var(--border)]">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-[var(--primary)] bg-[var(--primary)] text-white flex items-center justify-center text-xl fw-700 shadow-sm">
+                        {{ current_user.username[:1].upper() if current_user.username else 'U' }}
+                    </div>
+                    <div>
+                        <div class="text-[17px] fw-800 text-[var(--primary)]">Good Morning, {{ current_user.full_name or current_user.username }}</div>
+                        <div class="text-xs text-muted mt-1 fw-600">Student ID: {{ current_user.student_id|default('N/A') }}</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="selectTheme('light')" class="w-10 h-10 rounded-full bg-[var(--input-bg)] border border-[var(--border)] text-muted hover:text-primary transition-colors flex justify-center items-center"><i class="fas fa-sun"></i></button>
+                    <button class="w-10 h-10 rounded-full bg-[var(--input-bg)] border border-[var(--border)] text-muted hover:text-primary transition-colors flex justify-center items-center"><i class="fas fa-bell"></i></button>
+                    <div class="w-10 h-10 rounded-full bg-[var(--primary)] text-white flex items-center justify-center text-sm shadow-sm opacity-80 cursor-pointer" onclick="switchTab('profile')">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <!-- Left Column: Today's Meals -->
-                <div class="lg:col-span-2">
-                    <div class="card p-6 h-full border-t-4" style="border-top-color:var(--primary);">
-                        <h3 class="fw-700 text-lg mb-4 flex items-center"><i class="fas fa-utensils text-primary mr-2"></i> Today's Meals</h3>
-                        {% set today_menus = menus|selectattr("date", "equalto", today)|list %}
-                        {% if today_menus %}
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {% for m in today_menus %}
-                                <div class="p-4 bg-[var(--input-bg)] border border-[var(--border)] rounded flex gap-4 items-center">
-                                    <div class="w-12 h-12 bg-white rounded shadow-sm flex items-center justify-center text-2xl">
-                                        {% if m.meal_type == 'Breakfast' %}🌅{% elif m.meal_type == 'Lunch' %}☀️{% elif m.meal_type == 'Dinner' %}🌙{% else %}🍪{% endif %}
+                <div class="lg:col-span-7">
+                    <div class="card bg-white rounded-xl shadow-sm border border-[var(--border)]">
+                        <div class="px-6 py-4 flex justify-between items-center border-b border-[var(--border)]">
+                            <h3 class="fw-800 text-[17px] text-[var(--text-color)]">Today's Meals</h3>
+                            <i class="fas fa-chevron-right text-[var(--border)] text-sm"></i>
+                        </div>
+                        
+                        <div class="flex flex-col">
+                            {% set today_menus = menus|selectattr("date", "equalto", today)|list %}
+                            {% if today_menus %}
+                                {% for m in today_menus %}
+                                <div class="px-6 py-5 flex items-center gap-5 border-b border-[var(--border)] last:border-0 relative">
+                                    <div class="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center relative flex-shrink-0" style="background:#e8f5e9;">
+                                        <div style="font-size:1.4rem;">{% if m.meal_type == 'Breakfast' %}🌅{% elif m.meal_type == 'Lunch' %}🍱{% elif m.meal_type == 'Dinner' %}🍲{% else %}🧁{% endif %}</div>
                                     </div>
-                                    <div>
-                                        <div class="fw-700 text-[15px]">{{ m.meal_type }}</div>
-                                        <div class="text-xs text-muted mb-1">{{ m.items[:40] }}...</div>
-                                        <div class="text-[10px] fw-600 bg-white border border-[var(--border)] px-2 py-1 rounded inline-block"><i class="far fa-clock"></i> 
-                                            {% if m.meal_type == 'Breakfast' %}7:30 - 9:00 AM{% elif m.meal_type == 'Lunch' %}12:30 - 2:00 PM{% elif m.meal_type == 'Snacks' %}4:30 - 5:30 PM{% else %}7:30 - 9:00 PM{% endif %}
+                                    <div class="flex-1">
+                                        <div class="fw-800 text-[16px] text-[#1e293b] mb-1">{{ m.meal_type }}</div>
+                                        <div class="text-[13px] text-muted mb-1">{{ m.items }}</div>
+                                        <div class="text-[11px] text-[#94a3b8] fw-600">
+                                            {% if m.meal_type == 'Breakfast' %}7:30 - 8:30 AM{% elif m.meal_type == 'Lunch' %}12:30 - 1:30 PM{% elif m.meal_type == 'Snacks' %}4:00 - 4:30 PM{% else %}7:30 - 8:30 PM{% endif %}
                                         </div>
                                     </div>
                                 </div>
-                            {% endfor %}
-                            </div>
-                        {% else %}
-                            <div class="text-center p-8 text-muted"><i class="fas fa-bed text-3xl mb-2 block"></i> No meals scheduled for today.</div>
-                        {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <div class="px-6 py-10 text-center text-muted fw-600 text-sm">No meals scheduled for today.</div>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
                 
                 <!-- Right Column: Stats & Notifications -->
-                <div class="flex flex-col gap-6">
-                    <div class="card p-6 border-t-4" style="border-top-color:var(--success);">
-                        <h3 class="fw-700 mb-4 text-sm uppercase text-muted tracking-wider"><i class="fas fa-chart-pie mr-2"></i> Quick Stats</h3>
-                        <div class="flex justify-between items-center bg-[var(--input-bg)] p-4 rounded border border-[var(--border)]">
-                            <div class="text-center">
-                                <div class="text-2xl fw-800 text-success">{{ voted_ids|length }}</div>
-                                <div class="text-[10px] fw-700 uppercase mt-1">Confirmed</div>
+                <div class="lg:col-span-5 flex flex-col gap-5">
+                    
+                    <!-- Tomorrow's Attendance Card -->
+                    <div class="bg-[#ebfbf3] rounded-xl p-5 border border-[#c6f6d5]">
+                        <h3 class="fw-800 text-[16px] text-[#065f46] mb-4">Tomorrow's Attendance</h3>
+                        
+                        {% set tomorrow_menus = menus|selectattr("date", "equalto", tomorrow)|list %}
+                        {% if tomorrow_menus %}
+                            {% set tm = tomorrow_menus[0] %}
+                            <div class="flex items-center gap-3 mb-5 px-1">
+                                <i class="fas fa-utensils text-[#10b981] opacity-70"></i>
+                                <div class="text-[13px] fw-600 text-[#064e3b]">{{ tm.meal_type }} - {{ tm.items[:30] }}...</div>
                             </div>
-                            <div class="w-px h-10 bg-[var(--border)]"></div>
-                            <div class="text-center">
-                                <div class="text-2xl fw-800 text-warning">{{ menus|length - voted_ids|length }}</div>
-                                <div class="text-[10px] fw-700 uppercase mt-1">Pending</div>
+                            <div class="flex gap-3">
+                                <button onclick="selectVote({{ tm.id }}, 'Yes')" class="flex-1 bg-[#10b981] text-white py-2.5 rounded-lg fw-700 text-[13px] hover:bg-[#059669] transition shadow-sm border border-[#059669]">
+                                    Coming
+                                </button>
+                                <button onclick="selectVote({{ tm.id }}, 'No')" class="flex-1 bg-white text-[#ef4444] py-2.5 rounded-lg fw-700 text-[13px] hover:bg-[#fef2f2] transition shadow-sm border border-[#fca5a5]">
+                                    Not Coming
+                                </button>
                             </div>
-                            <div class="w-px h-10 bg-[var(--border)]"></div>
+                        {% else %}
+                            <div class="text-[13px] fw-600 text-[#064e3b] opacity-70">No menu published for tomorrow yet.</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Quick Stats Card -->
+                    <div class="card rounded-xl shadow-sm border border-[var(--border)] overflow-hidden">
+                        <div class="px-5 py-4 border-b border-[var(--border)]">
+                            <h3 class="fw-800 text-[15px] text-[var(--text-color)]">Quick Stats</h3>
+                        </div>
+                        <div class="grid grid-cols-3 divide-x divide-[var(--border)] p-4">
                             <div class="text-center">
-                                <div class="text-2xl fw-800 text-danger">0</div>
-                                <div class="text-[10px] fw-700 uppercase mt-1">Skipped</div>
+                                <div class="text-[11px] fw-600 text-[var(--primary)] uppercase mb-2">Confirmed</div>
+                                <div class="text-[28px] fw-800 text-[var(--primary)]">{{ voted_ids|length }}</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-[11px] fw-600 text-[#f59e0b] uppercase mb-2">Pending</div>
+                                <div class="text-[28px] fw-800 text-[#f59e0b]">{{ menus|length - voted_ids|length }}</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-[11px] fw-600 text-[#ef4444] uppercase mb-2">Skipped</div>
+                                <div class="text-[28px] fw-800 text-[#ef4444]">0</div>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="card p-6 flex-1 flex flex-col items-center justify-center bg-[var(--primary)] text-white text-center cursor-pointer hover:opacity-90 transition-opacity" onclick="document.getElementById('tab-calendar').click()">
-                        <i class="fas fa-calendar-check text-4xl mb-3"></i>
-                        <h3 class="fw-800 text-lg">Tomorrow's Attendance</h3>
-                        <p class="text-sm opacity-80 mt-1">Tap to confirm your upcoming meals.</p>
+
+                    <!-- Recent Notifications -->
+                    <div class="card rounded-xl shadow-sm border border-[var(--border)] flex-1">
+                        <div class="px-5 py-4 border-b border-[var(--border)]">
+                            <h3 class="fw-800 text-[15px] text-[var(--text-color)]">Recent Notifications</h3>
+                        </div>
+                        <div class="p-5 flex flex-col gap-4">
+                            <div class="flex gap-3">
+                                <div class="w-6 h-6 rounded-full bg-[#fef3c7] border border-[#fde68a] text-[#d97706] flex items-center justify-center text-[10px] mt-1 flex-shrink-0"><i class="fas fa-clock"></i></div>
+                                <div>
+                                    <div class="text-[13px] fw-600 text-[var(--text-color)] mb-1">Tomorrow's lunch attendance is still pending.</div>
+                                    <div class="text-[11px] text-muted">10:04 AM</div>
+                                </div>
+                            </div>
+                            <div class="flex gap-3">
+                                <div class="w-6 h-6 rounded-full bg-[#e0f2fe] border border-[#bae6fd] text-[#0284c7] flex items-center justify-center text-[10px] mt-1 flex-shrink-0"><i class="fas fa-info"></i></div>
+                                <div>
+                                    <div class="text-[13px] fw-600 text-[var(--text-color)] mb-1">Menu updated for tomorrow's dinner.</div>
+                                    <div class="text-[11px] text-muted">Yesterday</div>
+                                </div>
+                            </div>
+                            <div class="flex gap-3">
+                                <div class="w-6 h-6 rounded-full bg-[#dcfce7] border border-[#bbf7d0] text-[#16a34a] flex items-center justify-center text-[10px] mt-1 flex-shrink-0"><i class="fas fa-check"></i></div>
+                                <div>
+                                    <div class="text-[13px] fw-600 text-[var(--text-color)] mb-1">Hostel will be closed on Sunday</div>
+                                    <div class="text-[11px] text-muted">Apr 28, 2023</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
                 </div>
             </div>
         </div>
