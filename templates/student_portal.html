@@ -11,24 +11,24 @@
     <div class="sidebar-nav" style="width:250px; background:var(--card-bg); border-right:1px solid var(--border); overflow-y:auto; display:flex; flex-direction:column; padding:20px 0; transition:all 0.3s; z-index:100;">
         <div style="padding:0 20px 10px; font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px;">Student Portal</div>
         
-        <button id="tab-home" class="sidebar-btn active-tab" onclick="switchTab('home', this)"><i class="fas fa-home fw-icon"></i> 1. Home Dashboard</button>
-        <button id="tab-calendar" class="sidebar-btn" onclick="switchTab('calendar', this)"><i class="fas fa-calendar-alt fw-icon"></i> 2. Weekly Calendar</button>
-        <button id="tab-assistant" class="sidebar-btn" onclick="switchTab('assistant', this)"><i class="fas fa-robot fw-icon text-primary"></i> 3. AI Assistant</button>
-        <button id="tab-notifications" class="sidebar-btn" onclick="switchTab('notifications', this)"><i class="fas fa-bell fw-icon text-warning"></i> 4. Notifications</button>
-        <button id="tab-feedback" class="sidebar-btn" onclick="switchTab('feedback', this)"><i class="fas fa-star fw-icon text-warning"></i> 5. Food Feedback</button>
-        <button id="tab-complaints" class="sidebar-btn" onclick="switchTab('complaints', this)"><i class="fas fa-flag fw-icon text-danger"></i> 6. Complaints</button>
-        <button id="tab-leave" class="sidebar-btn" onclick="switchTab('leave', this)"><i class="fas fa-calendar-minus fw-icon text-warning"></i> 7. Leave Requests</button>
-        <button id="tab-profile" class="sidebar-btn" onclick="switchTab('profile', this)"><i class="fas fa-user-circle fw-icon"></i> 8. My Profile</button>
+        <button id="tab-home" class="sidebar-btn active-tab" onclick="switchTab('home', this)"><i class="fas fa-home fw-icon"></i> Home Dashboard</button>
+        <button id="tab-calendar" class="sidebar-btn" onclick="switchTab('calendar', this)"><i class="fas fa-calendar-alt fw-icon"></i> Weekly Meal Calendar</button>
+        <button id="tab-assistant" class="sidebar-btn" onclick="switchTab('assistant', this)"><i class="fas fa-robot fw-icon text-primary"></i> Student AI Assistant</button>
+        <button id="tab-notifications" class="sidebar-btn" onclick="switchTab('notifications', this)"><i class="fas fa-bell fw-icon text-warning"></i> Notifications</button>
+        <button id="tab-feedback" class="sidebar-btn" onclick="switchTab('feedback', this)"><i class="fas fa-star fw-icon text-warning"></i> Food Feedback</button>
+        <button id="tab-complaints" class="sidebar-btn" onclick="switchTab('complaints', this)"><i class="fas fa-flag fw-icon text-danger"></i> Student Complaints</button>
+        <button id="tab-leave" class="sidebar-btn" onclick="switchTab('leave', this)"><i class="fas fa-calendar-minus fw-icon text-warning"></i> Student Leave Requests</button>
+        <button id="tab-profile" class="sidebar-btn" onclick="switchTab('profile', this)"><i class="fas fa-user-circle fw-icon"></i> Student Profile</button>
         
         <div style="margin-top:auto; padding:20px;">
-            <a href="/logout" class="sidebar-btn" style="text-decoration:none; color:var(--danger); display:block; padding:10px 20px;"><i class="fas fa-sign-out-alt fw-icon"></i> 9. Logout</a>
+            <a href="/logout" class="sidebar-btn" style="text-decoration:none; color:var(--danger); display:block; padding:10px 20px;"><i class="fas fa-sign-out-alt fw-icon"></i> Logout</a>
         </div>
     </div>
 
     <!-- Main Content Area -->
     <div style="flex:1; padding:30px; overflow-y:auto; background:var(--bg-color);">
         
-        <!-- 1. Home Dashboard -->
+        <!-- Home Dashboard -->
         <div id="content-home" class="tab-content block">
             <div style="margin-bottom:24px;">
                 <h1 style="font-size:24px;font-weight:800;letter-spacing:-0.4px;">Hello, <span class="text-primary">{{ current_user.username }}</span> 👋</h1>
@@ -66,7 +66,7 @@
             </div>
         </div>
 
-        <!-- 2. Weekly Calendar -->
+        <!-- Weekly Meal Calendar -->
         <div id="content-calendar" class="tab-content">
             <h2 style="font-size:24px;font-weight:800;margin-bottom:24px;">Weekly Meal Calendar & Attendance</h2>
             {% if menus %}
@@ -128,7 +128,7 @@
             {% endif %}
         </div>
 
-        <!-- 3. AI Assistant -->
+        <!-- Student AI Assistant -->
         <div id="content-assistant" class="tab-content">
             <h2 style="font-size:24px;font-weight:800;margin-bottom:24px;">Student AI Assistant</h2>
             <div class="card" style="max-width:600px;">
@@ -151,7 +151,7 @@
             </div>
         </div>
 
-        <!-- 4. Notifications -->
+        <!-- Notifications -->
         <div id="content-notifications" class="tab-content">
             <div class="flex justify-between items-center mb-5">
                 <h2 style="font-size:24px;font-weight:800;">Notifications</h2>
@@ -164,7 +164,7 @@
             </div>
         </div>
 
-        <!-- 5. Food Feedback -->
+        <!-- Food Feedback -->
         <div id="content-feedback" class="tab-content">
             <h2 style="font-size:24px;font-weight:800;margin-bottom:24px;">Food Feedback</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -196,7 +196,7 @@
             </div>
         </div>
 
-        <!-- 6. Complaints -->
+        <!-- Student Complaints -->
         <div id="content-complaints" class="tab-content">
             <h2 style="font-size:24px;font-weight:800;margin-bottom:24px;">Student Complaints</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -232,7 +232,7 @@
             </div>
         </div>
 
-        <!-- 7. Leave Requests -->
+        <!-- Student Leave Requests -->
         <div id="content-leave" class="tab-content">
             <h2 style="font-size:24px;font-weight:800;margin-bottom:24px;">Student Leave Requests</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
