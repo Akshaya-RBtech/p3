@@ -607,40 +607,24 @@ def ai_meal_assistant():
         model = genai.GenerativeModel('gemini-1.5-flash')
         
         menus = MenuEntry.query.order_by(MenuEntry.date.desc()).limit(14).all()
-        menu_text = "
-".join([f"{m.date} - {m.meal_type}: {m.items}" for m in menus]) if menus else "No recent menus available in the database."
+        menu_text = "\n".join([f"{m.date} - {m.meal_type}: {m.items}" for m in menus]) if menus else "No recent menus available in the database."
         
         if action == 'previous':
-            prompt = f"Given these recent menus:
-{menu_text}
-
-Group them logically into a weekly structure that an Admin can copy-paste to set as next week's draft. Use markdown tables."
+            prompt = f"Given these recent menus:\n{menu_text}\n\nGroup them logically into a weekly structure that an Admin can copy-paste to set as next week's draft. Use markdown tables."
             result = model.generate_content(prompt).text
         
         elif action == 'generate':
-            prompt = f"Act as a professional hostel menu planner. Given our recent history:
-{menu_text}
-
-Generate a brand new, highly nutritious, and exciting 7-day menu (Breakfast, Lunch, Dinner). Avoid heavy repetition of these past dishes. Format the output elegantly in Markdown."
+            prompt = f"Act as a professional hostel menu planner. Given our recent history:\n{menu_text}\n\nGenerate a brand new, highly nutritious, and exciting 7-day menu (Breakfast, Lunch, Dinner). Avoid heavy repetition of these past dishes. Format the output elegantly in Markdown."
             result = model.generate_content(prompt).text
         
         elif action == 'improve':
             feedbacks = db.session.query(Vote).filter(Vote.choice == 'No').limit(20).all()
-            fb_text = "
-".join([f"Menu ID {f.menu_id}: student said '{f.reason}'" for f in feedbacks]) if feedbacks else "No negative feedback available."
-            prompt = f"Given past menus:
-{menu_text}
-And student negative feedback/skip reasons:
-{fb_text}
-
-Suggest 3-5 highly concrete improvements to the menu to boost student attendance. Format beautifully in Markdown."
+            fb_text = "\n".join([f"Menu ID {f.menu_id}: student said '{f.reason}'" for f in feedbacks]) if feedbacks else "No negative feedback available."
+            prompt = f"Given past menus:\n{menu_text}\nAnd student negative feedback/skip reasons:\n{fb_text}\n\nSuggest 3-5 highly concrete improvements to the menu to boost student attendance. Format beautifully in Markdown."
             result = model.generate_content(prompt).text
             
         elif action == 'repetition':
-            prompt = f"Analyze these recent menus for repetitive ingredients or exactly repeated dishes over a short span:
-{menu_text}
-
-List the repetitions found and provide 3 alternative dish recommendations for each highlighted repetition. Format in Markdown."
+            prompt = f"Analyze these recent menus for repetitive ingredients or exactly repeated dishes over a short span:\n{menu_text}\n\nList the repetitions found and provide 3 alternative dish recommendations for each highlighted repetition. Format in Markdown."
             result = model.generate_content(prompt).text
             
         else:
@@ -650,30 +634,13 @@ List the repetitions found and provide 3 alternative dish recommendations for ea
     except Exception as e:
         fallback_msg = ""
         if action == 'previous':
-            fallback_msg = "### 📋 Last Week's Mock Menu
-*Monday*: Rice, Sambar
-*Tuesday*: Chapati, Dal...
-
-*(AI is offline, showing offline fallback)*"
+            fallback_msg = "### 📋 Last Week's Mock Menu\n*Monday*: Rice, Sambar\n*Tuesday*: Chapati, Dal...\n\n*(AI is offline, showing offline fallback)*"
         elif action == 'generate':
-            fallback_msg = "### 👨‍🍳 Offline AI Master Menu
-**Breakfast**: Poha
-**Lunch**: Veg Biryani
-**Dinner**: Roti, Paneer
-
-*(AI is offline, showing mock generation)*"
+            fallback_msg = "### 👨‍🍳 Offline AI Master Menu\n**Breakfast**: Poha\n**Lunch**: Veg Biryani\n**Dinner**: Roti, Paneer\n\n*(AI is offline, showing mock generation)*"
         elif action == 'improve':
-            fallback_msg = "### 📈 Menu Improvements
-1. Add more protein.
-2. Reduce spice level in Sambar based on offline feedback rules.
-3. Offer fruit twice a week.
-
-*(AI is offline)*"
+            fallback_msg = "### 📈 Menu Improvements\n1. Add more protein.\n2. Reduce spice level in Sambar based on offline feedback rules.\n3. Offer fruit twice a week.\n\n*(AI is offline)*"
         elif action == 'repetition':
-            fallback_msg = "### 🔍 Repetition Analysis
-No severe repetitions found recently based on offline heuristic.
-
-*(AI is offline)*"
+            fallback_msg = "### 🔍 Repetition Analysis\nNo severe repetitions found recently based on offline heuristic.\n\n*(AI is offline)*"
         else:
             fallback_msg = f"AI is offline, but I received your action: {action}"
             
