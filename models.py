@@ -27,6 +27,7 @@ class MenuEntry(db.Model):
     event_type = db.Column(db.String(20), default='Normal')  # Normal, Festival, Holiday
     published = db.Column(db.Boolean, default=True)
     kitchen_status = db.Column(db.String(50), default="Planned")
+    votes = db.relationship('Vote', backref='menu', lazy=True, cascade="all, delete-orphan")
 
 class Vote(db.Model):
     id = db.Column(db.Integer, primary_key=True)

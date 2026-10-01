@@ -297,16 +297,16 @@
                         </tr></thead>
                         <tbody>
                             {% for m in menus %}
-                                {% set vote = m.votes|selectattr("user_id", "equalto", current_user.id)|first %}
+                                {% set vote = m.votes|selectattr("student_id", "equalto", current_user.student_id)|first if m.votes else None %}
                                 {% if vote %}
                                 <tr class="border-b border-[var(--border)]">
                                     <td class="p-3">{{ m.date }}</td>
                                     <td class="p-3"><span class="badge badge-primary">{{ m.meal_type }}</span> <span class="text-xs text-muted ml-2">{{ m.items[:30] }}...</span></td>
                                     <td class="p-3">
-                                        {% if vote.is_coming %}
+                                        {% if vote.choice == 'Yes' %}
                                             <span class="text-success fw-700 text-[11px]"><i class="fas fa-check-circle"></i> Coming</span>
                                         {% else %}
-                                            <span class="text-danger fw-700 text-[11px]"><i class="fas fa-times-circle"></i> Not Coming ({{ vote.skip_reason|default('Other') }})</span>
+                                            <span class="text-danger fw-700 text-[11px]"><i class="fas fa-times-circle"></i> Not Coming ({{ vote.reason|default('Other') }})</span>
                                         {% endif %}
                                     </td>
                                 </tr>

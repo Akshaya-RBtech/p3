@@ -1089,12 +1089,13 @@ def update_leave(leave_id):
             date_str = curr_date.strftime('%Y-%m-%d')
             menus = MenuEntry.query.filter_by(date=date_str, published=True).all()
             for m in menus:
-                v = Vote.query.filter_by(student_id=leave.student_id, date=date_str, meal_type=m.meal_type).first()
+                v = Vote.query.filter_by(student_id=leave.student_id, menu_id=m.id).first()
                 if not v:
-                    v = Vote(student_id=leave.student_id, date=date_str, meal_type=m.meal_type)
+                    v = Vote(student_id=leave.student_id, menu_id=m.id, choice='No', reason='Approved Hostel Leave')
                     db.session.add(v)
-                v.vote = 'no'
-                v.skip_reason = 'Approved Hostel Leave'
+                else:
+                    v.choice = 'No'
+                    v.reason = 'Approved Hostel Leave'
             curr_date += delta
         db.session.commit()
         
