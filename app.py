@@ -1163,6 +1163,11 @@ def update_kitchen_status(menu_id):
     return jsonify({"success": True})
 
 
+@app.errorhandler(500)
+def internal_error(e):
+    import traceback
+    return "<pre>" + traceback.format_exc() + "</pre>", 500
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(debug=True, host='0.0.0.0', port=port)
