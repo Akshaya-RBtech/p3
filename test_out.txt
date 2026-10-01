@@ -1,0 +1,45 @@
+[Firebase] Configured for project: gen-lang-client-0798508405
+Model trained and saved.
+Rendering Admin Dashboard...
+Traceback (most recent call last):
+  File "C:\Users\Akshaya\Downloads\PDP\PDP Project\test.py", line 14, in <module>
+    html = admin_dashboard()
+  File "C:\Users\Akshaya\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Akshaya\Downloads\PDP\PDP Project\app.py", line 439, in admin_dashboard
+    return render_template(
+        'admin_dashboard.html',
+    ...<11 lines>...
+        ai_reports=ai_reports
+    )
+  File "C:\Users\Akshaya\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "C:\Users\Akshaya\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+  File "C:\Users\Akshaya\AppData\Local\Programs\Python\Python313\Lib\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Akshaya\AppData\Local\Programs\Python\Python313\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "C:\Users\Akshaya\Downloads\PDP\PDP Project\templates\admin_dashboard.html", line 1, in top-level template code
+    {% extends "layout.html" %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Akshaya\Downloads\PDP\PDP Project\templates\layout.html", line 799, in top-level template code
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Akshaya\Downloads\PDP\PDP Project\templates\admin_dashboard.html", line 193, in block 'content'
+    <form action="{{ url_for('log_consumption') }}" method="POST">
+    ^^^^^
+  File "C:\Users\Akshaya\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Akshaya\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+        endpoint,
+    ...<3 lines>...
+        force_external=_external,
+    )
+  File "C:\Users\Akshaya\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\routing\map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'log_consumption'. Did you mean 'record_consumption' instead?
