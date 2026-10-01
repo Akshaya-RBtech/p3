@@ -1143,7 +1143,6 @@ def update_kitchen_status(menu_id):
     m.kitchen_status = request.json.get('kitchen_status', m.kitchen_status)
     db.session.commit()
     return jsonify({"success": True})
-
-\n\nif __name__ == '__main__':
+if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(debug=True, host='0.0.0.0', port=port)
