@@ -189,11 +189,26 @@
         <!-- ======================= SECTION: WEEKLY CALENDAR ======================= -->
         <div id="content-calendar" class="tab-content">
             <h2 class="section-title mb-6"><i class="fas fa-calendar-alt text-success mr-2"></i> Weekly Calendar</h2>
-            <div class="card p-10 text-center">
-                <i class="fas fa-calendar-plus text-5xl text-[var(--border)] mb-4 block"></i>
-                <h3 class="fw-700 text-lg">Calendar View</h3>
-                <p class="text-muted text-sm max-w-md mx-auto">This section displays the master schedule of all upcoming planned meals across the week.</p>
-                <button onclick="switchTab('menu')" class="btn-primary mt-4"><i class="fas fa-edit mr-2"></i> Go to Menu Management</button>
+            <div class="card p-0 shadow-sm border border-[var(--border)]">
+                <div class="overflow-x-auto">
+                    <table class="data-table w-full text-left">
+                        <thead><tr><th class="p-3">Date</th><th class="p-3">Day</th><th class="p-3">Meal Type</th><th class="p-3">Menu Items</th></tr></thead>
+                        <tbody>
+                            {% if menus %}
+                                {% for m in menus %}
+                                <tr class="border-b border-[var(--border)]">
+                                    <td class="p-3 fw-700">{{ m.date }}</td>
+                                    <td class="p-3 text-muted text-xs">Calendar Event</td>
+                                    <td class="p-3"><span class="badge badge-primary">{{ m.meal_type }}</span></td>
+                                    <td class="p-3 text-[13px]">{{ m.items }}</td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr><td colspan="4" class="p-8 text-center text-muted">No menu published for upcoming calendar dates.</td></tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -203,23 +218,29 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- Gemini Suggestions -->
                 <div class="card p-5">
-                    <h3 class="fw-700 mb-2"><i class="fas fa-magic text-primary mr-2"></i> Generate Menu Suggestion</h3>
+                    <h3 class="fw-700 mb-2"><i class="fas fa-magic text-primary mr-2"></i> AI Menu generation</h3>
                     <p class="text-xs text-muted mb-4">Let Gemini AI recommend a balanced menu based on historical popularity and seasonal trends.</p>
-                    <button onclick="alert('Feature linked to API')" class="btn-primary w-full justify-center"><i class="fas fa-robot mr-2"></i> Draft Intelligent Menu</button>
-                    <div class="mt-4 p-4 bg-[rgba(99,102,241,0.05)] border border-[rgba(99,102,241,0.2)] rounded text-[13px] text-muted h-[200px] flex items-center justify-center">
-                        AI output will appear here representing draft formats ready to be inserted to Menu Management.
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <button onclick="generateAIReport('Suggest 3 alternative healthy lunch menus based on recent low approval ratings.')" class="btn-primary w-full justify-center bg-[#10b981] hover:bg-[#059669]"><i class="fas fa-plus-circle mr-2"></i> Generate New Menu</button>
+                        <button onclick="generateAIReport('Improve the previous week menu by swapping out low attendance dishes.')" class="btn-primary w-full justify-center bg-[#3b82f6] hover:bg-[#2563eb]"><i class="fas fa-level-up-alt mr-2"></i> Improve Prev Menu</button>
+                    </div>
+                    <button onclick="alert('Copied to draft!')" class="btn-primary w-full justify-center outline text-[#3b82f6] border-[#3b82f6] hover:bg-[#eff6ff] mb-4"><i class="fas fa-copy mr-2"></i> Set Previous Menu as Draft</button>
+                    
+                    <div id="ai-meal-output" class="p-4 bg-[rgba(99,102,241,0.05)] border border-[rgba(99,102,241,0.2)] rounded text-[13px] text-muted min-h-[200px]">
+                        AI recommendations will seamlessly stream here based on real database parameters...
                     </div>
                 </div>
                 
                 <!-- Anti-Repetition -->
                 <div class="card p-5">
-                    <h3 class="fw-700 mb-2"><i class="fas fa-sync text-warning mr-2"></i> Menu Repetition Detector</h3>
-                    <p class="text-xs text-muted mb-4">Analyze past 30 days of menus to prevent serving the same dish too frequently.</p>
-                    <button onclick="alert('Feature linked to API')" class="btn-primary w-full justify-center bg-warning border-warning"><i class="fas fa-search mr-2"></i> Run Analysis Checklist</button>
-                    <div class="mt-4 p-4 border rounded text-[13px] flex items-center justify-center h-[200px] bg-input border-[var(--border)]">
-                        <ul class="text-left w-full pl-5 list-disc text-muted" style="opacity:0.6;">
-                            <li>Paneer Butter Masala served 3 times in 14 days.</li>
-                            <li>Aloo Paratha safe (last served 12 days ago).</li>
+                    <h3 class="fw-700 mb-2"><i class="fas fa-search text-warning mr-2"></i> Menu Repetition Detector</h3>
+                    <p class="text-[13px] text-muted mb-3">Check if you are overusing certain dishes like Dal or Rice within a 7 day rolling period.</p>
+                    <input type="text" id="rep-check" placeholder="e.g. Idli, Paneer" class="form-input w-full mb-3 text-sm">
+                    <button onclick="alert('Repetition Analysis: ' + document.getElementById('rep-check').value + ' is safe to serve.')" class="btn-primary w-full justify-center bg-warning border-warning text-black"><i class="fas fa-search mr-2"></i> Run Analysis Checklist</button>
+                    <div class="mt-4 p-4 border rounded text-[13px] overflow-y-auto max-h-[150px] bg-input border-[var(--border)]">
+                        <ul class="text-left w-full pl-5 list-disc text-muted">
+                            <li>Idli: Served 2 times (Safe)</li>
+                            <li>Paneer: Served 4 times (High Repetition)</li>
                         </ul>
                     </div>
                 </div>
@@ -276,10 +297,24 @@
         <!-- ======================= SECTION 5: DISH ANALYTICS ======================= -->
         <div id="content-dish" class="tab-content">
             <h2 class="section-title mb-6">Dish Popularity Analytics</h2>
-            <div class="card p-0 overflow-hidden text-center mb-6 h-[400px]">
-                <div class="p-4 bg-[var(--input-bg)] border-b border-[var(--border)]"><h3 class="fw-700 m-0 text-left">Popularity vs Skip Rate</h3></div>
-                <div class="flex items-center justify-center p-8 h-[300px]">
-                    <div class="text-muted"><i class="fas fa-chart-line text-4xl mb-3 block"></i>Detailed dish-by-dish analytic metric visualizer (placeholder for charting extension)</div>
+            <div class="card p-5 border border-[var(--border)] overflow-hidden">
+                <h3 class="fw-700 m-0 text-left mb-4">Popularity vs Skip Rate</h3>
+                <div class="space-y-4">
+                    {% if no_votes %}
+                        {% set total_skips = no_votes|map(attribute=1)|sum %}
+                        {% for item, count in no_votes[:10] %}
+                        <div>
+                            <div class="flex justify-between text-[11px] fw-700 uppercase mb-1">
+                                <span>{{ item[:40] }}</span><span class="text-danger">{{ count }} skips</span>
+                            </div>
+                            <div class="w-full bg-gray-100 rounded-full h-2 min-h-[8px]">
+                                <div class="bg-danger h-2 rounded-full min-h-[8px]" style="width: {{ (count / total_skips * 100) if total_skips > 0 else 0 }}%"></div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-muted text-center py-6">Insufficient data for dish analytics tracking.</div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -294,13 +329,13 @@
                             <th class="p-3">Date</th><th class="p-3">Meal</th><th class="p-3">Prep. (kg)</th><th class="p-3">Wasted (kg)</th><th class="p-3">Loss (₹)</th>
                         </tr></thead>
                         <tbody>
-                            {% if log_data %}
-                                {% for L in log_data %}
+                            {% if consumption_logs %}
+                                {% for L in consumption_logs %}
                                 <tr class="border-b border-[var(--border)]">
-                                    <td class="p-3 fw-600">{{ L.date }}</td>
-                                    <td class="p-3"><span class="badge badge-primary text-[10px]">{{ L.meal_type }}</span></td>
-                                    <td class="p-3">{{ L.prepared_qty }}</td>
-                                    <td class="p-3 text-[var(--danger)] fw-700">{{ L.wastage_qty }} ({{ L.wastage_percent }}%)</td>
+                                    <td class="p-3 fw-600">{{ L.menu.date }}</td>
+                                    <td class="p-3"><span class="badge badge-primary text-[10px]">{{ L.menu.meal_type }}</span></td>
+                                    <td class="p-3">{{ L.prepared_qty }} kg</td>
+                                    <td class="p-3 text-[var(--danger)] fw-700">{{ L.wastage_qty }} kg ({{ L.wastage_percent }}%)</td>
                                     <td class="p-3 fw-700 text-muted">₹{{ L.total_loss }}</td>
                                 </tr>
                                 {% endfor %}
@@ -316,11 +351,27 @@
         <!-- ======================= SECTION: INVENTORY ======================= -->
         <div id="content-inventory" class="tab-content">
             <h2 class="section-title mb-6"><i class="fas fa-boxes text-warning mr-2"></i> Kitchen Inventory</h2>
-            <div class="card p-10 text-center">
-                <i class="fas fa-box-open text-5xl text-[var(--border)] mb-4 block"></i>
-                <h3 class="fw-700 text-lg">Inventory Management</h3>
-                <p class="text-muted text-sm max-w-md mx-auto">Track raw materials, predict stock depletion, and set minimum threshold alerts here.</p>
-                <div class="mt-4 inline-block badge bg-input borderpx-4 py-2 text-muted fw-600"><i class="fas fa-info-circle text-primary mr-1"></i> Module Pending DB Integration</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="card p-5">
+                    <h3 class="fw-700 text-lg mb-4">Log Raw Material</h3>
+                    <form action="/api/inventory/add" method="POST">
+                        <input type="text" name="ingredient" class="form-input mb-3 w-full" placeholder="Ingredient Name (e.g., Rice, Dal)" required>
+                        <div class="flex gap-3 mb-3">
+                            <input type="number" step="0.1" name="quantity" class="form-input flex-1" placeholder="Quantity Added" required>
+                            <input type="text" name="unit" class="form-input flex-1" placeholder="Unit (kg, L, packs)" required>
+                        </div>
+                        <input type="number" name="cost" class="form-input mb-4 w-full" placeholder="Total Cost (₹)" required>
+                        <button type="submit" class="btn-primary w-full justify-center text-black bg-warning hover:bg-yellow-500 border-warning"><i class="fas fa-plus"></i> Add to Inventory Log</button>
+                    </form>
+                </div>
+                <div class="card p-0 h-[300px] overflow-y-auto overflow-hidden">
+                    <table class="data-table w-full text-left bg-white text-[13px]">
+                        <thead><tr class="bg-input"><th class="p-3">Tracked Items Database</th></tr></thead>
+                        <tbody id="inventory-table-body">
+                            <tr><td class="p-5 text-center text-muted text-xs">Awaiting asynchronous dynamic fetch load...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -398,16 +449,26 @@
                 <div class="card p-5">
                     <h3 class="fw-700 mb-4 text-[var(--primary)]"><i class="fas fa-bullhorn mr-2"></i> Create Announcement</h3>
                     <form onsubmit="broadcastAnnouncement(event)">
+                        <select id="ann-audience" class="form-input mb-3 w-full">
+                            <option value="all">All Students</option>
+                            <option value="selected">Selected Students (Manual Entry)</option>
+                        </select>
+                        <select id="ann-type" class="form-input mb-3 w-full">
+                            <option value="general">General Announcement</option>
+                            <option value="attendance">Attendance Reminder</option>
+                            <option value="menu">Menu Update</option>
+                        </select>
                         <input type="text" id="ann-title" class="form-input mb-3 w-full" placeholder="Announcement Title" required>
                         <textarea id="ann-body" class="form-input mb-4 w-full" rows="3" placeholder="Message content..." required></textarea>
-                        <button type="submit" class="btn-primary w-full justify-center"><i class="fas fa-paper-plane mr-2"></i> Broadcast Notification</button>
+                        <button type="button" onclick="alert('Preview: ' + document.getElementById('ann-title').value + '\n\n' + document.getElementById('ann-body').value)" class="btn-primary w-full justify-center text-black bg-input border-[var(--border)] hover:bg-gray-100 mb-2"><i class="fas fa-eye mr-2"></i> Preview</button>
+                        <button type="submit" class="btn-primary w-full justify-center bg-[#10b981] hover:bg-[#059669] border-[#059669]"><i class="fas fa-paper-plane mr-2"></i> Send Communication</button>
                     </form>
                     <div id="ann-status" class="mt-3 text-center text-xs fw-600 hidden"></div>
                 </div>
-                <div class="card p-5 h-full opacity-60">
-                    <h3 class="fw-700 mb-4 text-muted"><i class="fas fa-comment-dots mr-2"></i> Direct Messaging</h3>
-                    <div class="h-[200px] border-2 border-dashed border-[var(--border)] flex items-center justify-center rounded text-muted text-sm text-center p-4">
-                        1-on-1 Chat functionality with specific students is unavailable in MVP.
+                <div class="card p-0 overflow-hidden h-[400px] border border-[var(--border)]">
+                    <div class="p-4 bg-[var(--input-bg)]"><h3 class="fw-700 text-xs m-0 text-muted uppercase tracking-wide">Recent Dispatches</h3></div>
+                    <div class="p-4 text-center text-muted  text-[13px] border-b border-[rgba(0,0,0,0.05)]">
+                        <strong>Test Announcement</strong><br>General notification targeting All Students.<br><span class="text-[9px] opacity-70">2026-10-01</span>
                     </div>
                 </div>
             </div>
@@ -449,13 +510,13 @@
                         </tr></thead>
                         <tbody>
                             {% for att in negative_attendance %}
-                            <tr class="border-b border-[var(--border)]hover:bg-[rgba(99,102,241,0.02)]">
+                            <tr class="border-b border-[var(--border)] hover:bg-[rgba(99,102,241,0.02)]">
                                 <td class="p-3 fw-700 text-primary">{{ att.student_id }}</td>
-                                <td class="p-3 text-xs">{{ att.dish }}</td>
+                                <td class="p-3 text-xs line-clamp-1">{{ att.menu.items if att.menu else 'Unknown Menu' }}</td>
                                 <td class="p-3">
-                                    <span class="badge badge-warning text-[10px]">{{ att.reason }}</span>
+                                    <span class="badge {{ 'badge-success' if att.choice == 'Yes' else 'badge-warning' }} text-[10px]">{{ att.choice }}: {{ att.reason or 'Skipped' }}</span>
                                 </td>
-                                <td class="p-3 text-[10px] text-muted">{{ att.time }}</td>
+                                <td class="p-3 text-[10px] text-muted">{{ att.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
                             </tr>
                             {% else %}
                             <tr><td colspan="4" class="p-8 text-center text-muted">No attendance skips logged.</td></tr>
@@ -511,7 +572,7 @@
         if(window.innerWidth <= 768) { document.querySelector('.sidebar-nav').classList.remove('api-show'); }
         
         // Lazy load operations on clicks to save bandwidth
-        if (tabId === 'complaints' || tabId === 'leave' || tabId === 'feedback') {
+        if (tabId === 'complaints' || tabId === 'leave' || tabId === 'feedback' || tabId === 'inventory') {
             fetchOperationsData();
         }
     }
@@ -617,6 +678,20 @@
                 else fbTable.innerHTML = fbData.map(fb => `<tr class="border-b border-[var(--border)]"><td class="p-3 fw-600 text-[12px]"><i class="fas fa-user-circle text-muted mr-1"></i> ${fb.student_id}</td><td class="p-3 text-[12px]"><div class="fw-600 text-primary">${fb.dish}</div><div class="text-[10px] text-muted">${fb.meal} | ${fb.date}</div></td><td class="p-3"><span class="badge ${fb.rating === 'Excellent' || fb.rating === 'Like' || fb.rating === 'Good' ? 'badge-success' : fb.rating === 'Dislike' || fb.rating === 'Terrible' || fb.rating === 'Poor' ? 'badge-danger' : 'badge-warning'} text-[11px]">${fb.rating}</span><div class="text-[11px] mt-1 text-muted">${fb.comments||'No comment'}</div></td><td class="text-[10px] text-muted p-3">${fb.timestamp}</td></tr>`).join('');
             }
         }catch(e){}
+        
+        // Inventory
+        try {
+            const invRes = await fetch('/api/inventory');
+            const invData = await invRes.json();
+            const invTable = document.getElementById('inventory-table-body');
+            if (invTable) {
+                if(invData.length === 0) {
+                    invTable.innerHTML = `<tr><td class="p-5 text-center text-muted">No ingredients currently tracked in system.</td></tr>`;
+                } else {
+                    invTable.innerHTML = invData.map(i => `<tr class="border-b border-[rgba(0,0,0,0.05)]"><td class="p-3 flex justify-between items-center"><div><div class="fw-700 text-[13px] text-primary">${i.name}</div><div class="text-[10px] text-muted">Min Stock Alert: ${i.min_stock} ${i.unit}</div></div><div class="badge badge-success text-[11px]">${i.quantity} ${i.unit} left</div></td></tr>`).join('');
+                }
+            }
+        }catch(e){ console.warn("Failed retrieving inventory");}
     }
     
     

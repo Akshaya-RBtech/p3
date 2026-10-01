@@ -435,6 +435,7 @@ def admin_dashboard():
     
     unrecorded_menus = [m for m in menus if m.consumption is None]
     ai_reports = AIReport.query.order_by(AIReport.generated_at.desc()).limit(10).all()
+    recent_votes = Vote.query.order_by(Vote.timestamp.desc()).limit(50).all()
     
     return render_template(
         'admin_dashboard.html',
@@ -449,7 +450,8 @@ def admin_dashboard():
         avg_waste_pct=round(avg_waste_pct, 1),
         utilization_pct=round(utilization_pct, 1),
         active_recommendations=active_recommendations[:8],
-        ai_reports=ai_reports
+        ai_reports=ai_reports,
+        negative_attendance=recent_votes
     )
 
 @app.route('/admin/record_consumption', methods=['POST'])
