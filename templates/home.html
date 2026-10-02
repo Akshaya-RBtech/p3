@@ -1,33 +1,236 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:70vh;text-align:center;padding:32px 16px;">
+<style>
+/* Remove layout header, footer, and resets */
+.top-header, footer { display: none !important; }
+body { padding: 0 !important; margin: 0 !important; background: #ffffff !important; overflow-x: hidden; }
+.page-wrapper { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
 
-    <div style="margin-bottom:24px;padding:18px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.15);border-radius:20px;display:inline-block;box-shadow:0 8px 30px rgba(99,102,241,0.1);">
-        <i class="fas fa-leaf" style="font-size:32px;color:var(--primary);"></i>
+.landing-container {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Inter', sans-serif;
+    background: #ffffff;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Custom Header Navigation */
+.landing-header {
+    display: flex;
+    justify-content: flex-end;
+    padding: 30px 50px;
+    gap: 30px;
+    z-index: 10;
+}
+
+.landing-header a {
+    text-decoration: none;
+    color: #1a365d;
+    font-size: 14px;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.landing-header a:hover {
+    color: #10b981;
+}
+
+/* Hero Section */
+.hero-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-top: 40px;
+    z-index: 10;
+    padding: 0 20px;
+}
+
+.brand-logo-large {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.leaf-icon {
+    font-size: 55px;
+    color: #10b981;
+    background: -webkit-linear-gradient(45deg, #059669, #34d399);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.brand-text-large {
+    font-size: 42px;
+    font-weight: 800;
+    color: #1a365d;
+    letter-spacing: -1px;
+}
+
+.hero-tagline {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a365d;
+    line-height: 1.3;
+    margin-bottom: 20px;
+    max-width: 500px;
+}
+
+.hero-features {
+    font-size: 14px;
+    color: #4a5568;
+    font-weight: 500;
+    word-spacing: 2px;
+}
+
+.hero-features span {
+    color: #a0aec0;
+    margin: 0 8px;
+}
+
+/* Large Background Image */
+.hero-image-wrapper {
+    position: relative;
+    width: 100%;
+    flex: 1;
+    min-height: 350px;
+    margin-top: -40px; /* Slight overlap for blending */
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    background: url('/static/landing_food_bg.png') no-repeat center bottom;
+    background-size: cover;
+    z-index: 1;
+}
+
+/* White gradient overlay at the bottom so buttons sit on white */
+.bottom-white-gradient {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 150px;
+    background: linear-gradient(to top, #ffffff 30%, transparent);
+    z-index: 2;
+}
+
+/* Bottom Action Buttons */
+.action-buttons {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 40px 20px 60px 20px;
+    background: #ffffff;
+    width: 100%;
+}
+
+.btn-landing {
+    padding: 16px 40px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    width: 200px;
+    text-align: center;
+}
+
+.btn-student {
+    background: #10b981;
+    color: white;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.btn-student:hover {
+    background: #059669;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.btn-admin {
+    background: transparent;
+    color: #10b981;
+    border: 2px solid #10b981;
+}
+
+.btn-admin:hover {
+    background: rgba(16, 185, 129, 0.05);
+    transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .landing-header {
+        justify-content: center;
+        padding: 20px;
+        gap: 15px;
+    }
+    .landing-header a {
+        font-size: 13px;
+    }
+    .brand-text-large { font-size: 32px; }
+    .leaf-icon { font-size: 40px; }
+    .hero-tagline { font-size: 22px; }
+    .hero-features { font-size: 12px; }
+    .action-buttons {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+        padding-bottom: 40px;
+    }
+    .btn-landing { width: 100%; max-width: 300px; }
+    .hero-image-wrapper { min-height: 250px; background-position: center bottom; }
+}
+
+@media (min-width: 1200px) {
+    .action-buttons { padding-bottom: 80px; }
+    .hero-image-wrapper { background-size: contain; }
+}
+</style>
+
+<div class="landing-container">
+    
+    <!-- Top Nav -->
+    <div class="landing-header">
+        <a href="#">Home</a>
+        <a href="#">About</a>
+        <a href="#">Features</a>
+        <a href="#">Contact</a>
     </div>
 
-    <h1 style="font-size:36px;font-weight:900;color:var(--text-primary);margin-bottom:8px;letter-spacing:-1px;line-height:1.1;">
-        WasteZero
-    </h1>
-
-    <p style="font-size:15px;color:var(--text-secondary);margin-bottom:32px;max-width:340px;line-height:1.6;">
-        Smart Canteen. Less Waste.<br>A Greener Future.
-    </p>
-
-    <div style="width:100%;max-width:280px;display:flex;flex-direction:column;gap:12px;">
-        <a href="{{ url_for('login') }}" class="btn-primary" style="width:100%;justify-content:center;padding:14px;font-size:14px;text-decoration:none;">
-            <i class="fas fa-user-shield"></i> Admin Login
-        </a>
-
-        <a href="{{ url_for('student_login') }}" class="btn-secondary" style="width:100%;justify-content:center;padding:14px;font-size:14px;text-decoration:none;">
-            <i class="fas fa-graduation-cap"></i> Student Login
-        </a>
+    <!-- Hero Titles & Logos -->
+    <div class="hero-content">
+        <div class="brand-logo-large">
+            <i class="fas fa-leaf leaf-icon"></i>
+            <span class="brand-text-large">WasteZero</span>
+        </div>
+        
+        <h2 class="hero-tagline">
+            Smart Mess Management<br>for a Greener Tomorrow
+        </h2>
+        
+        <div class="hero-features">
+            Less Food Waste <span>•</span> Better Nutrition <span>•</span> A Healthier Campus
+        </div>
     </div>
 
-    <div style="margin-top:40px;display:flex;align-items:center;gap:8px;color:var(--text-muted);font-size:11px;font-weight:600;">
-        <div style="width:6px;height:6px;background:var(--success);border-radius:50%;animation:pulse-dot 2s infinite;"></div>
-        AI-Powered Food Waste Management
+    <!-- Big Background Visual -->
+    <div class="hero-image-wrapper">
+        <div class="bottom-white-gradient"></div>
     </div>
+
+    <!-- Buttons -->
+    <div class="action-buttons">
+        <a href="{{ url_for('student_login') }}" class="btn-landing btn-student">Student Login</a>
+        <a href="{{ url_for('login') }}" class="btn-landing btn-admin">Admin Login</a>
+    </div>
+
 </div>
+
 {% endblock %}
