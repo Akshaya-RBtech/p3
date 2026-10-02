@@ -53,6 +53,19 @@
     .student-sidebar .active-tab i {
         color: white !important;
     }
+    
+    @media (max-width: 768px) {
+        .student-sidebar {
+            position: fixed;
+            left: -250px;
+            top: 64px;
+            height: calc(100vh - 64px);
+            box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+        }
+        .student-sidebar.api-show {
+            left: 0;
+        }
+    }
 </style>
 
 <div style="display:flex; height: calc(100vh - 64px);">
@@ -706,14 +719,14 @@ async function quickVote(menuId, choice) {
         const btn = event.currentTarget.innerText;
         event.currentTarget.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
         try {
-            const formData = new FormData();
-            formData.append('menu_id', menuId);
-            formData.append('choice', choice);
-            formData.append('reason', '');
-            
             const res = await fetch('/student/vote', { 
                 method: 'POST', 
-                body: formData 
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    menu_id: menuId, 
+                    choice: choice, 
+                    reason: ''
+                })
             });
             const data = await res.json();
             if (data.success) {
@@ -803,12 +816,15 @@ async function submitSkipVote() {
     btn.disabled = true;
     
     try {
-        const formData = new FormData();
-        formData.append('menu_id', menuId);
-        formData.append('choice', 'No');
-        formData.append('reason', reason);
-        
-        const res = await fetch('/student/vote', { method: 'POST', body: formData });
+        const res = await fetch('/student/vote', { 
+            method: 'POST', 
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                menu_id: menuId, 
+                choice: 'No', 
+                reason: reason
+            })
+        });
         const data = await res.json();
         
         if (data.success) {
