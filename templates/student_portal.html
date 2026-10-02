@@ -256,11 +256,10 @@
                 <button class="flex-shrink-0 text-muted" onclick="document.getElementById('calendar-date-pills').scrollLeft -= 100"><i class="fas fa-chevron-left"></i></button>
                 <div class="flex gap-3 text-sm fw-600 flex-1 px-2">
                     <button onclick="filterCalendar('all', this)" class="date-pill bg-[#10b981] text-white px-5 py-2.5 rounded-xl border border-transparent text-center shadow-sm w-fit min-w-[70px] transition">All</button>
-                    {% for date_str in grouped_menus.keys() %}
-                        {% set p_date = datetime.strptime(date_str, '%Y-%m-%d') %}
-                        <button onclick="filterCalendar('{{ date_str }}', this)" class="date-pill bg-white border border-[var(--border)] text-[#475569] px-5 py-2.5 rounded-xl text-center flex flex-col items-center justify-center min-w-[70px] transition hover:bg-gray-50">
-                            <div>{{ p_date.strftime('%a') }}</div>
-                            <div class="fw-800 text-lg">{{ p_date.strftime('%d') }}</div>
+                    {% for d in date_pills %}
+                        <button onclick="filterCalendar('{{ d.date_str }}', this)" class="date-pill bg-white border border-[var(--border)] text-[#475569] px-5 py-2.5 rounded-xl text-center flex flex-col items-center justify-center min-w-[70px] transition hover:bg-gray-50">
+                            <div>{{ d.dow }}</div>
+                            <div class="fw-800 text-lg">{{ d.day }}</div>
                         </button>
                     {% endfor %}
                 </div>
@@ -280,15 +279,6 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-[var(--border)]">
-                        {% set grouped_menus = {} %}
-                        {% for m in menus %}
-                            {% set date_str = m.date %}
-                            {% if date_str not in grouped_menus %}
-                                {% set _ = grouped_menus.update({date_str: {}}) %}
-                            {% endif %}
-                            {% set _ = grouped_menus[date_str].update({m.meal_type: m}) %}
-                        {% endfor %}
-
                         {% for date_str, daily_menus in grouped_menus.items() %}
                         <tr class="calendar-row hover:bg-[#f8fafc] transition-colors" data-date="{{ date_str }}">
                             <td class="p-4 align-top">

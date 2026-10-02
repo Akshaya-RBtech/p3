@@ -697,8 +697,27 @@ def student_portal():
     my_votes = Vote.query.filter_by(student_id=current_user.student_id).all()
     vote_dict = {v.menu_id: v.choice for v in my_votes}
     
-    return render_template('student_portal.html', menus=upcoming_menus, vote_dict=vote_dict, today=today, tomorrow=tomorrow)
-
+    # Build groupings and parsed dates for the Calendar Table Scroller
+    grouped_menus = {}
+    date_pills = []
+    
+    for m in upcoming_menus:
+        if m.date not in grouped_menus:
+            grouped_menus[m.date] = {}
+            # Build pretty date dictionary safely in Python instead of Jinja
+            p_date = datetime.strptime(m.date, '%Y-%m-%d')
+            date_pills.append({
+                'date_str': m.date,
+                'dow': p_date.strftime('%a'),
+                'day': p_date.strftime('%d')
+            })
+        grouped_menus[m.date][m.meal_type] = m
+    
+    # Sort date pills incrementally
+    date_pills = sorted(date_pills, key=lambda x: x['date_str'])
+    
+    return render_template('student_portal.html', menus=upcoming_menus, vote_dict=vote_dict, today=today, tomorrow=tomorrow, grouped_menus=grouped_menus, date_pills=date_pills)
+    
 @app.route('/api/menu_stats/<int:menu_id>')
 @login_required
 def menu_stats(menu_id):
