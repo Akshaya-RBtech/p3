@@ -304,7 +304,37 @@
                         <th class="p-3">Student</th><th class="p-3">Submit Date</th><th class="p-3">Start-End</th><th class="p-3">Type/Reason</th><th class="p-3">Status</th><th class="p-3">Action & Remarks</th>
                     </tr></thead>
                     <tbody>
-                        <tr><td colspan="6" class="text-center p-8 text-muted">No student leave requests pending!</td></tr>
+                        {% if all_leaves %}
+                            {% for l in all_leaves %}
+                            <tr class="border-b border-[var(--border)]">
+                                <td class="p-3 fw-700 text-primary">{{ l.student_id }}</td>
+                                <td class="p-3 text-muted">{{ l.created_at.strftime('%Y-%m-%d %H:%M') if l.created_at else '' }}</td>
+                                <td class="p-3 fw-600">{{ l.start_date }} to <br>{{ l.end_date }}</td>
+                                <td class="p-3">
+                                    <div class="fw-700 text-[11px]">{{ l.leave_type }}</div>
+                                    <div class="text-[10px] text-muted">{{ l.reason }}</div>
+                                </td>
+                                <td class="p-3">
+                                    <span class="badge {{ 'badge-success' if l.status == 'Approved' else 'badge-danger' if l.status == 'Rejected' else 'badge-warning' }} text-[9px] uppercase">{{ l.status }}</span>
+                                </td>
+                                <td class="p-3">
+                                    {% if l.status == 'Pending' %}
+                                    <form class="flex gap-2" onsubmit="event.preventDefault(); updateLeaveStatus({{ l.id }}, this.status.value)">
+                                        <select name="status" class="form-input text-[10px] p-1">
+                                            <option value="Approved">Approve</option>
+                                            <option value="Rejected">Reject</option>
+                                        </select>
+                                        <button type="submit" class="bg-primary text-white px-2 py-1 rounded text-[10px]">Update</button>
+                                    </form>
+                                    {% else %}
+                                    <span class="text-muted text-[10px]">Actioned</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr><td colspan="6" class="text-center p-8 text-muted">No student leave requests pending!</td></tr>
+                        {% endif %}
                     </tbody>
                 </table>
             </div>
@@ -558,6 +588,25 @@
             box.innerHTML = data.reply || data.text || "No insights found.";
         } catch (e) {
             box.innerHTML = "Error reaching AI engine.";
+        }
+    }
+    
+    async function updateLeaveStatus(id, status) {
+        if(!confirm(`Are you sure you want to ${status.toLowerCase()} this leave request?`)) return;
+        try {
+            const res = await fetch(`/api/leave/${id}/update`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({status: status})
+            });
+            if(res.ok) {
+                alert(`Leave request ${status.toLowerCase()} successfully.`);
+                window.location.reload();
+            } else {
+                alert('Failed to update leave status.');
+            }
+        } catch(e) {
+            alert('Error updating leave status.');
         }
     }
     

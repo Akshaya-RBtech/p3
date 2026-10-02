@@ -490,16 +490,21 @@
         </div>
 
         <!-- Notifications -->
-        <div id="content-notifications" class="tab-content">
-            <div class="flex justify-between items-center mb-5">
-                <h2 style="font-size:24px;font-weight:800;">Notifications</h2>
-                <button onclick="readAllNotifs()" class="btn-primary px-3 py-1 text-xs"><i class="fas fa-check-double mr-2"></i> Mark All Read</button>
-            </div>
-            <div class="card bg-[var(--card-bg)]" style="max-height:500px;overflow-y:auto;">
-                <div id="full-notif-list">
-                    <div class="text-center p-8 text-muted"><i class="fas fa-spinner fa-spin text-2xl mb-3 block"></i> Loading notifications...</div>
+        <div id="content-notifications" class="tab-content relative items-start min-h-[100vh] flex flex-col items-center">
+            
+            <div class="w-full max-w-[700px]">
+                <div class="flex justify-between items-center mb-5">
+                    <h2 class="text-[#1e293b] text-[22px] fw-800">Notifications</h2>
+                    <button onclick="readAllNotifs()" class="bg-[#10b981] hover:bg-[#059669] text-white px-4 py-2 rounded-lg text-[12px] fw-700 shadow-sm transition"><i class="fas fa-check-double mr-2"></i> Mark All Read</button>
+                </div>
+                
+                <div class="card p-0 shadow-lg border border-[var(--border)] overflow-hidden rounded-[16px]">
+                    <div id="full-notif-list" class="bg-white max-h-[500px] overflow-y-auto">
+                        <div class="text-center p-8 text-muted"><i class="fas fa-spinner fa-spin text-2xl mb-3 block"></i> Loading notifications...</div>
+                    </div>
                 </div>
             </div>
+            
         </div>
 
         <!-- Food Feedback -->
@@ -568,43 +573,98 @@
         </div>
 
         <!-- Student Leave Requests -->
-        <div id="content-leave" class="tab-content">
-            <h2 style="font-size:24px;font-weight:800;margin-bottom:24px;">Student Leave Requests</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="card p-5">
-                    <h3 class="fw-700 mb-4"><i class="fas fa-calendar-minus text-warning mr-2"></i> Apply for Hostel Leave</h3>
-                    <p class="text-[11px] text-muted mb-4">Applying for leave will automatically skip your meals for the approved duration to save food waste.</p>
-                    <form onsubmit="submitStudentLeave(event)">
-                        <div class="flex gap-3 mb-4">
-                            <div class="flex-1">
-                                <label class="text-[11px] fw-600 text-muted uppercase mb-1 block">From Date</label>
-                                <input type="date" id="leave-start" class="form-input w-full" required>
+        <div id="content-leave" class="tab-content relative items-start min-h-[100vh] flex flex-col items-center">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full max-w-[1000px]">
+                
+                <!-- NEW LEAVE REQUEST CARD (Matching Screen 08) -->
+                <div class="card bg-white p-0 shadow-lg border border-[var(--border)] overflow-hidden flex flex-col rounded-[16px] relative mx-auto w-full max-w-[420px]">
+                    <!-- Header -->
+                    <div class="flex items-center justify-between px-5 py-4 border-b border-[var(--border)]">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full overflow-hidden bg-gray-200">
+                                <img src="https://i.pravatar.cc/150?img=11" alt="Avatar" class="w-full h-full object-cover">
                             </div>
-                            <div class="flex-1">
-                                <label class="text-[11px] fw-600 text-muted uppercase mb-1 block">To Date</label>
-                                <input type="date" id="leave-end" class="form-input w-full" required>
-                            </div>
+                            <span class="text-[14px] fw-700 text-[#1e293b]">New Leave Request</span>
                         </div>
-                        <label class="text-[11px] fw-600 text-muted uppercase mb-1 block">Leave Type</label>
-                        <select id="leave-type" class="form-input mb-4 w-full" required>
-                            <option value="">Select leave type...</option>
-                            <option value="Home Visit">Home Visit / Weekend</option>
-                            <option value="Medical">Medical Leave</option>
-                            <option value="College Event">College Event / Tour</option>
-                            <option value="Other">Other</option>
-                        </select>
-                        <label class="text-[11px] fw-600 text-muted uppercase mb-1 block">Reason (Optional)</label>
-                        <input type="text" id="leave-reason" class="form-input mb-4 w-full" placeholder="Brief reason">
-                        <button type="submit" class="btn-primary w-full justify-center bg-warning border-warning"><i class="fas fa-paper-plane mr-2"></i> Submit Leave Request</button>
-                    </form>
-                    <div id="leave-status" class="mt-3 text-center text-xs fw-600 hidden"></div>
+                        <button class="text-gray-400 hover:text-gray-600 transition">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+
+                    <!-- Form Body -->
+                    <div class="p-5 flex-1">
+                        <form onsubmit="submitStudentLeave(event)" class="flex flex-col gap-4">
+                            
+                            <!-- Leave Start Date -->
+                            <div>
+                                <label class="text-[12px] fw-600 text-[#475569] mb-1.5 block">Leave Start Date</label>
+                                <div class="relative">
+                                    <input type="text" id="leave-start" onfocus="(this.type='date')" onblur="if(!this.value)this.type='text'" class="form-input w-full text-[13px] py-2.5 px-3 border-[#e2e8f0] rounded-lg text-[#334155] pr-10" placeholder="2025-05-02" required>
+                                    <i class="far fa-calendar-alt absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                                </div>
+                            </div>
+                            
+                            <!-- Leave End Date -->
+                            <div>
+                                <label class="text-[12px] fw-600 text-[#475569] mb-1.5 block">Leave End Date</label>
+                                <div class="relative">
+                                    <input type="text" id="leave-end" onfocus="(this.type='date')" onblur="if(!this.value)this.type='text'" class="form-input w-full text-[13px] py-2.5 px-3 border-[#e2e8f0] rounded-lg text-[#334155] pr-10" placeholder="2025-05-05" required>
+                                    <i class="far fa-calendar-alt absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                                </div>
+                            </div>
+                            
+                            <!-- Leave Type -->
+                            <div>
+                                <label class="text-[12px] fw-600 text-[#475569] mb-1.5 block">Leave Type</label>
+                                <div class="relative">
+                                    <select id="leave-type" class="form-input w-full text-[13px] py-2.5 px-3 border-[#e2e8f0] rounded-lg text-[#334155] appearance-none" required>
+                                        <option value="Personal Leave">Personal Leave</option>
+                                        <option value="Medical Leave">Medical Leave</option>
+                                        <option value="Family Event">Family Event</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                    <i class="fas fa-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-[10px] pointer-events-none"></i>
+                                </div>
+                            </div>
+                            
+                            <!-- Reason -->
+                            <div>
+                                <label class="text-[12px] fw-600 text-[#475569] mb-1.5 block">Reason</label>
+                                <textarea id="leave-reason" class="form-input w-full text-[13px] py-2.5 px-3 border-[#e2e8f0] rounded-lg text-[#334155] resize-none" rows="3" placeholder="Family function at home" required></textarea>
+                            </div>
+                            
+                            <!-- Optional Document -->
+                            <div>
+                                <label class="text-[12px] fw-600 text-[#475569] mb-1.5 block">Optional Document</label>
+                                <div class="flex items-center border border-[#e2e8f0] rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-green-100 bg-[#f8fafc]">
+                                    <label class="cursor-pointer bg-[#f1f5f9] hover:bg-[#e2e8f0] border-r border-[#e2e8f0] px-4 py-2 text-[12px] fw-600 text-[#475569] flex items-center gap-2 transition">
+                                        <i class="fas fa-paperclip text-muted"></i> Choose File
+                                        <input type="file" id="leave-doc" class="hidden" onchange="document.getElementById('file-chosen-text').textContent = this.files[0] ? this.files[0].name : 'No file chosen'">
+                                    </label>
+                                    <span id="file-chosen-text" class="text-[12px] text-gray-400 px-3 truncate flex-1">No file chosen</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Submit Button -->
+                            <div class="mt-2 text-center">
+                                <button type="submit" class="w-full bg-[#10b981] hover:bg-[#059669] text-white py-3 rounded-lg text-[14px] fw-700 shadow-sm transition">Submit Request</button>
+                                <div id="leave-status" class="mt-3 text-center text-[12px] fw-600 hidden"></div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                <div class="card p-5 flex flex-col h-full">
-                    <h3 class="fw-700 mb-4"><i class="fas fa-history mr-2 text-warning"></i> Leave History</h3>
-                    <div id="stu-leave-list" class="flex-1 flex flex-col gap-2 overflow-y-auto max-h-[300px]">
+
+                <!-- HISTORY CARD -->
+                <div class="card p-5 shadow-lg border border-[var(--border)] rounded-[16px] h-full flex flex-col min-h-[400px]">
+                    <div class="flex justify-between items-center mb-5 pb-3 border-b border-[var(--border)]">
+                        <h3 class="fw-700 text-[16px] text-primary"><i class="fas fa-history mr-2"></i> Leave History</h3>
+                    </div>
+                    <div id="stu-leave-list" class="flex-1 flex flex-col gap-3 overflow-y-auto pr-1">
                         <div class="text-center text-sm text-muted p-4"><i class="fas fa-spinner fa-spin mr-2"></i> Loading history...</div>
                     </div>
                 </div>
+
             </div>
         </div>
 
