@@ -490,22 +490,24 @@
         </div>
 
         <!-- Notifications -->
-        <div id="content-notifications" class="tab-content">
-            <div class="flex flex-col items-center min-h-[50vh]">
-                <div class="w-full max-w-[700px]">
-                    <div class="flex justify-between items-center mb-5">
-                        <h2 class="text-[#1e293b] text-[22px] fw-800">Notifications</h2>
-                        <button onclick="readAllNotifs()" class="bg-[#10b981] hover:bg-[#059669] text-white px-4 py-2 rounded-lg text-[12px] fw-700 shadow-sm transition"><i class="fas fa-check-double mr-2"></i> Mark All Read</button>
-                    </div>
-                    
-                    <div class="card p-0 shadow-lg border border-[var(--border)] overflow-hidden rounded-[16px]">
-                        <div id="full-notif-list" class="bg-white max-h-[600px] overflow-y-auto">
-                            <div class="text-center p-8 text-muted"><i class="fas fa-spinner fa-spin text-2xl mb-3 block"></i> Loading notifications...</div>
+        <div id="content-notifications" class="tab-content" style="padding: 16px;">
+            <div class="max-w-[700px] w-full mx-auto pb-10">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6 pt-2">
+                    <h2 class="text-[#1e293b] text-[24px] fw-800 m-0 text-center">Notifications</h2>
+                    <button onclick="readAllNotifs()" class="bg-[#10b981] hover:bg-[#059669] text-white px-5 py-2.5 rounded-[8px] text-[13px] fw-700 shadow-sm transition flex items-center justify-center min-w-[140px]">
+                        <i class="fas fa-check-double mr-2"></i> Mark All Read
+                    </button>
+                </div>
+                
+                <div class="bg-white shadow-md border border-[#e2e8f0] overflow-hidden rounded-[16px] w-full">
+                    <div id="full-notif-list" class="max-h-[65vh] overflow-y-auto">
+                        <div class="text-center p-12 text-muted">
+                            <i class="fas fa-spinner fa-spin text-3xl mb-4 block text-[#cbd5e1]"></i> 
+                            <span class="text-[14px] fw-500">Loading notifications...</span>
                         </div>
                     </div>
                 </div>
             </div>
-            
         </div>
 
         <!-- Food Feedback -->
