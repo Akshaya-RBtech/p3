@@ -462,8 +462,6 @@ def admin_dashboard():
         'admin_dashboard.html',
         menus=menus,
         total_students=User.query.filter_by(role='student').count(),
-        coming_count=sum(1 for v in Vote.query.filter(Vote.timestamp >= db.func.date('now')).all() if v.choice == 'Yes'),
-        not_coming_count=sum(1 for v in Vote.query.filter(Vote.timestamp >= db.func.date('now')).all() if v.choice == 'No'),
         no_votes=no_votes,
         consumption_logs=consumption_logs,
         unrecorded_menus=unrecorded_menus,
