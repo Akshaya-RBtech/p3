@@ -459,16 +459,23 @@
             <div class="card p-0 overflow-y-auto">
                 <table class="data-table w-full text-left text-[12px]">
                     <thead class="bg-input border-b border-[var(--border)]">
-                        <tr><th class="p-3">ID</th><th class="p-3">Student</th><th class="p-3">Category</th><th class="p-3">Description</th><th class="p-3">Status</th><th class="p-3">Date</th></tr>
+                        <tr><th class="p-3">ID</th><th class="p-3">Student</th><th class="p-3">Category & Subject</th><th class="p-3">Description</th><th class="p-3">Status</th><th class="p-3">Date</th></tr>
                     </thead>
                     <tbody>
                         {% if all_complaints %}
                             {% for c in all_complaints %}
+                            {% set parts = c.description.split('SUBJECT_SPLIT|') %}
+                            {% set has_subject = (parts|length >= 3) %}
+                            {% set display_subject = parts[1]|replace('|', '') if has_subject else '' %}
+                            {% set display_desc = parts[2] if has_subject else c.description %}
                             <tr class="border-b border-[var(--border)]">
                                 <td class="p-3 fw-700">#{{ c.id }}</td>
                                 <td class="p-3">{{ c.student_id }}</td>
-                                <td class="p-3"><span class="badge badge-warning text-[9px] uppercase">{{ c.category }}</span></td>
-                                <td class="p-3 text-muted">{{ c.description }}</td>
+                                <td class="p-3">
+                                    <span class="badge badge-warning text-[9px] uppercase">{{ c.category }}</span>
+                                    {% if has_subject %}<div class="text-[11px] fw-700 mt-1 text-primary">{{ display_subject }}</div>{% endif %}
+                                </td>
+                                <td class="p-3 text-muted">{{ display_desc }}</td>
                                 <td class="p-3">
                                     <span class="badge {{ 'badge-success' if c.status == 'Resolved' else 'badge-danger' }} text-[9px] uppercase">{{ c.status }}</span>
                                 </td>

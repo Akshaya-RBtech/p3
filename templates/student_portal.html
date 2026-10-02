@@ -547,33 +547,86 @@
         </div>
 
         <!-- Student Complaints -->
+        <!-- Student Complaints -->
         <div id="content-complaints" class="tab-content">
-            <h2 style="font-size:24px;font-weight:800;margin-bottom:24px;">Student Complaints</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="card p-5">
-                    <h3 class="fw-700 mb-4"><i class="fas fa-flag text-danger mr-2"></i> File a Complaint</h3>
-                    <form onsubmit="submitStudentComplaint(event)">
-                        <label class="text-[11px] fw-600 text-muted uppercase mb-1 block">Category</label>
-                        <select id="comp-category" class="form-input mb-4 w-full" required>
-                            <option value="">Select Category...</option>
-                            <option value="Food Quality">Food Quality / Spoiled</option>
-                            <option value="Food Quantity">Food Quantity / Portions</option>
-                            <option value="Hygiene">Hygiene / Cleanliness</option>
-                            <option value="Menu Change">Menu Change Request</option>
-                            <option value="Staff Behavior">Staff Behavior</option>
-                            <option value="Other">Other</option>
-                        </select>
-                        <label class="text-[11px] fw-600 text-muted uppercase mb-1 block">Issue Description</label>
-                        <textarea id="comp-description" class="form-input mb-4 w-full" rows="4" placeholder="Please describe the issue in detail..." required></textarea>
-                        <button type="submit" class="btn-primary w-full justify-center bg-danger border-danger hover:bg-red-600"><i class="fas fa-exclamation-circle mr-2"></i> Submit Complaint</button>
+            <!-- Screen 10 Recreation -->
+            <div class="max-w-3xl mx-auto">
+                <!-- Submit Form Card -->
+                <div class="bg-white rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.03)] border border-[#e2e8f0] mb-8 overflow-hidden">
+                    <div class="flex items-center gap-3 p-5 border-b border-[#f1f5f9]">
+                        <div class="w-8 h-8 rounded-full bg-[#e8f5e9] text-[#16a34a] flex justify-center items-center">
+                            <i class="fas fa-file-signature text-sm"></i>
+                        </div>
+                        <h2 class="font-bold text-[#1e293b] text-[17px]">Submit Complaint</h2>
+                    </div>
+                    
+                    <form onsubmit="submitStudentComplaint(event)" class="p-6">
+                        <!-- Category Input -->
+                        <div class="mb-5">
+                            <label class="block text-[13px] font-bold text-[#475569] mb-2">Category</label>
+                            <select id="comp-category" class="w-full border border-[#cbd5e1] rounded-lg p-3 text-[14px] text-[#334155] focus:outline-none focus:border-[#3b82f6] shadow-sm appearance-none bg-white" required>
+                                <option value="Food Quality">Food Quality</option>
+                                <option value="Food Quantity">Food Quantity</option>
+                                <option value="Hygiene">Hygiene</option>
+                                <option value="Menu">Menu</option>
+                                <option value="Service">Service</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Subject Input -->
+                        <div class="mb-5">
+                            <label class="block text-[13px] font-bold text-[#475569] mb-2">Subject</label>
+                            <div class="relative">
+                                <input type="text" id="comp-subject" class="w-full border border-[#cbd5e1] rounded-lg p-3 text-[14px] text-[#334155] focus:outline-none focus:border-[#3b82f6] shadow-sm" placeholder="e.g. Food too spicy" required>
+                                <i class="fas fa-chevron-down absolute right-4 top-4 text-[#94a3b8] text-sm pointer-events-none"></i>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-5">
+                            <label class="block text-[13px] font-bold text-[#475569] mb-2">Description</label>
+                            <textarea id="comp-description" class="w-full border border-[#cbd5e1] rounded-lg p-3 text-[14px] text-[#64748b] min-h-[100px] focus:outline-none focus:border-[#3b82f6] shadow-sm" placeholder="The food was too spicy today. Please consider reducing the spice level..." required></textarea>
+                        </div>
+
+                        <!-- Image File (Visual only as per UI) -->
+                        <div class="mb-6">
+                            <label class="block text-[13px] font-bold text-[#475569] mb-2">Image Complaint</label>
+                            <div class="flex items-center w-full border border-[#cbd5e1] rounded-lg overflow-hidden shadow-sm">
+                                <label class="cursor-pointer bg-[#f8fafc] px-4 py-3 border-r border-[#cbd5e1] text-[#475569] font-bold text-[13px] hover:bg-[#f1f5f9] transition-colors whitespace-nowrap">
+                                    <i class="fas fa-cloud-upload-alt mr-2 text-[#64748b]"></i> Choose file
+                                    <input type="file" class="hidden">
+                                </label>
+                                <div class="px-4 text-[13px] text-[#94a3b8]">No file chosen</div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button matching the green from the prompt -->
+                        <button type="submit" id="comp-btn" class="w-full bg-gradient-to-r from-[#2eb868] to-[#22c55e] text-white font-bold text-[15px] py-3.5 rounded-lg shadow-[0_4px_12px_rgba(34,197,94,0.3)] hover:opacity-90 transition-opacity">
+                            Submit Complaint
+                        </button>
+                        <div id="comp-status" class="mt-4 text-center text-sm font-bold hidden"></div>
                     </form>
-                    <div id="comp-status" class="mt-3 text-center text-xs fw-600 hidden"></div>
                 </div>
-                
-                <div class="card p-5 flex flex-col h-full">
-                    <h3 class="fw-700 mb-4"><i class="fas fa-history mr-2 text-primary"></i> Complaint History</h3>
-                    <div id="stu-comp-list" class="flex-1 flex flex-col gap-3 overflow-y-auto max-h-[300px]">
-                        <div class="text-center text-sm text-muted p-4"><i class="fas fa-spinner fa-spin mr-2"></i> Loading history...</div>
+
+                <!-- My Complaints Table -->
+                <div class="bg-white rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.03)] border border-[#e2e8f0] overflow-hidden">
+                    <div class="p-5 border-b border-[#f1f5f9]">
+                        <h2 class="font-bold text-[#1e293b] text-[17px]">My Complaints</h2>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-[#f8fafc] border-b border-[#e2e8f0]">
+                                    <th class="p-4 text-[12px] font-bold text-[#64748b] w-1/3">Date</th>
+                                    <th class="p-4 text-[12px] font-bold text-[#475569]">Subject</th>
+                                    <th class="p-4 text-[12px] font-bold text-[#64748b] text-center w-[120px]">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stu-comp-list">
+                                <tr><td colspan="3" class="p-6 text-center text-[#94a3b8] text-sm"><i class="fas fa-spinner fa-spin mr-2"></i> Loading history...</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -1260,8 +1313,38 @@ async function loadStudentHistory() {
         const cRes = await fetch('/api/complaints');
         const cData = await cRes.json();
         const cDiv = document.getElementById('stu-comp-list');
-        if(cDiv && cData.length===0) cDiv.innerHTML='<div class="text-muted text-[11px] p-3 text-center">No complaints filed.</div>';
-        else if(cDiv) cDiv.innerHTML = cData.map(c => `<div class="bg-[var(--input-bg)] border border-[var(--border)] p-3 rounded"><div class="flex justify-between items-center"><span class="fw-700 text-[11px] text-primary">${c.category}</span><span class="badge ${c.status==='Resolved'?'badge-success':c.status==='Open'?'badge-danger':'badge-warning'} text-[10px]">${c.status}</span></div><div class="text-[11px] mt-2 mb-2">${c.description}</div>${c.admin_note ? `<div class="text-[10px] text-muted border-t pt-1 border-[var(--border)]"><i class="fas fa-reply mr-1"></i> ${c.admin_note}</div>` : ''}</div>`).join('');
+        if(cDiv && cData.length===0) cDiv.innerHTML='<tr><td colspan="3" class="p-6 text-center text-[#94a3b8] text-sm">No complaints filed.</td></tr>';
+        else if(cDiv) {
+            cDiv.innerHTML = cData.map(c => {
+                let displaySubj = c.category; 
+                let displayDesc = c.description;
+                if(c.description && c.description.includes('SUBJECT_SPLIT|')) {
+                    const parts = c.description.split('SUBJECT_SPLIT');
+                    if(parts.length >= 3) {
+                        displaySubj = parts[1].replace('|', '');
+                        displayDesc = parts[2].replace(/^\s+/, '');
+                    }
+                }
+                
+                const statusBadge = c.status==='Resolved' 
+                    ? '<span class="bg-[#dcfce7] text-[#166534] px-3 py-1 rounded-full text-[11px] font-bold"><i class="fas fa-check-circle mr-1"></i>Resolved</span>'
+                    : (c.status==='Open' || c.status==='Pending' 
+                        ? '<span class="bg-[#fef9c3] text-[#a16207] px-3 py-1 rounded-full text-[11px] font-bold"><i class="fas fa-clock mr-1"></i>In Progress</span>'
+                        : `<span class="badge badge-warning text-[10px]">${c.status}</span>`);
+
+                const formattedDate = new Date(c.created_at).toLocaleDateString("en-US", {month:"short", day:"numeric", year:"numeric"});
+                
+                return `
+                <tr class="border-b border-[#f1f5f9] hover:bg-[#f8fafc] transition-colors">
+                    <td class="p-4 text-[13px] text-[#64748b] whitespace-nowrap">${formattedDate}</td>
+                    <td class="p-4 text-[13px] text-[#334155] font-bold">
+                        ${displaySubj}
+                        ${c.admin_note ? `<div class="text-[11px] text-[#64748b] mt-1 font-normal p-2 bg-[#f1f5f9] rounded flex gap-2"><i class="fas fa-reply text-[9px] mt-[3px]"></i> <span>Admin: ${c.admin_note}</span></div>` : ''}
+                    </td>
+                    <td class="p-4 justify-center flex items-center">${statusBadge}</td>
+                </tr>`;
+            }).join('');
+        }
     } catch(e){}
     try {
         const lRes = await fetch('/api/leave');
@@ -1311,24 +1394,36 @@ document.addEventListener("DOMContentLoaded", () => {
     loadStudentHistory();
 });
 
-// Operations APIs
 async function submitStudentComplaint(e) {
     e.preventDefault();
-    const cat = document.getElementById('comp-category').value, desc = document.getElementById('comp-description').value;
+    const cat = document.getElementById('comp-category').value;
+    const subj = document.getElementById('comp-subject').value;
+    const desc = document.getElementById('comp-description').value;
+    const btn = document.getElementById('comp-btn');
     const st = document.getElementById('comp-status');
-    const btn = e.target.querySelector('button'); 
     
-    btn.disabled=true; btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Submitting...';
+    btn.disabled=true; 
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Submitting...';
+    
+    // Hack securely packing subject into description because schema wasn't migrated
+    const fullDesc = `SUBJECT_SPLIT|${subj}|SUBJECT_SPLIT\n\n${desc}`;
+
     try {
-        const res = await fetch('/api/complaints', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({category:cat, description:desc}) });
+        const res = await fetch('/api/complaints', { 
+            method:'POST', 
+            headers:{'Content-Type':'application/json'}, 
+            body:JSON.stringify({category:cat, description: fullDesc}) 
+        });
         if(res.ok) {
-            st.style.display='block'; st.style.color='var(--success)'; st.innerHTML='<i class="fas fa-check-circle mr-1"></i> Complaint submitted successfully. Admin will review.'; 
+            st.style.display='block'; st.style.color='#16a34a'; st.innerHTML='<i class="fas fa-check-circle mr-1"></i> Complaint submitted successfully.'; 
             e.target.reset();
+            loadStudentHistory(); // Reload table
         } else throw new Error();
     } catch(err) { 
-        st.style.display='block'; st.style.color='var(--danger)'; st.innerHTML='<i class="fas fa-times-circle mr-1"></i> Submission failed.';
+        st.style.display='block'; st.style.color='#dc2626'; st.innerHTML='<i class="fas fa-times-circle mr-1"></i> Submission failed.';
     }
-    btn.disabled=false; btn.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i> Submit Complaint';
+    btn.disabled=false; 
+    btn.innerHTML = 'Submit Complaint';
     setTimeout(()=>st.style.display='none', 5000);
 }
 
