@@ -1,33 +1,90 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<div class="md:hidden" style="padding:12px 20px;background:var(--card-bg);border-bottom:1px solid var(--border);font-weight:700;display:flex;justify-content:space-between;align-items:center;" onclick="document.querySelector('.sidebar-nav').classList.toggle('api-show')">
-    <span><i class="fas fa-bars"></i> Admin Menu</span>
+<style>
+    /* Admin specific teal sidebar styling */
+    .admin-sidebar {
+        width: 260px;
+        background-color: #115e59 !important; /* Dark teal matching image */
+        color: white !important;
+        display: flex;
+        flex-direction: column;
+        padding: 20px 0;
+        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 100;
+        flex-shrink: 0;
+        overflow-y: auto;
+    }
+    .admin-sidebar .sidebar-btn {
+        color: rgba(255,255,255,0.7);
+        border: none;
+        background: transparent;
+        text-align: left;
+        border-radius: 10px;
+        padding: 12px 20px;
+        margin: 4px 12px;
+        font-weight: 600;
+        font-size: 13.5px;
+        transition: all 0.2s;
+    }
+    .admin-sidebar .sidebar-btn:hover {
+        background: rgba(255,255,255,0.1);
+        color: white;
+    }
+    .admin-sidebar .sidebar-btn.active-tab {
+        background: linear-gradient(90deg, #3b82f6, #2563eb) !important;
+        color: white !important;
+        box-shadow: 0 4px 12px rgba(37,99,235,0.4);
+    }
+    .admin-sidebar .sidebar-btn i {
+        width: 24px;
+        text-align: center;
+        opacity: 0.8;
+    }
+    .admin-sidebar .sidebar-btn.active-tab i { opacity: 1; color: white !important; }
+
+    /* Mobile Sidebar Logic */
+    @media (max-width: 768px) {
+        .admin-sidebar {
+            position: absolute;
+            left: -300px;
+            top: 0;
+            bottom: 0;
+            height: 100%;
+            box-shadow: 4px 0 24px rgba(0,0,0,0.3);
+        }
+        .admin-sidebar.api-show {
+            left: 0;
+        }
+    }
+</style>
+
+<div class="md:hidden" style="padding:12px 20px;background:#f8fafc;border-bottom:1px solid var(--border);font-weight:700;display:flex;justify-content:space-between;align-items:center;" onclick="document.querySelector('.admin-sidebar').classList.toggle('api-show')">
+    <span class="text-[#115e59]"><i class="fas fa-bars"></i> Admin Menu</span>
     <span class="badge badge-primary">{{ current_user.username }}</span>
 </div>
 
-<div style="display:flex; height: calc(100vh - 64px);">
+<div style="display:flex; height: calc(100vh - 64px); position: relative; overflow: hidden;">
     <!-- Sidebar Navigation for 12 Admin Sections -->
-    <div class="sidebar-nav" style="width:260px; background:var(--card-bg); border-right:1px solid var(--border); overflow-y:auto; display:flex; flex-direction:column; padding:20px 0; transition:all 0.3s; z-index:100; flex-shrink:0;">
-        <div style="padding:0 20px 10px; font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px;">Admin Control Panel</div>
+    <div class="admin-sidebar shadow-[4px_0_15px_rgba(0,0,0,0.03)] border-r border-[#0f4e4a]">
+        <div style="padding:0 24px 12px; font-size:11px; font-weight:800; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:1.5px;">Admin Control Panel</div>
         
-        <button id="tab-overview" class="sidebar-btn active-tab" onclick="switchTab('overview', this)"><i class="fas fa-chart-pie fw-icon text-primary"></i> Dashboard Overview</button>
-        <button id="tab-menu" class="sidebar-btn" onclick="switchTab('menu', this)"><i class="fas fa-utensils fw-icon text-warning"></i> Menu Management</button>
-        <button id="tab-ai_meal" class="sidebar-btn" onclick="switchTab('ai_meal', this)"><i class="fas fa-magic fw-icon text-primary"></i> AI Meal Assistant</button>
-        <button id="tab-predict" class="sidebar-btn" onclick="switchTab('predict', this)"><i class="fas fa-brain fw-icon text-success"></i> AI Prediction</button>
-        <button id="tab-dish" class="sidebar-btn" onclick="switchTab('dish', this)"><i class="fas fa-chart-bar fw-icon text-warning"></i> Dish Analytics</button>
-        <button id="tab-waste" class="sidebar-btn" onclick="switchTab('waste', this)"><i class="fas fa-trash-alt fw-icon text-danger"></i> Food Waste Tracking</button>
-        <button id="tab-complaints" class="sidebar-btn" onclick="switchTab('complaints', this)"><i class="fas fa-flag fw-icon text-danger"></i> Complaint Management</button>
-        <button id="tab-leave" class="sidebar-btn" onclick="switchTab('leave', this)"><i class="fas fa-calendar-minus fw-icon text-warning"></i> Leave Requests</button>
-        <button id="tab-comm" class="sidebar-btn" onclick="switchTab('comm', this)"><i class="fas fa-bullhorn fw-icon text-primary"></i> Communication</button>
-        <button id="tab-feedback" class="sidebar-btn" onclick="switchTab('feedback', this)"><i class="fas fa-star fw-icon text-warning"></i> Feedback Mgmt</button>
-        <button id="tab-attendance" class="sidebar-btn" onclick="switchTab('attendance', this)"><i class="fas fa-clipboard-check fw-icon text-success"></i> Attendance Mgmt</button>
-        <button id="tab-inventory" class="sidebar-btn" onclick="switchTab('inventory', this)"><i class="fas fa-boxes fw-icon text-info"></i> Inventory</button>
-        <button id="tab-settings" class="sidebar-btn" onclick="switchTab('settings', this)"><i class="fas fa-cog fw-icon text-muted"></i> Admin Settings</button>
+        <button id="tab-overview" class="sidebar-btn active-tab" onclick="switchTab('overview', this)"><i class="fas fa-chart-pie mr-2"></i> Dashboard Overview</button>
+        <button id="tab-menu" class="sidebar-btn" onclick="switchTab('menu', this)"><i class="fas fa-utensils mr-2"></i> Menu Management</button>
+        <button id="tab-attendance" class="sidebar-btn" onclick="switchTab('attendance', this)"><i class="fas fa-clipboard-check mr-2"></i> Attendance Mgmt</button>
+        <button id="tab-predict" class="sidebar-btn" onclick="switchTab('predict', this)"><i class="fas fa-brain mr-2"></i> AI Prediction</button>
+        <button id="tab-dish" class="sidebar-btn" onclick="switchTab('dish', this)"><i class="fas fa-chart-bar mr-2"></i> Dish Analytics</button>
+        <button id="tab-waste" class="sidebar-btn" onclick="switchTab('waste', this)"><i class="fas fa-trash-alt mr-2"></i> Food Waste Tracking</button>
+        <button id="tab-leave" class="sidebar-btn" onclick="switchTab('leave', this)"><i class="fas fa-calendar-minus mr-2"></i> Leave Requests</button>
+        <button id="tab-complaints" class="sidebar-btn" onclick="switchTab('complaints', this)"><i class="fas fa-flag mr-2"></i> Complaints Mgmt</button>
+        <button id="tab-comm" class="sidebar-btn" onclick="switchTab('comm', this)"><i class="fas fa-bullhorn mr-2"></i> Communication</button>
+        <button id="tab-feedback" class="sidebar-btn" onclick="switchTab('feedback', this)"><i class="fas fa-star mr-2"></i> Feedback Mgmt</button>
+        <button id="tab-inventory" class="sidebar-btn" onclick="switchTab('inventory', this)"><i class="fas fa-boxes mr-2"></i> Inventory</button>
+        <button id="tab-settings" class="sidebar-btn" onclick="switchTab('settings', this)"><i class="fas fa-cog mr-2"></i> Admin Settings</button>
     </div>
 
     <!-- Main Content Area -->
-    <div class="p-0 sm:p-6" style="flex:1; overflow-y:auto; background:var(--bg-color);">
+    <div class="p-0 sm:p-6" style="flex:1; overflow-y:auto; background: #f8fafc; overflow-x: hidden;">
         
         <!-- SECTION 1: DASHBOARD OVERVIEW -->
         <div id="content-overview" class="tab-content block">
@@ -524,7 +581,10 @@
         const targ = document.getElementById('content-'+tabId);
         if(targ) targ.classList.add('block');
         if(btn) btn.classList.add('active-tab');
-        if(window.innerWidth <= 768) { document.querySelector('.sidebar-nav').classList.remove('api-show'); }
+        if(window.innerWidth <= 768) { 
+            const sb = document.querySelector('.admin-sidebar') || document.querySelector('.sidebar-nav');
+            if(sb) sb.classList.remove('api-show'); 
+        }
     }
     
     async function suggestMenu() {
