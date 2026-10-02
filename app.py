@@ -132,139 +132,18 @@ def init_db():
         
         db.create_all()
         
-        # If FoodConsumption table is empty, seed with sample data
-        if FoodConsumption.query.count() == 0:
-            print("FoodConsumption table is empty. Seeding fresh dataset...")
-            
-            import random
-            from datetime import date, timedelta
-            
-            # Create students
+        # Seed default students if needed for fallback manually, but DO NOT seed fake menus
+        if User.query.filter_by(role='student').count() == 0:
+            print("No students found. Seeding default student accounts...")
             students = [
-                User(username='John Doe', student_id='ST001', role='student'),
-                User(username='Jane Smith', student_id='ST002', role='student'),
-                User(username='Alex Jones', student_id='ST003', role='student'),
-                User(username='Emily Brown', student_id='ST004', role='student'),
-                User(username='Michael Green', student_id='ST005', role='student'),
-                User(username='Sarah White', student_id='ST006', role='student'),
-                User(username='David Black', student_id='ST007', role='student'),
-                User(username='Emma Watson', student_id='ST008', role='student'),
+                User(username='John Doe', full_name='John Doe', student_id='ST001', role='student'),
+                User(username='Jane Smith', full_name='Jane Smith', student_id='ST002', role='student'),
+                User(username='Alex Jones', full_name='Alex Jones', student_id='ST003', role='student'),
+                User(username='Emily Brown', full_name='Emily Brown', student_id='ST004', role='student')
             ]
-            
-            # Only add students that don't exist yet
             for s in students:
-                existing = User.query.filter_by(student_id=s.student_id).first()
-                if not existing:
-                    db.session.add(s)
-            
-            breakfast_options = [
-                ("Idli, Sambar, Coconut Chutney", "Normal"),
-                ("Masala Dosa, Potato Masala, Sambar", "Festival"),
-                ("Aloo Paratha, Curd, Pickle", "Normal"),
-                ("Bread, Butter, Eggs, Tea", "Normal"),
-                ("Puri Bhaji, Halwa", "Holiday")
-            ]
-            lunch_options = [
-                ("Rice, Dal Tadka, Paneer Butter Masala, Roti, Salad", "Normal"),
-                ("Veg Biryani, Raita, Gulab Jamun, Papad", "Festival"),
-                ("Rice, Sambhar, Cabbage Poriyal, Rasam, Curd", "Normal"),
-                ("Rajma Chawal, Jeera Rice, Curd, Salad", "Normal"),
-                ("Chole Bhature, Lassi", "Holiday")
-            ]
-            dinner_options = [
-                ("Roti, Bhindi Masala, Yellow Dal, Rice, Kheer", "Normal"),
-                ("Naan, Kadai Chicken, Paneer Tikka, Veg Pulao, Ice Cream", "Festival"),
-                ("Roti, Egg Curry, Dal Fry, Jeera Rice", "Normal"),
-                ("Roti, Mix Veg Sabzi, Kadhi Pakora, Steamed Rice", "Normal"),
-                ("Malai Kofta, Butter Roti, Dal Makhani, Pulao, Gulab Jamun", "Holiday")
-            ]
-            
-            start_date = date.today() - timedelta(days=10)
-            negative_reasons = [
-                "Too oily and spicy", "Don't like this dish", "Going home for the weekend",
-                "Allergic to dairy products", "Food quality was average last time",
-                "Willing to eat outside with friends", "Too repetitive, served twice this week"
-            ]
-            
-            # Seed: only if no menus exist
-            if MenuEntry.query.count() == 0:
-                for d_idx in range(11):
-                    cur_date = (start_date + timedelta(days=d_idx)).strftime('%Y-%m-%d')
-                    
-                    menu_trios = [
-                        ('Breakfast', breakfast_options[d_idx % len(breakfast_options)]),
-                        ('Lunch', lunch_options[d_idx % len(lunch_options)]),
-                        ('Dinner', dinner_options[d_idx % len(dinner_options)])
-                    ]
-                    
-                    for meal_type, (items, event_type) in menu_trios:
-                        menu = MenuEntry(
-                            date=cur_date,
-                            meal_type=meal_type,
-                            items=items,
-                            event_type=event_type,
-                            published=True
-                        )
-                        db.session.add(menu)
-                        db.session.flush()
-                        
-                        all_students = User.query.filter_by(role='student').all()
-                        yes_count = 0
-                        for student in all_students:
-                            choice_rand = random.random()
-                            choice = 'Yes' if choice_rand > 0.3 else 'No'
-                            reason = random.choice(negative_reasons) if choice == 'No' else None
-                            if choice == 'Yes':
-                                yes_count += 1
-                            
-                            vote = Vote(
-                                student_id=student.student_id,
-                                menu_id=menu.id,
-                                choice=choice,
-                                reason=reason
-                            )
-                            db.session.add(vote)
-                        
-                        # Record actual consumption for past days
-                        if d_idx < 10:
-                            guests = random.randint(0, 3)
-                            total_expected = yes_count + guests
-                            
-                            prep_multiplier = random.choice([1.0, 1.1, 1.15, 1.25, 0.95])
-                            prepared = round((total_expected * 15 * prep_multiplier), 1)
-                            
-                            consumption_ratio = random.uniform(0.70, 0.98)
-                            consumed = round(prepared * consumption_ratio, 1)
-                            
-                            wastage = round(prepared - consumed, 1)
-                            wastage_pct = round((wastage / prepared) * 100, 1) if prepared > 0 else 0
-                            cost_val = 80.0
-                            loss = round(wastage * cost_val, 2)
-                            
-                            recs = []
-                            if wastage_pct > 20:
-                                recs.append(f"CRITICAL WASTE ALERT: Wastage is high at {wastage_pct}% ({wastage} kg).")
-                            elif wastage_pct > 10:
-                                recs.append(f"MODERATE WASTE ALERT: Wastage is {wastage_pct}% ({wastage} kg).")
-                            else:
-                                recs.append(f"OPTIMAL UTILIZATION: Wastage is low at {wastage_pct}% ({wastage} kg).")
-                            
-                            rec_text = " | ".join(recs)
-                            
-                            consumption = FoodConsumption(
-                                menu_id=menu.id,
-                                prepared_qty=prepared,
-                                consumed_qty=consumed,
-                                wastage_qty=wastage,
-                                wastage_percent=wastage_pct,
-                                cost_per_unit=cost_val,
-                                total_loss=loss,
-                                recommendations=rec_text
-                            )
-                            db.session.add(consumption)
-                
-                db.session.commit()
-                print("Sample data seeded successfully.")
+                db.session.add(s)
+            db.session.commit()
         
         # Train predictor
         predictor.train()
