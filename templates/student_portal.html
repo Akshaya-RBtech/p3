@@ -436,23 +436,57 @@
         </div>
 
         <!-- Student AI Assistant -->
-        <div id="content-assistant" class="tab-content">
-            <h2 style="font-size:24px;font-weight:800;margin-bottom:24px;">Student AI Assistant</h2>
-            <div class="card" style="max-width:600px;">
-                <div style="padding:20px;">
-                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
-                        <button onclick="setStudentPrompt('What is for lunch today?')" class="badge badge-primary" style="cursor:pointer;border:none;">🍽️ Today's Menu</button>
-                        <button onclick="setStudentPrompt('Should I eat today?')" class="badge badge-success" style="cursor:pointer;border:none;">🤔 Should I Eat?</button>
-                    </div>
-                    <div id="student-chat-messages" style="height:350px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;margin-bottom:14px;padding-right:10px;">
-                        <div style="display:flex;align-items:flex-start;gap:8px;">
-                            <div style="width:28px;height:28px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-size:10px;"><i class="fas fa-robot"></i></div>
-                            <div style="background:var(--input-bg);border:1px solid var(--border);border-radius:0 12px 12px 12px;padding:10px 14px;font-size:13px;max-width:85%;">Hey! Ask me about menus or diet tips!</div>
+        <div id="content-assistant" class="tab-content relative items-start" style="height: calc(100vh - 64px);">
+            <!-- Subtle cloud/light blue background representing Image 7 -->
+            <div class="absolute inset-0 bg-gradient-to-br from-[#f0f9ff] to-[#e0f2fe] opacity-80 -z-10 bg-cover bg-center" style="background-image: url('https://www.transparenttextures.com/patterns/cubes.png');"></div>
+            
+            <div class="p-6 h-full flex flex-col items-center">
+                <h2 class="text-[#1a365d] text-[22px] fw-800 mb-6 drop-shadow-md w-full max-w-[800px]">7. AI Student Assistant</h2>
+                
+                <div class="bg-white rounded-[24px] shadow-xl border border-[#e0f2fe] flex flex-col w-full max-w-[800px] flex-1 overflow-hidden h-full">
+                    <!-- Chat Header -->
+                    <div class="flex items-center justify-between p-5 border-b border-[#f1f5f9]">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-[#2563eb] rounded-xl flex items-center justify-center text-white text-[24px] shadow-sm ring-4 ring-[#dbeafe]">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <h3 class="text-[#1e293b] text-[17px] fw-800 tracking-tight">AI Student Assistant</h3>
+                        </div>
+                        <div class="flex items-center gap-5 text-[#94a3b8] text-xl">
+                            <button onclick="clearChat()" class="hover:text-[#64748b] transition" title="Clear Chat"><i class="fas fa-broom"></i></button>
+                            <button class="hover:text-[#64748b] transition"><i class="fas fa-ellipsis-h"></i></button>
                         </div>
                     </div>
-                    <div style="display:flex;gap:8px;">
-                        <input type="text" id="student-chat-input" placeholder="Type your question..." onkeypress="if(event.key==='Enter') sendStudentMsg()" class="form-input" style="flex:1;">
-                        <button onclick="sendStudentMsg()" class="btn-primary" style="padding:10px 16px;"><i class="fas fa-paper-plane"></i></button>
+                    
+                    <!-- Chat Messages Area -->
+                    <div id="student-chat-messages" class="flex-1 p-6 overflow-y-auto flex flex-col gap-6 bg-[#fafcff]">
+                        <!-- Initial Welcome Bubble exactly like Image 7 -->
+                        <div class="flex items-start gap-4 w-full">
+                            <div class="w-[42px] h-[42px] bg-[#2563eb] rounded-full flex-shrink-0 flex items-center justify-center text-white text-[20px] shadow-sm mt-1 ring-2 ring-white">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="bg-[#f1f8ff] text-[#475569] text-[15px] p-5 rounded-[22px] rounded-tl-sm shadow-sm border border-[#e0f2fe] max-w-[85%] leading-relaxed">
+                                <p class="mb-3 fw-600 tracking-tight">Hi! I'm your WasteZero assistant. You can ask me about:</p>
+                                <ul class="list-disc ml-5 space-y-1.5 fw-500 opacity-90 marker:text-[#93c5fd]">
+                                    <li>Today's/tomorrow's menu</li>
+                                    <li>Meal timings</li>
+                                    <li>Your attendance status</li>
+                                    <li>Leave requests</li>
+                                    <li>Complaints</li>
+                                    <li>Mess announcements</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Chat Input Area -->
+                    <div class="p-4 bg-white border-t border-[#f1f5f9]">
+                        <div class="relative flex items-end">
+                            <textarea id="student-chat-input" rows="1" class="w-full bg-[#f8fafc] border border-[#e2e8f0] text-[#334155] text-[15px] rounded-3xl py-3.5 pl-6 pr-16 focus:outline-none focus:ring-2 focus:ring-[#3b82f6] resize-none overflow-hidden max-h-[120px]" placeholder="Type your message..." onkeydown="handleChatEnter(event)" oninput="autoResizeChat(this)"></textarea>
+                            <button onclick="sendStudentMsg()" id="student-chat-sendbtn" class="absolute right-2 bottom-1.5 w-[38px] h-[38px] bg-[#10b981] hover:bg-[#059669] text-white rounded-full flex items-center justify-center transition shadow-md">
+                                <i class="fas fa-paper-plane text-[15px] mr-1 mt-0.5"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -962,24 +996,78 @@ async function submitCardSkip(menuId, btn) {
 // Student Chat 
 
 let studentSessionId = 'student_' + Math.random().toString(36).substr(2, 9);
-function setStudentPrompt(txt) { 
-    document.getElementById('student-chat-input').value = txt; 
-    sendStudentMsg(); 
+function autoResizeChat(el) {
+    el.style.height = 'auto';
+    el.style.height = (el.scrollHeight) + 'px';
+    if(el.value === '') el.style.height = 'auto'; // Reset when empty
 }
 
-async function sendStudentMsg(){
+function handleChatEnter(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendStudentMsg();
+    }
+}
+
+function clearChat() {
+    const container = document.getElementById('student-chat-messages');
+    container.innerHTML = `
+        <div class="flex items-start gap-4 w-full">
+            <div class="w-[42px] h-[42px] bg-[#2563eb] rounded-full flex-shrink-0 flex items-center justify-center text-white text-[20px] shadow-sm mt-1 ring-2 ring-white">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div class="bg-[#f1f8ff] text-[#475569] text-[15px] p-5 rounded-[22px] rounded-tl-sm shadow-sm border border-[#e0f2fe] max-w-[85%] leading-relaxed">
+                <p class="mb-3 fw-600 tracking-tight">Hi! I'm your WasteZero assistant. You can ask me about:</p>
+                <ul class="list-disc ml-5 space-y-1.5 fw-500 opacity-90 marker:text-[#93c5fd]">
+                    <li>Today's/tomorrow's menu</li>
+                    <li>Meal timings</li>
+                    <li>Your attendance status</li>
+                    <li>Leave requests</li>
+                    <li>Complaints</li>
+                    <li>Mess announcements</li>
+                </ul>
+            </div>
+        </div>
+    `;
+}
+
+function setStudentPrompt(prompt) {
+    const input = document.getElementById('student-chat-input');
+    input.value = prompt;
+    autoResizeChat(input);
+    input.focus();
+}
+
+async function sendStudentMsg() {
     const input = document.getElementById('student-chat-input');
     const text = input.value.trim();
-    if(!text) return;
-    input.value = '';
+    if (!text) return;
     
     const container = document.getElementById('student-chat-messages');
-    container.innerHTML += `<div style="display:flex;align-items:flex-start;gap:8px;flex-direction:row-reverse;margin-left:auto;"><div style="background:var(--primary);color:white;border-radius:12px 12px 0 12px;padding:10px 14px;font-size:13px;max-width:85%;">${text}</div></div>`;
-    container.scrollTop = container.scrollHeight;
+    
+    // Append User Message perfectly replicating Image 7 'What is tomorrow's lunch?' bubble!
+    container.innerHTML += `
+        <div class="flex items-start justify-end gap-3 w-full">
+            <div class="bg-[#dcfce7] text-[#166534] text-[15px] py-3.5 px-5 rounded-[22px] rounded-tr-sm shadow-sm max-w-[85%] fw-500 leading-relaxed break-words whitespace-pre-wrap">${text}</div>
+        </div>
+    `;
+    
+    // Reset input gracefully
+    input.value = '';
+    autoResizeChat(input);
+    
+    // Scroll immediately
+    setTimeout(() => { container.scrollTop = container.scrollHeight; }, 10);
     
     // Typing indicator
     const typingId = 'typing-' + Date.now();
-    container.innerHTML += `<div id="${typingId}" style="display:flex;align-items:flex-start;gap:8px;"><div style="width:28px;height:28px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-size:10px;"><i class="fas fa-robot"></i></div><div style="background:var(--input-bg);border:1px solid var(--border);border-radius:0 12px 12px 12px;padding:10px 14px;font-size:12px;font-style:italic;color:var(--text-muted);"><i class="fas fa-circle-notch fa-spin"></i></div></div>`;
+    container.innerHTML += `
+        <div id="${typingId}" class="flex items-start gap-4 w-full opacity-70 animate-pulse transition-opacity mt-4">
+            <div class="w-[42px] h-[42px] bg-[#2563eb] rounded-full flex-shrink-0 flex items-center justify-center text-white text-[20px] shadow-sm ring-2 ring-white"><i class="fas fa-robot"></i></div>
+            <div class="bg-[#f1f8ff] text-muted text-[14px] p-4 rounded-[22px] rounded-tl-sm shadow-sm border border-[#e0f2fe]"><i class="fas fa-circle-notch fa-spin text-[#3b82f6]"></i> Writing...</div>
+        </div>
+    `;
+    setTimeout(() => { container.scrollTop = container.scrollHeight; }, 10);
     
     try {
         const res = await fetch('/api/ai/chat', { 
@@ -990,13 +1078,45 @@ async function sendStudentMsg(){
         const data = await res.json();
         document.getElementById(typingId)?.remove();
         
-        const responseText = data.response || data.error || "Sorry, an error occurred.";
-        container.innerHTML += `<div style="display:flex;align-items:flex-start;gap:8px;"><div style="width:28px;height:28px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-size:10px;"><i class="fas fa-robot"></i></div><div style="background:var(--input-bg);border:1px solid var(--border);border-radius:0 12px 12px 12px;padding:10px 14px;font-size:13px;max-width:85%;">${(typeof marked !== 'undefined' ? marked.parse(responseText) : responseText)}</div></div>`;
+        let responseText = data.response || data.error || "Sorry, an error occurred.";
+        
+        // Parse markdown if marked is loaded
+        if (typeof marked !== 'undefined') {
+            responseText = marked.parse(responseText);
+        } else {
+            // Very simple markdown to HTML fallback
+            responseText = responseText.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+                                     .replace(/\n\n/g, '<br><br>')
+                                     .replace(/\n- /g, '<br>&bull; ')
+                                     .replace(/^- /g, '&bull; ');
+        }
+        
+        container.innerHTML += `
+        <div class="flex items-start gap-4 w-full mt-4">
+            <div class="w-[42px] h-[42px] bg-[#2563eb] rounded-full flex-shrink-0 flex items-center justify-center text-white text-[20px] shadow-sm ring-2 ring-white">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div class="bg-[#f1f8ff] text-[#334155] text-[15px] p-5 rounded-[22px] rounded-tl-sm shadow-sm border border-[#e0f2fe] max-w-[85%] leading-relaxed ai-markdown-content">
+                ${responseText}
+            </div>
+        </div>
+        `;
     } catch(e) {
         document.getElementById(typingId)?.remove();
-        container.innerHTML += `<div style="display:flex;align-items:flex-start;gap:8px;"><div style="width:28px;height:28px;border-radius:50%;background:var(--danger);color:white;display:flex;align-items:center;justify-content:center;font-size:10px;"><i class="fas fa-exclamation"></i></div><div style="background:rgba(239,68,68,0.1);color:var(--danger);border:1px solid rgba(239,68,68,0.2);border-radius:0 12px 12px 12px;padding:10px 14px;font-size:13px;max-width:85%;">Connection error. Tell admin to check the Gemini API connection.</div></div>`;
+        container.innerHTML += `
+        <div class="flex items-start gap-4 w-full mt-4">
+            <div class="w-[42px] h-[42px] bg-[#ef4444] rounded-full flex-shrink-0 flex items-center justify-center text-white text-[20px] shadow-sm ring-2 ring-red-200">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="bg-[#fef2f2] text-[#b91c1c] text-[15px] p-5 rounded-[22px] rounded-tl-sm shadow-sm border border-[#fecaca] max-w-[85%] leading-relaxed">
+                <b>Connection error</b><br>Please inform the admin to check the Gemini API connection.
+            </div>
+        </div>
+        `;
     }
-    container.scrollTop = container.scrollHeight;
+    
+    // Ensure final scroll
+    setTimeout(() => { container.scrollTop = container.scrollHeight; }, 50);
 }
 
 // Notifications API
