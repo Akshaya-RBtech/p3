@@ -454,40 +454,96 @@
             </div>
         </div>
         <!-- SECTION COMPLAINTS -->
-        <div id="content-complaints" class="tab-content">
-            <h2 class="section-title mb-6">Complaint Management</h2>
-            <div class="card p-0 overflow-y-auto">
-                <table class="data-table w-full text-left text-[12px]">
-                    <thead class="bg-input border-b border-[var(--border)]">
-                        <tr><th class="p-3">ID</th><th class="p-3">Student</th><th class="p-3">Category & Subject</th><th class="p-3">Description</th><th class="p-3">Status</th><th class="p-3">Date</th></tr>
-                    </thead>
-                    <tbody>
-                        {% if all_complaints %}
-                            {% for c in all_complaints %}
-                            {% set parts = c.description.split('SUBJECT_SPLIT|') %}
-                            {% set has_subject = (parts|length >= 3) %}
-                            {% set display_subject = parts[1]|replace('|', '') if has_subject else '' %}
-                            {% set display_desc = parts[2] if has_subject else c.description %}
-                            <tr class="border-b border-[var(--border)]">
-                                <td class="p-3 fw-700">#{{ c.id }}</td>
-                                <td class="p-3">{{ c.student_id }}</td>
-                                <td class="p-3">
-                                    <span class="badge badge-warning text-[9px] uppercase">{{ c.category }}</span>
-                                    {% if has_subject %}<div class="text-[11px] fw-700 mt-1 text-primary">{{ display_subject }}</div>{% endif %}
-                                </td>
-                                <td class="p-3 text-muted">{{ display_desc }}</td>
-                                <td class="p-3">
-                                    <span class="badge {{ 'badge-success' if c.status == 'Resolved' else 'badge-danger' }} text-[9px] uppercase">{{ c.status }}</span>
-                                </td>
-                                <td class="p-3 text-muted text-[10px]">{{ c.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+        <!-- SECTION COMPLAINTS -->
+        <div id="content-complaints" class="tab-content w-full h-full p-4">
+            <!-- Screen 11 Recreation Container -->
+            <div class="bg-white rounded-[20px] shadow-[0_4px_24px_rgba(0,0,0,0.03)] border border-[#e2e8f0] overflow-hidden flex flex-col h-full max-w-5xl mx-auto">
+                <!-- Header -->
+                <div class="flex items-center justify-between p-5 border-b border-[#f1f5f9]">
+                    <div class="flex items-center gap-3">
+                        <div class="text-[#22c55e] text-xl"><i class="fas fa-leaf"></i></div>
+                        <h2 class="font-bold text-[#1e293b] text-[17px]">Complaint Management</h2>
+                    </div>
+                    <div class="flex gap-4 text-[#94a3b8]">
+                        <i class="fas fa-search cursor-pointer hover:text-[#475569]"></i>
+                        <i class="fas fa-expand cursor-pointer hover:text-[#475569]"></i>
+                        <i class="fas fa-times cursor-pointer hover:text-[#475569]"></i>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="p-4 flex gap-4 border-b border-[#f1f5f9] bg-white">
+                    <div class="relative w-[180px]">
+                        <i class="far fa-check-circle absolute left-3 top-2.5 text-[#94a3b8] text-sm"></i>
+                        <select id="compFilterStatus" onchange="filterAdminComplaints()" class="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-lg pl-9 pr-8 text-[13px] text-[#475569] font-semibold h-10 appearance-none focus:outline-none focus:border-[#3b82f6]">
+                            <option value="">All Status</option>
+                            <option value="Open">Open</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Resolved">Resolved</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                        <i class="fas fa-chevron-down absolute right-3 top-3 text-[#94a3b8] text-[10px] pointer-events-none"></i>
+                    </div>
+                    
+                    <div class="relative flex-1 max-w-md">
+                        <i class="fas fa-search absolute left-4 top-3 text-[#94a3b8] text-sm"></i>
+                        <input type="text" id="compSearch" onkeyup="filterAdminComplaints()" placeholder="Search student, category or subject..." class="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-lg pl-10 pr-4 text-[13px] h-10 text-[#334155] focus:outline-none focus:border-[#3b82f6]">
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="overflow-y-auto flex-1 bg-white">
+                    <table class="w-full text-left border-collapse" id="adminCompTable">
+                        <thead class="sticky top-0 bg-[#f8fafc] border-b border-[#e2e8f0] z-10">
+                            <tr>
+                                <th class="p-4 text-[13px] font-bold text-[#475569]">Student</th>
+                                <th class="p-4 text-[13px] font-bold text-[#475569]">Category</th>
+                                <th class="p-4 text-[13px] font-bold text-[#475569]">Subject</th>
+                                <th class="p-4 text-[13px] font-bold text-[#475569]">Status</th>
+                                <th class="p-4 text-[13px] font-bold text-[#475569]">Action</th>
                             </tr>
-                            {% endfor %}
-                        {% else %}
-                            <tr><td colspan="6" class="p-8 text-center text-muted">No complaints found.</td></tr>
-                        {% endif %}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {% if all_complaints %}
+                                {% for c in all_complaints %}
+                                {% set parts = c.description.split('SUBJECT_SPLIT|') %}
+                                {% set has_subject = (parts|length >= 3) %}
+                                {% set display_subject = parts[1]|replace('|', '') if has_subject else c.category %}
+                                {% set display_desc = parts[2] if has_subject else c.description %}
+                                
+                                <tr class="border-b border-[#f1f5f9] hover:bg-[#f8fafc] comp-row">
+                                    <td class="p-4 text-[13px] font-bold text-[#334155] comp-student">{{ c.student_id or 'Unknown' }}</td>
+                                    <td class="p-4 text-[13px] text-[#64748b] comp-category">{{ c.category }}</td>
+                                    <td class="p-4 text-[13px] text-[#64748b] comp-subject">{{ display_subject }}</td>
+                                    
+                                    <td class="p-4 comp-status-col">
+                                        {% set st = c.status %}
+                                        {% if st == 'Open' or st == 'Pending' %}
+                                            <span class="bg-[#fee2e2] text-[#dc2626] px-3 py-1 rounded-full text-[11px] font-bold border border-[#fecaca] comp-status-val" data-val="Open">Open</span>
+                                        {% elif st == 'In Progress' or st == 'Under Review' %}
+                                            <span class="bg-[#fef9c3] text-[#ca8a04] px-3 py-1 rounded-full text-[11px] font-bold border border-[#fef08a] comp-status-val" data-val="In Progress">In Progress</span>
+                                        {% elif st == 'Resolved' %}
+                                            <span class="bg-[#dcfce7] text-[#16a34a] px-3 py-1 rounded-full text-[11px] font-bold border border-[#bbf7d0] comp-status-val" data-val="Resolved">Resolved</span>
+                                        {% else %}
+                                            <span class="bg-[#f1f5f9] text-[#64748b] px-3 py-1 rounded-full text-[11px] font-bold border border-[#e2e8f0] comp-status-val" data-val="Rejected">{{ st }}</span>
+                                        {% endif %}
+                                    </td>
+                                    
+                                    <td class="p-4 text-[13px] font-bold gap-3 flex">
+                                        <!-- Keep stringified values in dataset to open modal -->
+                                        <button onclick="openComplaintModal({{ c.id }}, `{{ c.student_id or 'Unknown' }}`, `{{ c.category }}`, `{{ display_subject }}`, `{{ display_desc|replace('\n', ' ')|replace('"', '') }}`, `{{ c.status }}`, `{{ c.admin_note or '' }}`)" class="text-[#3b82f6] hover:underline">View</button>
+                                        <button onclick="openComplaintModal({{ c.id }}, `{{ c.student_id or 'Unknown' }}`, `{{ c.category }}`, `{{ display_subject }}`, `{{ display_desc|replace('\n', ' ')|replace('"', '') }}`, `{{ c.status }}`, `{{ c.admin_note or '' }}`)" class="text-[#3b82f6] hover:underline {{ 'hidden' if c.status == 'Resolved' else '' }}">Reply</button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr><td colspan="5" class="p-8 text-center text-[#94a3b8] text-sm">No complaints found.</td></tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
+        </div>
         </div>
 
         <!-- SECTION LEAVE REQUESTS -->
@@ -581,6 +637,50 @@
     </div>
 </div>
 
+<!-- COMPLAINT ACTION MODAL (Screen 11) -->
+<div id="complaintModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full overflow-hidden">
+        <div class="p-5 border-b border-[#f1f5f9] flex justify-between items-center bg-[#f8fafc]">
+            <h3 class="font-bold text-[#1e293b]" id="cm_title">Complaint Details</h3>
+            <i class="fas fa-times cursor-pointer text-[#64748b] hover:text-[#0f172a]" onclick="document.getElementById('complaintModal').classList.add('hidden')"></i>
+        </div>
+        <form onsubmit="submitAdminComplaintUpdate(event)" class="p-5 flex flex-col gap-4">
+            <input type="hidden" id="cm_id">
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div><span class="text-[11px] font-bold text-[#94a3b8] uppercase block">Student</span><div id="cm_student" class="text-[13px] font-bold text-[#334155]"></div></div>
+                <div><span class="text-[11px] font-bold text-[#94a3b8] uppercase block">Category</span><div id="cm_category" class="text-[13px] text-[#64748b]"></div></div>
+            </div>
+            
+            <div><span class="text-[11px] font-bold text-[#94a3b8] uppercase block">Subject</span><div id="cm_subject" class="text-[13px] font-bold text-[#0f172a]"></div></div>
+            
+            <div><span class="text-[11px] font-bold text-[#94a3b8] uppercase block">Description</span><div id="cm_desc" class="text-[13px] text-[#475569] bg-[#f8fafc] p-3 rounded mt-1"></div></div>
+            
+            <hr class="border-[#f1f5f9]">
+            
+            <div>
+                <label class="text-[11px] font-bold text-[#94a3b8] uppercase block mb-1">Update Status</label>
+                <select id="cm_status" class="w-full bg-white border border-[#cbd5e1] rounded p-2 text-[13px] text-[#334155] focus:border-[#3b82f6] focus:outline-none h-10">
+                    <option value="Open">Open</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Resolved">Resolved</option>
+                    <option value="Rejected">Rejected</option>
+                </select>
+            </div>
+            
+            <div>
+                <label class="text-[11px] font-bold text-[#94a3b8] uppercase block mb-1">Admin Response</label>
+                <textarea id="cm_note" class="w-full bg-white border border-[#cbd5e1] rounded p-2 text-[13px] text-[#334155] focus:border-[#3b82f6] focus:outline-none min-h-[80px]" placeholder="Write a response to the student..."></textarea>
+            </div>
+            
+            <div class="pt-2 flex justify-end gap-3">
+                <button type="button" class="px-4 py-2 text-[13px] font-bold text-[#64748b] hover:bg-[#f1f5f9] rounded" onclick="document.getElementById('complaintModal').classList.add('hidden')">Cancel</button>
+                <button type="submit" class="px-4 py-2 text-[13px] font-bold text-white bg-[#3b82f6] hover:bg-[#2563eb] rounded shadow-md" id="cm_submit_btn">Save & Notify</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
     function switchTab(tabId, btn) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('block'));
@@ -643,6 +743,62 @@
             err.classList.remove('hidden');
             btn.innerHTML = '<i class="fas fa-save mr-1"></i> Save Update';
             btn.disabled = false;
+        }
+    }
+    
+    function filterAdminComplaints() {
+        const filterStatus = document.getElementById('compFilterStatus').value.toLowerCase();
+        const searchTxt = document.getElementById('compSearch').value.toLowerCase();
+        
+        document.querySelectorAll('.comp-row').forEach(row => {
+            const status = row.querySelector('.comp-status-val')?.dataset.val.toLowerCase() || '';
+            const text = row.innerText.toLowerCase();
+            
+            const matchStatus = filterStatus === '' || status === filterStatus;
+            const matchQuery = searchTxt === '' || text.includes(searchTxt);
+            
+            row.style.display = (matchStatus && matchQuery) ? '' : 'none';
+        });
+    }
+    
+    function openComplaintModal(id, student, category, subject, desc, status, admin_note) {
+        document.getElementById('cm_id').value = id;
+        document.getElementById('cm_student').innerText = student;
+        document.getElementById('cm_category').innerText = category;
+        document.getElementById('cm_subject').innerText = subject;
+        document.getElementById('cm_desc').innerText = desc;
+        document.getElementById('cm_status').value = status;
+        document.getElementById('cm_note').value = admin_note;
+        document.getElementById('complaintModal').classList.remove('hidden');
+    }
+    
+    async function submitAdminComplaintUpdate(e) {
+        e.preventDefault();
+        const btn = document.getElementById('cm_submit_btn');
+        const id = document.getElementById('cm_id').value;
+        const status = document.getElementById('cm_status').value;
+        const note = document.getElementById('cm_note').value;
+        
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Saving...';
+        
+        try {
+            const res = await fetch(`/api/complaints/${id}/update`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: status, admin_note: note })
+            });
+            if(res.ok) {
+                window.location.reload();
+            } else {
+                alert("Failed to update complaint");
+                btn.disabled = false;
+                btn.innerHTML = 'Save & Notify';
+            }
+        } catch(ex) {
+            alert("Network error");
+            btn.disabled = false;
+            btn.innerHTML = 'Save & Notify';
         }
     }
 
