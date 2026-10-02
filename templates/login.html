@@ -1,74 +1,226 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<div style="display:flex;align-items:center;justify-content:center;min-height:65vh;padding:24px 16px;">
-    <div style="width:100%;max-width:420px;">
-        <div class="card" style="padding:0;overflow:hidden;">
-            <!-- Header Accent -->
-            <div style="background:linear-gradient(135deg, var(--primary), var(--primary-dark));padding:28px 32px;">
-                <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
-                    <div style="width:42px;height:42px;background:rgba(255,255,255,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;">
-                        {% if type == 'Admin' %}
-                        <i class="fas fa-user-shield" style="color:white;font-size:18px;"></i>
-                        {% else %}
-                        <i class="fas fa-graduation-cap" style="color:white;font-size:18px;"></i>
-                        {% endif %}
-                    </div>
-                    <div>
-                        <h2 style="font-size:22px;font-weight:800;color:white;letter-spacing:-0.5px;">Welcome Back</h2>
-                        <p style="font-size:12px;color:rgba(255,255,255,0.7);font-weight:500;">{{ type }} Portal &mdash; Sign in to continue</p>
-                    </div>
-                </div>
+<style>
+/* Remove layout header and footer */
+.top-header, footer { display: none !important; }
+body { padding: 0 !important; margin: 0 !important; background: #ffffff !important; overflow-x: hidden; }
+.page-wrapper { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+
+.login-container {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', sans-serif;
+    background: url('/static/student_login_bg.png') no-repeat center center;
+    background-size: cover;
+    position: relative;
+    padding: 20px;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 420px;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    padding: 40px 40px 30px;
+    position: relative;
+    z-index: 10;
+}
+
+.brand-logo-large {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+.custom-leaf-logo {
+    width: 45px;
+    height: 45px;
+    fill: #10b981;
+}
+.brand-text-large {
+    font-size: 32px;
+    font-weight: 800;
+    color: #1a365d;
+    letter-spacing: -0.5px;
+}
+
+.login-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #1a365d;
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.login-subtitle {
+    font-size: 13px;
+    color: #64748b;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.custom-input-group {
+    position: relative;
+    margin-bottom: 20px;
+}
+.custom-input-group i {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #475569;
+    font-size: 16px;
+}
+.custom-input {
+    width: 100%;
+    padding: 14px 14px 14px 44px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 14px;
+    color: #1a365d;
+    transition: all 0.2s;
+}
+.custom-input:focus {
+    border-color: #10b981;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 25px;
+    font-size: 13px;
+    color: #475569;
+    font-weight: 600;
+    cursor: pointer;
+}
+.remember-me input {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    accent-color: #10b981;
+}
+
+.btn-login {
+    width: 100%;
+    background: #10b981;
+    color: white;
+    padding: 15px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+.btn-login:hover {
+    background: #059669;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.auth-links {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: 600;
+}
+.auth-links a {
+    color: #3b82f6;
+    text-decoration: none;
+}
+.auth-links a:hover {
+    text-decoration: underline;
+}
+
+/* Response messaging */
+.msg-alert {
+    display: none;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.msg-error {
+    background: rgba(239,68,68,0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239,68,68,0.2);
+}
+.msg-success {
+    background: rgba(16,185,129,0.1);
+    color: #10b981;
+    border: 1px solid rgba(16,185,129,0.2);
+}
+</style>
+
+<div class="login-container">
+    <div class="login-card">
+        
+        <!-- Logo -->
+        <div class="brand-logo-large">
+            <svg class="custom-leaf-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <path d="M50,15 C20,40 35,80 50,85 C65,80 80,40 50,15 Z" fill="#10b981"/>
+                <path d="M42,35 C15,40 10,70 30,80 C35,65 30,45 42,35 Z" fill="#34d399"/>
+                <path d="M58,35 C85,40 90,70 70,80 C65,65 70,45 58,35 Z" fill="#059669"/>
+                <path d="M50,75 L45,95 L55,95 Z" fill="#ffffff"/>
+            </svg>
+            <span class="brand-text-large">WasteZero</span>
+        </div>
+
+        <h1 class="login-title">{{ type }} Login</h1>
+        <p class="login-subtitle">Access your mess, attendance and more</p>
+
+        <!-- Message Alerts -->
+        <div id="login-error" class="msg-alert msg-error" style="display:none;">
+            <i class="fas fa-circle-exclamation"></i> <span id="login-error-text"></span>
+        </div>
+        <div id="login-success" class="msg-alert msg-success" style="display:none;">
+            <i class="fas fa-check-circle"></i> <span id="login-success-text"></span>
+        </div>
+
+        <form id="login-form" onsubmit="event.preventDefault(); handleLogin();">
+            <div class="custom-input-group">
+                <i class="fas fa-id-badge"></i>
+                <input type="email" name="email" id="email" class="custom-input" placeholder="{{ 'Admin Email' if type == 'Admin' else 'Student ID / Register Email' }}" required>
             </div>
-
-            <div style="padding:28px 32px;">
-                <!-- Error display -->
-                <div id="login-error" style="display:none;padding:12px 14px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;color:var(--danger);font-size:13px;font-weight:500;margin-bottom:16px;">
-                    <i class="fas fa-circle-exclamation" style="margin-right:6px;"></i>
-                    <span id="login-error-text"></span>
-                </div>
-
-                <!-- Success display -->
-                <div id="login-success" style="display:none;padding:12px 14px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:10px;color:var(--success);font-size:13px;font-weight:500;margin-bottom:16px;">
-                    <i class="fas fa-check-circle" style="margin-right:6px;"></i>
-                    <span id="login-success-text"></span>
-                </div>
-
-                <form id="login-form" onsubmit="event.preventDefault(); handleLogin();">
-                    <div class="form-group">
-                        <label class="form-label" for="email">Email Address</label>
-                        <div style="position:relative;">
-                            <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-muted);"><i class="fas fa-envelope" style="font-size:13px;"></i></span>
-                            <input type="email" name="email" id="email" class="form-input" style="padding-left:40px;" placeholder="you@example.com" required>
-                        </div>
-                    </div>
-
-                    <div class="form-group" style="margin-bottom:24px;">
-                        <label class="form-label" for="password">Password</label>
-                        <div style="position:relative;">
-                            <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-muted);"><i class="fas fa-lock" style="font-size:13px;"></i></span>
-                            <input type="password" name="password" id="password" class="form-input" style="padding-left:40px;" placeholder="••••••••" required>
-                        </div>
-                    </div>
-
-                    <button type="submit" id="login-btn" class="btn-primary" style="width:100%;justify-content:center;padding:13px;font-size:14px;">
-                        <i class="fas fa-arrow-right-to-bracket"></i>
-                        <span>Sign In</span>
-                    </button>
-                </form>
-
-                <div style="margin-top:20px;text-align:center;">
-                    {% if type == 'Admin' %}
-                    <p style="font-size:12px;color:var(--text-muted);">
-                        Need an admin account? <a href="{{ url_for('admin_setup') }}" style="color:var(--primary);text-decoration:none;font-weight:600;">Register here</a>
-                    </p>
-                    {% else %}
-                    <p style="font-size:12px;color:var(--text-muted);">
-                        Don't have an account? <a href="{{ url_for('student_register') }}" style="color:var(--primary);text-decoration:none;font-weight:600;">Register here</a>
-                    </p>
-                    {% endif %}
-                </div>
+            
+            <div class="custom-input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" name="password" id="password" class="custom-input" placeholder="Password" required>
             </div>
+            
+            <label class="remember-me">
+                <input type="checkbox" id="remember">
+                Remember me
+            </label>
+            
+            <button type="submit" id="login-btn" class="btn-login">Login</button>
+        </form>
+
+        <div class="auth-links">
+            <a href="#">Forgot Password?</a>
+            {% if type == 'Admin' %}
+            <a href="{{ url_for('admin_setup') }}">New Admin? Register</a>
+            {% else %}
+            <a href="{{ url_for('student_register') }}">New Student? Register</a>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -113,14 +265,14 @@
     function showLoginError(msg) {
         const el = document.getElementById('login-error');
         document.getElementById('login-error-text').textContent = msg;
-        el.style.display = 'block';
+        el.style.display = 'flex';
         document.getElementById('login-success').style.display = 'none';
     }
 
     function showLoginSuccess(msg) {
         const el = document.getElementById('login-success');
         document.getElementById('login-success-text').textContent = msg;
-        el.style.display = 'block';
+        el.style.display = 'flex';
         document.getElementById('login-error').style.display = 'none';
     }
 
