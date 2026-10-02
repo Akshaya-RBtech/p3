@@ -695,9 +695,9 @@ def student_portal():
     upcoming_menus = MenuEntry.query.filter(MenuEntry.date.in_([today, tomorrow]), MenuEntry.published == True).all()
     
     my_votes = Vote.query.filter_by(student_id=current_user.student_id).all()
-    voted_menu_ids = [v.menu_id for v in my_votes]
+    vote_dict = {v.menu_id: v.choice for v in my_votes}
     
-    return render_template('student_portal.html', menus=upcoming_menus, voted_ids=voted_menu_ids, today=today, tomorrow=tomorrow)
+    return render_template('student_portal.html', menus=upcoming_menus, vote_dict=vote_dict, today=today, tomorrow=tomorrow)
 
 @app.route('/api/menu_stats/<int:menu_id>')
 @login_required

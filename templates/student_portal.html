@@ -302,19 +302,12 @@
                                         <div class="flex-1">
                                             <div class="text-[12px] fw-600 text-[#475569] mb-3 leading-tight">{{ menu.items }}</div>
                                             
-                                            {% if menu.id in voted_ids %}
-                                                <div class="inline-flex bg-[#ecfdf5] text-[#10b981] border border-[#a7f3d0] px-3 py-1 rounded-full text-[11px] fw-700 items-center justify-center gap-1.5"><i class="fas fa-check"></i> Confirmed</div>
-                                            {% else %}
-                                                <div class="flex gap-1.5 mt-2">
-                                                    <button onclick="quickVote({{ menu.id }}, 'Yes')" class="flex-1 bg-[#f0fdf4] text-[#16a34a] border border-[#bbf7d0] py-1.5 rounded text-[11px] fw-700 hover:bg-[#dcfce7] transition shadow-sm">
-                                                        <i class="fas fa-check text-[9px] mr-1"></i> Yes
-                                                    </button>
-                                                    {% set time_str = '7:30 - 8:30 AM' if menu.meal_type == 'Breakfast' else ('12:30 - 1:30 PM' if menu.meal_type == 'Lunch' else ('4:00 - 4:30 PM' if menu.meal_type == 'Snacks' else '7:30 - 8:30 PM')) %}
-                                                    <button onclick="openSkipModal(this)" data-id="{{ menu.id }}" data-meal="{{ menu.meal_type }}" data-date="{{ date_str }}" data-items="{{ menu.items }}" data-time="{{ time_str }}" class="flex-1 bg-[#fef2f2] text-[#ef4444] border border-[#fecaca] py-1.5 rounded text-[11px] fw-700 hover:bg-[#fee2e2] transition shadow-sm">
-                                                        <i class="fas fa-times text-[9px] mr-1"></i> No
-                                                    </button>
-                                                </div>
-                                            {% endif %}
+                                                {% set choice = vote_dict.get(menu.id) %}
+                                                {% if choice == 'Yes' %}
+                                                    <span class="inline-flex bg-[#dcfce7] text-[#16a34a] px-2.5 py-1 rounded-full text-[10px] fw-800 items-center gap-1 mt-2.5 shadow-sm border border-[#bbf7d0]"><i class="fas fa-check-circle"></i> Coming</span>
+                                                {% elif choice == 'No' %}
+                                                    <span class="inline-flex bg-[#fee2e2] text-[#ef4444] px-2.5 py-1 rounded-full text-[10px] fw-800 items-center gap-1 mt-2.5 shadow-sm border border-[#fecaca]"><i class="fas fa-times-circle"></i> Not Coming</span>
+                                                {% endif %}
                                         </div>
                                     </div>
                                 {% else %}
@@ -829,6 +822,79 @@ async function submitSkipVote() {
         
         if (data.success) {
             closeSkipModal();
+            alert('Attendance and skip reason saved successfully.');
+            window.location.reload();
+        } else {
+            alert(data.error || 'Failed to save attendance skip.');
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    } catch(e) {
+        alert('Network error. Please try again.');
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+
+// Attendance Voting Tab Card JS
+function openCardSkip(menuId) {
+    document.getElementById('btn-group-' + menuId).classList.add('hidden');
+    document.getElementById('skip-form-' + menuId).classList.remove('hidden');
+}
+
+function closeCardSkip(menuId) {
+    document.getElementById('skip-form-' + menuId).classList.add('hidden');
+    document.getElementById('btn-group-' + menuId).classList.remove('hidden');
+}
+
+function toggleCardOther(menuId) {
+    let reason = '';
+    const selected = document.querySelector('input[name="skip_reason_'+menuId+'"]:checked');
+    if (selected) reason = selected.value;
+    
+    if (reason === 'Other') {
+        document.getElementById('skip-other-' + menuId).classList.remove('hidden');
+    } else {
+        document.getElementById('skip-other-' + menuId).classList.add('hidden');
+    }
+}
+
+async function submitCardSkip(menuId, btn) {
+    const originalText = btn.innerText;
+    
+    let reason = '';
+    const selected = document.querySelector('input[name="skip_reason_'+menuId+'"]:checked');
+    if (selected) reason = selected.value;
+    
+    if (!reason) {
+        alert('Please select a reason for skipping.');
+        return;
+    }
+    
+    if (reason === 'Other') {
+        reason = document.getElementById('skip-other-' + menuId).value.trim();
+        if (!reason) {
+            alert('Please enter your reason.');
+            return;
+        }
+    }
+    
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+    btn.disabled = true;
+    
+    try {
+        const res = await fetch('/student/vote', { 
+            method: 'POST', 
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                menu_id: menuId, 
+                choice: 'No', 
+                reason: reason
+            })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
             alert('Attendance and skip reason saved successfully.');
             window.location.reload();
         } else {
