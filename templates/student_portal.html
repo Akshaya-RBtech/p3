@@ -240,26 +240,31 @@
         <!-- Weekly Meal Calendar -->
         <!-- Weekly Meal Calendar -->
         <div id="content-calendar" class="tab-content">
-            <div class="flex justify-between items-center mb-6">
+            <!-- Search & Filters -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                 <h2 class="text-[20px] fw-800 text-[var(--text-color)]"><i class="fas fa-arrow-left text-muted mr-3 hidden lg:inline"></i> Weekly Meal Calendar</h2>
-                <div class="flex gap-3 text-muted">
-                    <button class="w-8 h-8 rounded-full hover:bg-[var(--input-bg)] flex items-center justify-center"><i class="fas fa-search"></i></button>
-                    <button class="w-8 h-8 rounded-full hover:bg-[var(--input-bg)] flex items-center justify-center"><i class="fas fa-filter"></i></button>
+                <div class="flex gap-3 text-muted w-full sm:w-auto">
+                    <div class="relative flex-1 sm:flex-none">
+                        <i class="fas fa-search absolute left-3 top-2.5 text-muted text-sm"></i>
+                        <input type="text" id="calendar-search" onkeyup="calendarSearch()" placeholder="Search dishes..." class="form-input pl-9 rounded-full py-1.5 text-sm w-full">
+                    </div>
                 </div>
             </div>
 
-            <!-- Date Scroller (Visual) -->
-            <div class="flex items-center gap-3 overflow-x-auto pb-4 mb-4 hide-scrollbar">
-                <button class="flex-shrink-0 text-muted"><i class="fas fa-chevron-left"></i></button>
+            <!-- Date Scroller (Dynamic) -->
+            <div class="flex items-center gap-3 overflow-x-auto pb-4 mb-4 hide-scrollbar" id="calendar-date-pills">
+                <button class="flex-shrink-0 text-muted" onclick="document.getElementById('calendar-date-pills').scrollLeft -= 100"><i class="fas fa-chevron-left"></i></button>
                 <div class="flex gap-3 text-sm fw-600 flex-1 px-2">
-                    <div class="bg-[#10b981] text-white px-5 py-2.5 rounded-xl text-center shadow-sm flex flex-col items-center justify-center min-w-[70px]"><div>Mon</div><div class="fw-800 text-lg">28</div></div>
-                    <div class="bg-white border border-[var(--border)] text-[#475569] px-5 py-2.5 rounded-xl text-center flex flex-col items-center justify-center min-w-[70px]"><div>Tue</div><div class="fw-800 text-lg">29</div></div>
-                    <div class="bg-white border border-[var(--border)] text-[#475569] px-5 py-2.5 rounded-xl text-center flex flex-col items-center justify-center min-w-[70px]"><div>Wed</div><div class="fw-800 text-lg">30</div></div>
-                    <div class="bg-white border border-[var(--border)] text-[#475569] px-5 py-2.5 rounded-xl text-center flex flex-col items-center justify-center min-w-[70px]"><div>Thu</div><div class="fw-800 text-lg">1</div></div>
-                    <div class="bg-white border border-[var(--border)] text-[#475569] px-5 py-2.5 rounded-xl text-center flex flex-col items-center justify-center min-w-[70px]"><div>Fri</div><div class="fw-800 text-lg">2</div></div>
-                    <div class="bg-white border border-[var(--border)] text-[#475569] px-5 py-2.5 rounded-xl text-center flex flex-col items-center justify-center min-w-[70px]"><div>Sat</div><div class="fw-800 text-lg">3</div></div>
+                    <button onclick="filterCalendar('all', this)" class="date-pill bg-[#10b981] text-white px-5 py-2.5 rounded-xl border border-transparent text-center shadow-sm w-fit min-w-[70px] transition">All</button>
+                    {% for date_str in grouped_menus.keys() %}
+                        {% set p_date = datetime.strptime(date_str, '%Y-%m-%d') %}
+                        <button onclick="filterCalendar('{{ date_str }}', this)" class="date-pill bg-white border border-[var(--border)] text-[#475569] px-5 py-2.5 rounded-xl text-center flex flex-col items-center justify-center min-w-[70px] transition hover:bg-gray-50">
+                            <div>{{ p_date.strftime('%a') }}</div>
+                            <div class="fw-800 text-lg">{{ p_date.strftime('%d') }}</div>
+                        </button>
+                    {% endfor %}
                 </div>
-                <button class="flex-shrink-0 text-muted"><i class="fas fa-chevron-right"></i></button>
+                <button class="flex-shrink-0 text-muted" onclick="document.getElementById('calendar-date-pills').scrollLeft += 100"><i class="fas fa-chevron-right"></i></button>
             </div>
 
             {% if menus %}
@@ -285,7 +290,7 @@
                         {% endfor %}
 
                         {% for date_str, daily_menus in grouped_menus.items() %}
-                        <tr class="hover:bg-[#f8fafc] transition-colors">
+                        <tr class="calendar-row hover:bg-[#f8fafc] transition-colors" data-date="{{ date_str }}">
                             <td class="p-4 align-top">
                                 <div class="fw-800 text-[#1a365d] text-[15px]">{{ date_str }}</div>
                             </td>
@@ -631,13 +636,58 @@ function switchTab(tabId, btn) {
         document.querySelector('.sidebar-nav').classList.remove('api-show');
     }
     
+    // Save tab persistently to prevent refresh resets
+    sessionStorage.setItem('wastezero-active-tab', tabId);
+    
     // Load data dynamically based on tab
     if (tabId === 'notifications' || tabId === 'complaints' || tabId === 'leave') {
         loadStudentHistory();
     }
     if (tabId === 'notifications') {
-        loadStudentNotifications();
+        if(typeof loadStudentNotifications === 'function') loadStudentNotifications();
     }
+}
+
+// On DOM Load, restore active tab
+document.addEventListener('DOMContentLoaded', () => {
+    const savedTab = sessionStorage.getItem('wastezero-active-tab');
+    if (savedTab) {
+        const btn = document.getElementById('tab-' + savedTab);
+        if (btn) switchTab(savedTab, btn);
+    }
+});
+
+// Calendar Filtering logic
+function filterCalendar(dateStr, btn) {
+    // Style update
+    document.querySelectorAll('.date-pill').forEach(el => {
+        el.classList.remove('bg-[#10b981]', 'text-white', 'border-transparent', 'shadow-sm');
+        el.classList.add('bg-white', 'text-[#475569]', 'border-[var(--border)]');
+    });
+    btn.classList.add('bg-[#10b981]', 'text-white', 'border-transparent', 'shadow-sm');
+    btn.classList.remove('bg-white', 'text-[#475569]', 'border-[var(--border)]');
+
+    // Row filtering
+    const rows = document.querySelectorAll('.calendar-row');
+    rows.forEach(row => {
+        if (dateStr === 'all' || row.dataset.date === dateStr) {
+            row.style.display = 'table-row';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+function calendarSearch() {
+    const term = document.getElementById('calendar-search').value.toLowerCase();
+    const rows = document.querySelectorAll('.calendar-row');
+    rows.forEach(row => {
+        if (row.innerText.toLowerCase().includes(term)) {
+            row.style.display = 'table-row';
+        } else {
+            row.style.display = 'none';
+        }
+    });
 }
 
 function selectTheme(t){ 
