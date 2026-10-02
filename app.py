@@ -380,14 +380,22 @@ def api_auth_login():
         return jsonify({'error': 'Invalid Firebase Token. Unauthorized.'}), 401
         
     email = claims.get('email')
-    user = User.query.filter_by(email=email, role=role).first()
+    user = User.query.filter_by(email=email).first()
     
     if not user:
-        return jsonify({'error': f'Account not found for this {role} role in database.'}), 404
-        
+        # AUTO-REGISTER user to survive Render Ephemeral disk resets!
+        name = claims.get('name', email.split('@')[0])
+        if role == 'student':
+            student_id = email.split('@')[0].upper()
+            user = User(username=name, full_name=name, email=email, student_id=student_id, role='student')
+        else:
+            user = User(username=name, full_name=name, email=email, role='admin')
+        db.session.add(user)
+        db.session.commit()
+    
     login_user(user)
     
-    if role == 'admin':
+    if user.role == 'admin':
         return jsonify({'success': True, 'redirect': url_for('admin_dashboard')})
     else:
         return jsonify({'success': True, 'redirect': url_for('student_portal')})
