@@ -154,10 +154,10 @@
                                 <div class="text-[13px] fw-600 text-[#064e3b]">{{ tm.meal_type }} - {{ tm.items[:30] }}...</div>
                             </div>
                             <div class="flex gap-4">
-                                <button onclick="selectVote({{ tm.id }}, 'Yes')" class="flex-1 bg-[#10b981] text-white py-2.5 rounded-lg fw-700 text-[14px] hover:bg-[#059669] transition shadow-sm border border-[#059669]">
+                                <button onclick="quickVote({{ tm.id }}, 'Yes')" class="flex-1 bg-[#10b981] text-white py-2.5 rounded-lg fw-700 text-[14px] hover:bg-[#059669] transition shadow-sm border border-[#059669]">
                                     Coming
                                 </button>
-                                <button onclick="selectVote({{ tm.id }}, 'No')" class="flex-1 bg-white text-[#ef4444] py-2.5 rounded-lg fw-700 text-[14px] hover:bg-[#fef2f2] transition shadow-sm border border-[#fca5a5]">
+                                <button onclick="quickVote({{ tm.id }}, 'No')" class="flex-1 bg-white text-[#ef4444] py-2.5 rounded-lg fw-700 text-[14px] hover:bg-[#fef2f2] transition shadow-sm border border-[#fca5a5]">
                                     Not Coming
                                 </button>
                             </div>
@@ -594,6 +594,43 @@ function selectVote(menuId, choice) {
         noBtn.style.background = 'rgba(239,68,68,0.06)'; noBtn.style.color = 'var(--danger)';
         reasonBox.style.display = 'none';
         document.getElementById('reason-'+menuId).value = '';
+    }
+}
+
+// Quick dashboard voting
+async function quickVote(menuId, choice) {
+    if (choice === 'Yes') {
+        const btn = event.currentTarget.innerText;
+        event.currentTarget.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        try {
+            const formData = new FormData();
+            formData.append('menu_id', menuId);
+            formData.append('choice', choice);
+            formData.append('reason', '');
+            
+            const res = await fetch('/student/vote', { 
+                method: 'POST', 
+                body: formData 
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Attendance confirmed successfully!');
+                window.location.reload();
+            } else {
+                alert(data.error || 'Failed to save attendance.');
+                event.currentTarget.innerText = btn;
+            }
+        } catch(e) { 
+            alert('Network error. Please try again.'); 
+            event.currentTarget.innerText = btn;
+        }
+    } else {
+        // Redirect to calendar and open skip reason
+        switchTab('calendar', document.getElementById('tab-calendar'));
+        selectVote(menuId, 'No');
+        setTimeout(() => {
+            document.getElementById('menu-card-' + menuId).scrollIntoView({behavior: 'smooth', block: 'center'});
+        }, 300);
     }
 }
 
