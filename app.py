@@ -461,7 +461,6 @@ def admin_dashboard():
     return render_template(
         'admin_dashboard.html',
         menus=menus,
-        menus=menus,
         total_students=User.query.filter_by(role='student').count(),
         coming_count=sum(1 for v in Vote.query.filter(Vote.timestamp >= db.func.date('now')).all() if v.choice == 'Yes'),
         not_coming_count=sum(1 for v in Vote.query.filter(Vote.timestamp >= db.func.date('now')).all() if v.choice == 'No'),
