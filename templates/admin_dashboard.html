@@ -76,9 +76,7 @@
         <button id="tab-dish" class="sidebar-btn" onclick="switchTab('dish', this)"><i class="fas fa-chart-bar mr-2"></i> Dish Analytics</button>
         <button id="tab-waste" class="sidebar-btn" onclick="switchTab('waste', this)"><i class="fas fa-trash-alt mr-2"></i> Food Waste Tracking</button>
         <button id="tab-leave" class="sidebar-btn" onclick="switchTab('leave', this)"><i class="fas fa-calendar-minus mr-2"></i> Leave Requests</button>
-        <button id="tab-complaints" class="sidebar-btn" onclick="switchTab('complaints', this)"><i class="fas fa-flag mr-2"></i> Complaints Mgmt</button>
         <button id="tab-comm" class="sidebar-btn" onclick="switchTab('comm', this)"><i class="fas fa-bullhorn mr-2"></i> Communication</button>
-        <button id="tab-feedback" class="sidebar-btn" onclick="switchTab('feedback', this)"><i class="fas fa-star mr-2"></i> Feedback Mgmt</button>
         <button id="tab-inventory" class="sidebar-btn" onclick="switchTab('inventory', this)"><i class="fas fa-boxes mr-2"></i> Inventory</button>
         <button id="tab-settings" class="sidebar-btn" onclick="switchTab('settings', this)"><i class="fas fa-cog mr-2"></i> Admin Settings</button>
     </div>
@@ -332,60 +330,6 @@
             </div>
         </div>
 
-        <!-- SECTION 7: COMPLAINT MANAGEMENT -->
-        <div id="content-complaints" class="tab-content">
-            <h2 class="section-title mb-6">Complaint Management</h2>
-            <div class="card p-0 overflow-y-auto">
-                <div class="p-4 border-b border-[var(--border)] bg-[var(--input-bg)] flex gap-2 flex-wrap">
-                    <select class="form-input text-xs w-[120px]"><option>Category</option></select>
-                    <select class="form-input text-xs w-[120px]"><option>Status</option></select>
-                    <input type="date" class="form-input text-xs w-[120px]" placeholder="Date filter">
-                    <input type="text" class="form-input text-xs w-[120px]" placeholder="Student filter (if perm.)">
-                </div>
-                <table class="data-table w-full text-left text-[12px]">
-                    <thead><tr><th class="p-3">Student</th><th class="p-3">Category</th><th class="p-3">Date</th><th class="p-3">Complaint Details</th><th class="p-3">Status Action</th><th class="p-3">Admin Respond</th></tr></thead>
-                    <tbody>
-                        <!-- Actual DB logic wrapper -->
-                        <tr><td colspan="6" class="p-6 text-center text-muted">Awaiting complaint submissions from database...<br><span class="text-[9px]">Will notify student when updated.</span></td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- SECTION 10: FEEDBACK MANAGEMENT -->
-        <div id="content-feedback" class="tab-content">
-            <h2 class="section-title mb-6">Feedback Management</h2>
-            <div class="mb-4 flex gap-2">
-                <input type="date" class="form-input text-xs w-[130px]">
-                <select class="form-input text-xs w-[120px]"><option>Meal Options</option></select>
-                <select class="form-input text-xs w-[120px]"><option>Dish Filters</option></select>
-                <select class="form-input text-xs w-[120px]"><option>Rating Filters</option></select>
-            </div>
-            <div class="card p-0">
-                <table class="data-table w-full text-left text-[12px]">
-                    <thead class="bg-input border-b border-[var(--border)]">
-                        <tr><th class="p-3">Student</th><th class="p-3">Dish / Meal</th><th class="p-3">Date</th><th class="p-3">Rating (Like/Neutral/Dislike)</th><th class="p-3">Comment</th></tr>
-                    </thead>
-                    <tbody>
-                        {% if all_feedback %}
-                            {% for f in all_feedback %}
-                            <tr class="border-b border-[var(--border)]">
-                                <td class="p-3">{{ f.student_id }}</td>
-                                <td class="p-3">{{ f.menu.items if f.menu else 'Unknown' }}</td>
-                                <td class="p-3 text-muted text-[10px]">{{ f.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
-                                <td class="p-3">
-                                    <span class="badge {{ 'badge-success' if f.rating == 'Like' else 'badge-danger' if f.rating == 'Dislike' else 'badge-warning' }} text-[9px] uppercase">{{ f.rating }}</span>
-                                </td>
-                                <td class="p-3 text-muted">{{ f.comments }}</td>
-                            </tr>
-                            {% endfor %}
-                        {% else %}
-                            <tr><td colspan="5" class="p-8 text-center text-muted">No feedback available.</td></tr>
-                        {% endif %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
 
         <!-- SECTION 11: ATTENDANCE MANAGEMENT -->
         <div id="content-attendance" class="tab-content">
@@ -453,98 +397,6 @@
                 </table>
             </div>
         </div>
-        <!-- SECTION COMPLAINTS -->
-        <!-- SECTION COMPLAINTS -->
-        <div id="content-complaints" class="tab-content w-full h-full p-4">
-            <!-- Screen 11 Recreation Container -->
-            <div class="bg-white rounded-[20px] shadow-[0_4px_24px_rgba(0,0,0,0.03)] border border-[#e2e8f0] overflow-hidden flex flex-col h-full max-w-5xl mx-auto">
-                <!-- Header -->
-                <div class="flex items-center justify-between p-5 border-b border-[#f1f5f9]">
-                    <div class="flex items-center gap-3">
-                        <div class="text-[#22c55e] text-xl"><i class="fas fa-leaf"></i></div>
-                        <h2 class="font-bold text-[#1e293b] text-[17px]">Complaint Management</h2>
-                    </div>
-                    <div class="flex gap-4 text-[#94a3b8]">
-                        <i class="fas fa-search cursor-pointer hover:text-[#475569]"></i>
-                        <i class="fas fa-expand cursor-pointer hover:text-[#475569]"></i>
-                        <i class="fas fa-times cursor-pointer hover:text-[#475569]"></i>
-                    </div>
-                </div>
-
-                <!-- Filters -->
-                <div class="p-4 flex gap-4 border-b border-[#f1f5f9] bg-white">
-                    <div class="relative w-[180px]">
-                        <i class="far fa-check-circle absolute left-3 top-2.5 text-[#94a3b8] text-sm"></i>
-                        <select id="compFilterStatus" onchange="filterAdminComplaints()" class="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-lg pl-9 pr-8 text-[13px] text-[#475569] font-semibold h-10 appearance-none focus:outline-none focus:border-[#3b82f6]">
-                            <option value="">All Status</option>
-                            <option value="Open">Open</option>
-                            <option value="In Progress">In Progress</option>
-                            <option value="Resolved">Resolved</option>
-                            <option value="Rejected">Rejected</option>
-                        </select>
-                        <i class="fas fa-chevron-down absolute right-3 top-3 text-[#94a3b8] text-[10px] pointer-events-none"></i>
-                    </div>
-                    
-                    <div class="relative flex-1 max-w-md">
-                        <i class="fas fa-search absolute left-4 top-3 text-[#94a3b8] text-sm"></i>
-                        <input type="text" id="compSearch" onkeyup="filterAdminComplaints()" placeholder="Search student, category or subject..." class="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-lg pl-10 pr-4 text-[13px] h-10 text-[#334155] focus:outline-none focus:border-[#3b82f6]">
-                    </div>
-                </div>
-
-                <!-- Table -->
-                <div class="overflow-y-auto flex-1 bg-white">
-                    <table class="w-full text-left border-collapse" id="adminCompTable">
-                        <thead class="sticky top-0 bg-[#f8fafc] border-b border-[#e2e8f0] z-10">
-                            <tr>
-                                <th class="p-4 text-[13px] font-bold text-[#475569]">Student</th>
-                                <th class="p-4 text-[13px] font-bold text-[#475569]">Category</th>
-                                <th class="p-4 text-[13px] font-bold text-[#475569]">Subject</th>
-                                <th class="p-4 text-[13px] font-bold text-[#475569]">Status</th>
-                                <th class="p-4 text-[13px] font-bold text-[#475569]">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% if all_complaints %}
-                                {% for c in all_complaints %}
-                                {% set parts = c.description.split('SUBJECT_SPLIT|') %}
-                                {% set has_subject = (parts|length >= 3) %}
-                                {% set display_subject = parts[1]|replace('|', '') if has_subject else c.category %}
-                                {% set display_desc = parts[2] if has_subject else c.description %}
-                                
-                                <tr class="border-b border-[#f1f5f9] hover:bg-[#f8fafc] comp-row">
-                                    <td class="p-4 text-[13px] font-bold text-[#334155] comp-student">{{ c.student_id or 'Unknown' }}</td>
-                                    <td class="p-4 text-[13px] text-[#64748b] comp-category">{{ c.category }}</td>
-                                    <td class="p-4 text-[13px] text-[#64748b] comp-subject">{{ display_subject }}</td>
-                                    
-                                    <td class="p-4 comp-status-col">
-                                        {% set st = c.status %}
-                                        {% if st == 'Open' or st == 'Pending' %}
-                                            <span class="bg-[#fee2e2] text-[#dc2626] px-3 py-1 rounded-full text-[11px] font-bold border border-[#fecaca] comp-status-val" data-val="Open">Open</span>
-                                        {% elif st == 'In Progress' or st == 'Under Review' %}
-                                            <span class="bg-[#fef9c3] text-[#ca8a04] px-3 py-1 rounded-full text-[11px] font-bold border border-[#fef08a] comp-status-val" data-val="In Progress">In Progress</span>
-                                        {% elif st == 'Resolved' %}
-                                            <span class="bg-[#dcfce7] text-[#16a34a] px-3 py-1 rounded-full text-[11px] font-bold border border-[#bbf7d0] comp-status-val" data-val="Resolved">Resolved</span>
-                                        {% else %}
-                                            <span class="bg-[#f1f5f9] text-[#64748b] px-3 py-1 rounded-full text-[11px] font-bold border border-[#e2e8f0] comp-status-val" data-val="Rejected">{{ st }}</span>
-                                        {% endif %}
-                                    </td>
-                                    
-                                    <td class="p-4 text-[13px] font-bold gap-3 flex">
-                                        <!-- Keep stringified values in dataset to open modal -->
-                                        <button onclick="openComplaintModal({{ c.id }}, `{{ c.student_id or 'Unknown' }}`, `{{ c.category }}`, `{{ display_subject }}`, `{{ display_desc|replace('\n', ' ')|replace('"', '') }}`, `{{ c.status }}`, `{{ c.admin_note or '' }}`)" class="text-[#3b82f6] hover:underline">View</button>
-                                        <button onclick="openComplaintModal({{ c.id }}, `{{ c.student_id or 'Unknown' }}`, `{{ c.category }}`, `{{ display_subject }}`, `{{ display_desc|replace('\n', ' ')|replace('"', '') }}`, `{{ c.status }}`, `{{ c.admin_note or '' }}`)" class="text-[#3b82f6] hover:underline {{ 'hidden' if c.status == 'Resolved' else '' }}">Reply</button>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            {% else %}
-                                <tr><td colspan="5" class="p-8 text-center text-[#94a3b8] text-sm">No complaints found.</td></tr>
-                            {% endif %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        </div>
 
         <!-- SECTION LEAVE REQUESTS -->
         <div id="content-leave" class="tab-content">
@@ -597,22 +449,85 @@
             </div>
         </div>
 
-        <!-- SECTION COMMUNICATION -->
-        <div id="content-comm" class="tab-content">
-            <h2 class="section-title mb-6">Communication / Announcements</h2>
-            <div class="card p-5">
-                <h3 class="fw-700 mb-4 text-primary">Broadcast Message</h3>
-                <form action="/admin/post_announcement" method="POST" class="grid gap-4">
-                    <input type="text" name="title" placeholder="Announcement Title" class="form-input w-full" required>
-                    <textarea name="message" placeholder="Message content..." class="form-input w-full h-[100px]" required></textarea>
-                    <select name="category" class="form-input w-full">
-                        <option value="General">General</option>
-                        <option value="Urgent">Urgent</option>
-                        <option value="Menu Update">Menu Update</option>
-                    </select>
-                    <button type="submit" class="btn-primary w-max bg-primary"><i class="fas fa-paper-plane mr-2"></i> Send Broadcast</button>
-                    <p class="text-xs text-muted mt-2">Announcements appear on students' dashboards.</p>
-                </form>
+        <!-- SECTION COMMUNICATION (Screen 12 recreation) -->
+        <div id="content-comm" class="tab-content w-full h-full p-4">
+            <div class="bg-white rounded-[20px] shadow-[0_4px_24px_rgba(0,0,0,0.03)] border border-[#e2e8f0] overflow-hidden flex flex-col max-w-4xl mx-auto h-auto min-h-[600px]">
+                
+                <!-- Header -->
+                <div class="flex items-center justify-between p-5 border-b border-[#f1f5f9]">
+                    <div class="flex items-center gap-3">
+                        <div class="text-[#22c55e] text-xl"><i class="fas fa-leaf"></i></div>
+                        <h2 class="font-bold text-[#1e293b] text-[17px]">New Announcement</h2>
+                    </div>
+                    <div class="flex gap-5 text-[#94a3b8]">
+                        <i class="far fa-eye cursor-pointer hover:text-[#475569]"></i>
+                        <i class="fas fa-chevron-right cursor-pointer hover:text-[#475569]"></i>
+                        <i class="far fa-bell cursor-pointer hover:text-[#475569]"></i>
+                        <i class="fas fa-times cursor-pointer hover:text-[#475569]"></i>
+                    </div>
+                </div>
+
+                <!-- Form Section -->
+                <div class="p-8 flex flex-col gap-6 bg-white overflow-y-auto">
+                    <!-- Recipients -->
+                    <div>
+                        <label class="font-bold text-[#1e293b] text-[14px] mb-2 block">Recipients</label>
+                        <div class="relative w-full">
+                            <i class="fas fa-users absolute left-4 top-3 text-[#3b82f6] text-[13px]"></i>
+                            <select id="ann_recipients" class="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-xl pl-10 pr-8 text-[14px] text-[#475569] h-11 appearance-none focus:outline-none focus:border-[#3b82f6]">
+                                <option value="All Students">All Students</option>
+                                <option value="Selected Students">Selected Students</option>
+                                <option value="Unresponsive Students">Students who have not responded</option>
+                                <option value="Meal Specific">Students for a particular meal/day</option>
+                            </select>
+                            <i class="fas fa-chevron-down absolute right-4 top-4 text-[#94a3b8] text-[11px] pointer-events-none"></i>
+                        </div>
+                    </div>
+
+                    <!-- Category -->
+                    <div>
+                        <label class="font-bold text-[#1e293b] text-[14px] mb-2 block">Category</label>
+                        <div class="relative w-full">
+                            <select id="ann_category" class="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-xl px-4 pr-8 text-[14px] text-[#475569] h-11 appearance-none focus:outline-none focus:border-[#3b82f6]">
+                                <option value="General Announcement">General Announcement</option>
+                                <option value="Menu Update">Menu Update</option>
+                                <option value="Attendance Reminder">Attendance Reminder</option>
+                                <option value="Meal Timing Change">Meal Timing Change</option>
+                                <option value="Important Notice">Important Notice</option>
+                                <option value="Feedback Request">Feedback Request</option>
+                            </select>
+                            <i class="fas fa-chevron-down absolute right-4 top-4 text-[#94a3b8] text-[11px] pointer-events-none"></i>
+                        </div>
+                    </div>
+
+                    <!-- Message text -->
+                    <div>
+                        <label class="font-bold text-[#1e293b] text-[14px] mb-2 block">Message</label>
+                        <textarea id="ann_message" class="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-xl p-4 text-[14px] text-[#475569] min-h-[90px] focus:outline-none focus:border-[#3b82f6]" placeholder="Write your announcement here..." oninput="updateAnnPreview()"></textarea>
+                        
+                        <button type="button" class="mt-3 bg-[#eff6ff] hover:bg-[#dbeafe] text-[#3b82f6] border border-[#bfdbfe] px-5 py-2 rounded-xl text-[13px] font-bold shadow-sm transition-colors flex items-center gap-2" onclick="generateAIAnnouncement()">
+                            <i class="fas fa-magic text-[#2563eb]"></i> Generate with AI
+                        </button>
+                    </div>
+
+                    <!-- Message Preview Window -->
+                    <div class="border border-[#e2e8f0] bg-[#fafafa] rounded-xl p-5 mt-2 relative overflow-hidden">
+                        <div class="font-bold text-[#64748b] text-[12px] mb-3">Message Preview</div>
+                        <div class="flex gap-4 items-start">
+                            <div class="text-[#f59e0b] text-[20px] mt-1"><i class="fas fa-desktop"></i></div>
+                            <div>
+                                <h4 class="font-bold text-[#16a34a] text-[15px] mb-1" id="ann_preview_title">New Announcement</h4>
+                                <p class="text-[#475569] text-[14px] leading-relaxed" id="ann_preview_body">Your message preview will appear here.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Buttons -->
+                <div class="p-6 border-t border-[#f1f5f9] bg-white flex justify-between gap-4 mt-auto">
+                    <button id="ann_save_btn" type="button" class="flex-1 bg-white border border-[#e2e8f0] hover:bg-[#f8fafc] text-[#475569] font-bold rounded-xl py-3 text-[14.5px] transition-colors shadow-sm">Save as Draft</button>
+                    <button id="ann_send_btn" type="button" class="flex-1 bg-[#22c55e] hover:bg-[#16a34a] text-white font-bold rounded-xl py-3 text-[14.5px] transition-colors shadow-sm" onclick="sendAdminAnnouncement()">Send</button>
+                </div>
             </div>
         </div>
 
@@ -799,6 +714,75 @@
             alert("Network error");
             btn.disabled = false;
             btn.innerHTML = 'Save & Notify';
+        }
+    }
+    
+    // Communication logic
+    function updateAnnPreview() {
+        const msg = document.getElementById('ann_message').value;
+        const cat = document.getElementById('ann_category').value;
+        document.getElementById('ann_preview_title').innerText = cat;
+        document.getElementById('ann_preview_body').innerText = msg || 'Your message preview will appear here.';
+    }
+    
+    document.getElementById('ann_category').addEventListener('change', updateAnnPreview);
+    
+    async function generateAIAnnouncement() {
+        const msgBox = document.getElementById('ann_message');
+        const cat = document.getElementById('ann_category').value;
+        const currentMsg = msgBox.value;
+        
+        msgBox.value = 'Generating professional announcement...';
+        
+        try {
+            const res = await fetch('/api/ai/chat', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({message: 'Draft a short, professional hostel announcement for category: ' + cat + '. Details: ' + currentMsg + '. Just output the string text directly.'})
+            });
+            const data = await res.json();
+            msgBox.value = data.reply || data.text || "Failed to generate.";
+            updateAnnPreview();
+        } catch(e) {
+            msgBox.value = "Error reaching AI.";
+            updateAnnPreview();
+        }
+    }
+    
+    async function sendAdminAnnouncement() {
+        const btn = document.getElementById('ann_send_btn');
+        const title = document.getElementById('ann_category').value;
+        const msg = document.getElementById('ann_message').value;
+        
+        if(!msg.trim()) {
+            alert('Message cannot be empty!');
+            return;
+        }
+        
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Sending...';
+        
+        try {
+            const res = await fetch('/api/announcements/send', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({title: title, category: title, message: msg})
+            });
+            if(res.ok) {
+                alert('Announcement successfully broadcasted and saved!');
+                document.getElementById('ann_message').value = '';
+                updateAnnPreview();
+                btn.innerHTML = 'Send';
+                btn.disabled = false;
+            } else {
+                alert('Failed to send announcement.');
+                btn.innerHTML = 'Send';
+                btn.disabled = false;
+            }
+        } catch(e) {
+            alert('Network error.');
+            btn.innerHTML = 'Send';
+            btn.disabled = false;
         }
     }
 

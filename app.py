@@ -1167,6 +1167,28 @@ def update_leave(leave_id):
 
     return jsonify({"success": True})
 
+@app.route('/api/announcements/send', methods=['POST'])
+@login_required
+def send_announcement():
+    if current_user.role != 'admin':
+        return jsonify({"error": "Unauthorized"}), 403
+    data = request.json
+    title = data.get('title', 'New Announcement')
+    message = data.get('message', '')
+    category = data.get('category', 'General')
+    
+    students = User.query.filter_by(role='student').all()
+    count = 0
+    for s in students:
+        n = Notification(user_id=s.id, title=title, message=message)
+        db.session.add(n)
+        count += 1
+        
+    ann = Announcement(title=title, message=message, category=category, created_by=current_user.username)
+    db.session.add(ann)
+    db.session.commit()
+    return jsonify({"success": True, "message": f"Broadcast sent to {count} students."})
+
 @app.route('/api/inventory', methods=['GET'])
 @login_required
 def get_inventory():
