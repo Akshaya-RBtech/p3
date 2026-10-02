@@ -296,7 +296,8 @@
                                                     <button onclick="quickVote({{ menu.id }}, 'Yes')" class="flex-1 bg-[#f0fdf4] text-[#16a34a] border border-[#bbf7d0] py-1.5 rounded text-[11px] fw-700 hover:bg-[#dcfce7] transition shadow-sm">
                                                         <i class="fas fa-check text-[9px] mr-1"></i> Yes
                                                     </button>
-                                                    <button onclick="openSkipModal({{ menu.id }})" class="flex-1 bg-[#fef2f2] text-[#ef4444] border border-[#fecaca] py-1.5 rounded text-[11px] fw-700 hover:bg-[#fee2e2] transition shadow-sm">
+                                                    {% set time_str = '7:30 - 8:30 AM' if menu.meal_type == 'Breakfast' else ('12:30 - 1:30 PM' if menu.meal_type == 'Lunch' else ('4:00 - 4:30 PM' if menu.meal_type == 'Snacks' else '7:30 - 8:30 PM')) %}
+                                                    <button onclick="openSkipModal(this)" data-id="{{ menu.id }}" data-meal="{{ menu.meal_type }}" data-date="{{ date_str }}" data-items="{{ menu.items }}" data-time="{{ time_str }}" class="flex-1 bg-[#fef2f2] text-[#ef4444] border border-[#fecaca] py-1.5 rounded text-[11px] fw-700 hover:bg-[#fee2e2] transition shadow-sm">
                                                         <i class="fas fa-times text-[9px] mr-1"></i> No
                                                     </button>
                                                 </div>
@@ -315,22 +316,65 @@
             </div>
 
             <!-- Skip Reason Modal -->
-            <div id="skip-modal" class="fixed inset-0 bg-black/50 z-[200] hidden items-center justify-center p-4">
-                <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm">
-                    <h3 class="text-[18px] fw-800 text-[#1a365d] mb-4">Skip Reason</h3>
-                    <input type="hidden" id="skip-menu-id">
-                    <label class="form-label">Why are you skipping?</label>
-                    <select id="skip-reason-select" class="form-input mb-3" onchange="toggleOtherReason()">
-                        <option value="Don't like the menu">Don't like the menu</option>
-                        <option value="Going outside">Going outside</option>
-                        <option value="Sick">Sick</option>
-                        <option value="Other">Other</option>
-                    </select>
-                    <input type="text" id="skip-reason-other" class="form-input mb-5 hidden" placeholder="Please specify...">
-                    
-                    <div class="flex gap-3">
-                        <button onclick="closeSkipModal()" class="flex-1 border border-[var(--border)] text-[var(--text-color)] py-2.5 rounded-lg fw-700 hover:bg-gray-50">Cancel</button>
-                        <button onclick="submitSkipVote()" id="skip-submit-btn" class="flex-1 bg-[#ef4444] text-white py-2.5 rounded-lg fw-700 hover:bg-[#dc2626]">Confirm Skip</button>
+            <div id="skip-modal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4">
+                <!-- Blurred dark green backdrop -->
+                <div class="absolute inset-0 bg-[#064e3b]/40 backdrop-blur-sm" onclick="closeSkipModal()"></div>
+                
+                <div class="bg-white rounded-2xl shadow-2xl w-full max-w-[420px] relative z-10 overflow-hidden border border-[#d1fae5]">
+                    <!-- Header -->
+                    <div class="bg-white px-6 py-5 flex items-start gap-4">
+                        <div class="w-11 h-11 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center bg-[#10b981] text-white shadow-sm ring-4 ring-[#d1fae5]">
+                            <i class="fas fa-leaf text-[20px]"></i>
+                        </div>
+                        <div class="flex-1 mt-0.5">
+                            <h3 class="text-[#1e293b] text-[15px] fw-800" id="skip-modal-title">Lunch - Apr 29, 2025</h3>
+                            <p class="text-[#64748b] text-[12px] mt-1" id="skip-modal-items">Rice - Sambar - Veg Curry (12:30 - 1:30 PM)</p>
+                        </div>
+                        <button onclick="closeSkipModal()" class="text-muted hover:text-[#0f172a] bg-transparent border-none text-[18px]"><i class="fas fa-times"></i></button>
+                    </div>
+
+                    <div class="px-6 pb-6 pt-2">
+                        <!-- Buttons -->
+                        <div class="flex gap-4 mb-6">
+                            <button onclick="quickVote(document.getElementById('skip-menu-id').value, 'Yes')" class="flex-1 bg-[#22c55e] border border-[#16a34a] text-white py-3 rounded-xl text-[14px] fw-700 shadow-sm hover:bg-[#16a34a] transition flex justify-center items-center gap-2">
+                                <i class="far fa-check-circle text-lg"></i> Coming
+                            </button>
+                            <button class="flex-1 bg-[#fee2e2] text-[#b91c1c] border border-[#fca5a5] py-3 rounded-xl text-[14px] fw-700 shadow-sm flex justify-center items-center gap-2 cursor-default">
+                                <i class="far fa-times-circle text-lg"></i> Not Coming
+                            </button>
+                        </div>
+
+                        <input type="hidden" id="skip-menu-id">
+                        
+                        <p class="text-[#334155] text-[13px] fw-600 mb-4 tracking-tight">If Not Coming, please select reason:</p>
+                        
+                        <!-- Radio Options -->
+                        <div class="flex flex-col gap-3.5 mb-5 ml-1">
+                            <label class="flex items-center gap-3 cursor-pointer group w-fit">
+                                <input type="radio" name="skip_reason" value="Don't like the menu" onchange="toggleOtherReason()" class="w-[18px] h-[18px] accent-[#0f766e] border-[#94a3b8] focus:ring-0">
+                                <span class="text-[#475569] text-[13px] group-hover:text-[#0f172a] transition fw-500">Don't like the menu</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer group w-fit">
+                                <input type="radio" name="skip_reason" value="Going outside" onchange="toggleOtherReason()" class="w-[18px] h-[18px] accent-[#0f766e] border-[#94a3b8] focus:ring-0">
+                                <span class="text-[#475569] text-[13px] group-hover:text-[#0f172a] transition fw-500">Going outside</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer group w-fit">
+                                <input type="radio" name="skip_reason" value="Sick" onchange="toggleOtherReason()" class="w-[18px] h-[18px] accent-[#0f766e] border-[#94a3b8] focus:ring-0">
+                                <span class="text-[#475569] text-[13px] group-hover:text-[#0f172a] transition fw-500">Sick</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer group w-fit">
+                                <input type="radio" name="skip_reason" value="Other" onchange="toggleOtherReason()" class="w-[18px] h-[18px] accent-[#0f766e] border-[#94a3b8] focus:ring-0">
+                                <span class="text-[#475569] text-[13px] group-hover:text-[#0f172a] transition fw-500">Other</span>
+                            </label>
+                        </div>
+                        
+                        <input type="text" id="skip-reason-other" class="form-input w-full border-[#cbd5e1] rounded-xl text-[13px] px-4 py-3 mb-6 hidden focus:ring-1 focus:ring-[#0f766e]" placeholder="Enter reason (if other)">
+                        
+                        <!-- Actions -->
+                        <div class="flex gap-4">
+                            <button onclick="submitSkipVote()" id="skip-submit-btn" class="flex-1 bg-[#10b981] text-white py-3 rounded-xl text-[14px] fw-700 shadow-sm hover:bg-[#059669] transition shadow-[0_4px_12px_rgba(16,185,129,0.25)]">Submit</button>
+                            <button onclick="closeSkipModal()" class="flex-1 bg-[#f8fafc] text-[#475569] border border-[#e2e8f0] py-3 rounded-xl text-[14px] fw-700 shadow-sm hover:bg-[#f1f5f9] transition">Cancel</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -694,11 +738,24 @@ async function quickVote(menuId, choice) {
 }
 
 // Skip Reason Modal Logic
-function openSkipModal(menuId) {
+function openSkipModal(btn) {
+    const menuId = btn.dataset.id;
+    const mealType = btn.dataset.meal;
+    const dateStr = btn.dataset.date;
+    const itemsText = btn.dataset.items;
+    const timeStr = btn.dataset.time;
+    
     document.getElementById('skip-menu-id').value = menuId;
-    document.getElementById('skip-reason-select').value = "Don't like the menu";
+    if (mealType) document.getElementById('skip-modal-title').innerText = mealType + ' - ' + dateStr;
+    if (itemsText) document.getElementById('skip-modal-items').innerText = itemsText + ' (' + timeStr + ')';
+    
+    // Clear selections
+    const radios = document.querySelectorAll('input[name="skip_reason"]');
+    radios.forEach(r => r.checked = false);
+    
     document.getElementById('skip-reason-other').value = '';
     document.getElementById('skip-reason-other').classList.add('hidden');
+    
     document.getElementById('skip-modal').classList.remove('hidden');
     document.getElementById('skip-modal').classList.add('flex');
 }
@@ -709,7 +766,10 @@ function closeSkipModal() {
 }
 
 function toggleOtherReason() {
-    const reason = document.getElementById('skip-reason-select').value;
+    let reason = '';
+    const selected = document.querySelector('input[name="skip_reason"]:checked');
+    if (selected) reason = selected.value;
+    
     if (reason === 'Other') {
         document.getElementById('skip-reason-other').classList.remove('hidden');
     } else {
@@ -722,16 +782,24 @@ async function submitSkipVote() {
     const btn = document.getElementById('skip-submit-btn');
     const originalText = btn.innerText;
     
-    let reason = document.getElementById('skip-reason-select').value;
+    let reason = '';
+    const selected = document.querySelector('input[name="skip_reason"]:checked');
+    if (selected) reason = selected.value;
+    
+    if (!reason) {
+        alert('Please select a reason for skipping.');
+        return;
+    }
+    
     if (reason === 'Other') {
         reason = document.getElementById('skip-reason-other').value.trim();
         if (!reason) {
-            alert('Please specify your reason.');
+            alert('Please enter your reason.');
             return;
         }
     }
     
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
     btn.disabled = true;
     
     try {
@@ -745,7 +813,7 @@ async function submitSkipVote() {
         
         if (data.success) {
             closeSkipModal();
-            alert('Attendance skip recorded.');
+            alert('Attendance and skip reason saved successfully.');
             window.location.reload();
         } else {
             alert(data.error || 'Failed to save attendance skip.');
