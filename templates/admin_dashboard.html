@@ -8,29 +8,32 @@
 
 <div style="display:flex; height: calc(100vh - 64px);">
     <!-- Sidebar Navigation for 12 Admin Sections -->
-    <div class="sidebar-nav" style="width:260px; background:var(--card-bg); border-right:1px solid var(--border); overflow-y:auto; display:flex; flex-direction:column; padding:20px 0; transition:all 0.3s; z-index:100; flex-shrink:0;">
-        <div style="padding:0 20px 10px; font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px;">Admin Control Panel</div>
+    <div class="sidebar-nav" style="width:230px; background:#134e4a; color:white; overflow-y:auto; display:flex; flex-direction:column; padding:0; transition:all 0.3s; z-index:100; flex-shrink:0;">
+        <style>
+            .admin-sidebar-btn { padding: 14px 20px; font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.85); cursor: pointer; transition: all 0.2s; display:block; text-align:left; border:none; background: transparent; width:100%; border-radius: 0; outline:none; }
+            .admin-sidebar-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+            .admin-sidebar-btn.active-tab { background: #3b82f6; color: white; border-radius: 0 25px 25px 0; margin-right: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-weight:600; }
+        </style>
+        <div style="padding:25px 20px 25px; font-size:18px; font-weight:700; color:white; border-bottom:1px solid rgba(255,255,255,0.05); margin-bottom:15px;">WasteZero</div>
         
-        <button id="tab-overview" class="sidebar-btn active-tab" onclick="switchTab('overview', this)"><i class="fas fa-chart-pie fw-icon text-primary"></i> Dashboard Overview</button>
-        <button id="tab-menu" class="sidebar-btn" onclick="switchTab('menu', this)"><i class="fas fa-utensils fw-icon text-warning"></i> Menu Management</button>
-        <button id="tab-ai_meal" class="sidebar-btn" onclick="switchTab('ai_meal', this)"><i class="fas fa-magic fw-icon text-primary"></i> AI Meal Assistant</button>
-        <button id="tab-predict" class="sidebar-btn" onclick="switchTab('predict', this)"><i class="fas fa-brain fw-icon text-success"></i> AI Prediction</button>
-        <button id="tab-dish" class="sidebar-btn" onclick="switchTab('dish', this)"><i class="fas fa-chart-bar fw-icon text-warning"></i> Dish Analytics</button>
-        <button id="tab-waste" class="sidebar-btn" onclick="switchTab('waste', this)"><i class="fas fa-trash-alt fw-icon text-danger"></i> Food Waste Tracking</button>
-        <button id="tab-complaints" class="sidebar-btn" onclick="switchTab('complaints', this)"><i class="fas fa-flag fw-icon text-danger"></i> Complaint Management</button>
-        <button id="tab-leave" class="sidebar-btn" onclick="switchTab('leave', this)"><i class="fas fa-calendar-minus fw-icon text-warning"></i> Leave Requests</button>
-        <button id="tab-comm" class="sidebar-btn" onclick="switchTab('comm', this)"><i class="fas fa-bullhorn fw-icon text-primary"></i> Communication</button>
-        <button id="tab-feedback" class="sidebar-btn" onclick="switchTab('feedback', this)"><i class="fas fa-star fw-icon text-warning"></i> Feedback Mgmt</button>
-        <button id="tab-attendance" class="sidebar-btn" onclick="switchTab('attendance', this)"><i class="fas fa-clipboard-check fw-icon text-success"></i> Attendance Mgmt</button>
-        <button id="tab-inventory" class="sidebar-btn" onclick="switchTab('inventory', this)"><i class="fas fa-boxes fw-icon text-info"></i> Inventory</button>
-        <button id="tab-settings" class="sidebar-btn" onclick="switchTab('settings', this)"><i class="fas fa-cog fw-icon text-muted"></i> Admin Settings</button>
+        <button id="tab-menu" class="admin-sidebar-btn sidebar-btn" onclick="switchTab('menu', this)">Menu Management</button>
+        <button id="tab-attendance" class="admin-sidebar-btn sidebar-btn" onclick="switchTab('attendance', this)">Attendance</button>
+        <button id="tab-predict" class="admin-sidebar-btn sidebar-btn" onclick="switchTab('predict', this)">AI Prediction</button>
+        <button id="tab-dish" class="admin-sidebar-btn sidebar-btn" onclick="switchTab('dish', this)">Dish Analytics</button>
+        <button id="tab-waste" class="admin-sidebar-btn sidebar-btn" onclick="switchTab('waste', this)">Food Waste</button>
+        <button id="tab-leave" class="admin-sidebar-btn sidebar-btn active-tab" onclick="switchTab('leave', this)">Leave Requests</button>
+        <button id="tab-complaints" class="admin-sidebar-btn sidebar-btn" onclick="switchTab('complaints', this)">Complaints</button>
+        <button id="tab-comm" class="admin-sidebar-btn sidebar-btn" onclick="switchTab('comm', this)">Communication</button>
+        <button id="tab-inventory" class="admin-sidebar-btn sidebar-btn" onclick="switchTab('inventory', this)">Inventory</button>
+        <button id="tab-overview" class="admin-sidebar-btn sidebar-btn" onclick="switchTab('overview', this)">Reports</button>
+        <button id="tab-settings" class="admin-sidebar-btn sidebar-btn" onclick="switchTab('settings', this)">Settings</button>
     </div>
 
     <!-- Main Content Area -->
     <div class="p-0 sm:p-6" style="flex:1; overflow-y:auto; background:var(--bg-color);">
         
         <!-- SECTION 1: DASHBOARD OVERVIEW -->
-        <div id="content-overview" class="tab-content block">
+        <div id="content-overview" class="tab-content">
             <h2 class="section-title mb-6">Dashboard Overview</h2>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 <div class="card p-5 border-l-4" style="border-left-color:var(--primary);">
@@ -296,47 +299,98 @@
         </div>
 
         <!-- SECTION 8: LEAVE REQUEST MANAGEMENT -->
-        <div id="content-leave" class="tab-content">
-            <h2 class="section-title mb-6">Leave Request Management</h2>
-            <div class="card p-0">
-                <table class="data-table w-full text-left text-[12px]">
-                    <thead class="bg-input border-b border-[var(--border)]"><tr>
-                        <th class="p-3">Student</th><th class="p-3">Submit Date</th><th class="p-3">Start-End</th><th class="p-3">Type/Reason</th><th class="p-3">Status</th><th class="p-3">Action & Remarks</th>
-                    </tr></thead>
-                    <tbody>
-                        {% if all_leaves %}
-                            {% for l in all_leaves %}
-                            <tr class="border-b border-[var(--border)]">
-                                <td class="p-3 fw-700 text-primary">{{ l.student_id }}</td>
-                                <td class="p-3 text-muted">{{ l.created_at.strftime('%Y-%m-%d %H:%M') if l.created_at else '' }}</td>
-                                <td class="p-3 fw-600">{{ l.start_date }} to <br>{{ l.end_date }}</td>
-                                <td class="p-3">
-                                    <div class="fw-700 text-[11px]">{{ l.leave_type }}</div>
-                                    <div class="text-[10px] text-muted">{{ l.reason }}</div>
-                                </td>
-                                <td class="p-3">
-                                    <span class="badge {{ 'badge-success' if l.status == 'Approved' else 'badge-danger' if l.status == 'Rejected' else 'badge-warning' }} text-[9px] uppercase">{{ l.status }}</span>
-                                </td>
-                                <td class="p-3">
-                                    {% if l.status == 'Pending' %}
-                                    <form class="flex gap-2" onsubmit="event.preventDefault(); updateLeaveStatus({{ l.id }}, this.status.value)">
-                                        <select name="status" class="form-input text-[10px] p-1">
-                                            <option value="Approved">Approve</option>
-                                            <option value="Rejected">Reject</option>
-                                        </select>
-                                        <button type="submit" class="bg-primary text-white px-2 py-1 rounded text-[10px]">Update</button>
-                                    </form>
-                                    {% else %}
-                                    <span class="text-muted text-[10px]">Actioned</span>
-                                    {% endif %}
-                                </td>
+        <div id="content-leave" class="tab-content block">
+            <div class="bg-white rounded-[16px] shadow-sm ml-2 mr-2 mb-2 p-6 border border-[#e2e8f0]">
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-[#0f172a] text-[18px] font-bold">Leave Requests</h2>
+                    <div class="flex items-center gap-4 text-[#64748b]">
+                        <i class="fas fa-fingerprint cursor-pointer hover:text-black"></i>
+                        <i class="far fa-user cursor-pointer hover:text-black"></i>
+                        <i class="fas fa-times cursor-pointer hover:text-black"></i>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                    <div class="bg-white border text-sm text-gray-600 rounded-[8px] px-3 py-2 w-[160px] flex justify-between shadow-sm cursor-pointer hover:bg-gray-50 border-[#e2e8f0]">
+                        All Status <i class="fas fa-chevron-down text-xs mt-1"></i>
+                    </div>
+                    <div class="relative w-full md:w-[300px]">
+                        <i class="fas fa-search absolute left-3 top-2.5 text-gray-400 text-sm"></i>
+                        <input type="text" placeholder="Search students..." class="w-full bg-[#f8fafc] border border-[#e2e8f0] text-sm text-gray-700 rounded-[8px] pl-9 pr-3 py-2 focus:outline-none focus:bg-white focus:border-[#cbd5e1]">
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-[750px]">
+                        <thead>
+                            <tr class="border-b border-gray-100 text-[#475569] text-[13px] font-bold h-12">
+                                <th class="pl-2 w-[15%] pb-3 font-semibold">Student</th>
+                                <th class="w-[20%] pb-3 font-semibold">Leave Dates</th>
+                                <th class="w-[15%] pb-3 font-semibold">Type</th>
+                                <th class="w-[20%] pb-3 font-semibold">Reason</th>
+                                <th class="w-[15%] text-center pb-3 font-semibold">Status</th>
+                                <th class="pr-2 w-[15%] text-center pb-3 font-semibold">Action</th>
                             </tr>
-                            {% endfor %}
-                        {% else %}
-                            <tr><td colspan="6" class="text-center p-8 text-muted">No student leave requests pending!</td></tr>
-                        {% endif %}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {% if all_leaves %}
+                                {% for l in all_leaves %}
+                                {% set is_pending = (l.status == 'Pending') %}
+                                <tr class="border-b border-gray-50 text-[#334155] text-[13px] h-[70px] hover:bg-gray-50 transition">
+                                    <td class="pl-2 font-bold">{{ l.student_id or 'Unknown' }}</td>
+                                    <td>
+                                        {% set sd = l.start_date.split('-') %}
+                                        {% set ed = l.end_date.split('-') %}
+                                        {% if sd|length == 3 and ed|length == 3 %}
+                                            {{ sd[2] }} {% if sd[1]=='01' %}Jan{% elif sd[1]=='02' %}Feb{% elif sd[1]=='03' %}Mar{% elif sd[1]=='04' %}Apr{% elif sd[1]=='05' %}May{% elif sd[1]=='06' %}Jun{% elif sd[1]=='07' %}Jul{% elif sd[1]=='08' %}Aug{% elif sd[1]=='09' %}Sep{% elif sd[1]=='10' %}Oct{% elif sd[1]=='11' %}Nov{% elif sd[1]=='12' %}Dec{% endif %} - 
+                                            {{ ed[2] }} {% if ed[1]=='01' %}Jan{% elif ed[1]=='02' %}Feb{% elif ed[1]=='03' %}Mar{% elif ed[1]=='04' %}Apr{% elif ed[1]=='05' %}May{% elif ed[1]=='06' %}Jun{% elif ed[1]=='07' %}Jul{% elif ed[1]=='08' %}Aug{% elif ed[1]=='09' %}Sep{% elif ed[1]=='10' %}Oct{% elif ed[1]=='11' %}Nov{% elif ed[1]=='12' %}Dec{% endif %}
+                                        {% else %}
+                                            {{ l.start_date }} - {{ l.end_date }}
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-[#64748b]">{{ l.leave_type|replace("Leave", "")|trim }}</td>
+                                    <td class="text-[#3b82f6] truncate max-w-[150px]"><span title="{{ l.reason }}">{{ l.reason }}</span></td>
+                                    <td class="text-center align-middle">
+                                        {% if is_pending %}
+                                            <span class="inline-block bg-[#fef3c7] text-[#d97706] px-5 py-1.5 rounded-full text-[12px] font-bold">Pending</span>
+                                        {% elif l.status == 'Approved' %}
+                                            <span class="inline-block bg-[#dcfce7] text-[#16a34a] px-5 py-1.5 rounded-full text-[12px] font-bold">Approved</span>
+                                        {% else %}
+                                            <span class="inline-block bg-[#fee2e2] text-[#ef4444] px-5 py-1.5 rounded-full text-[12px] font-bold">Rejected</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="pr-2 align-middle text-center">
+                                        {% if is_pending %}
+                                        <div class="flex flex-col items-center justify-center gap-2">
+                                            <button onclick="updateLeaveStatus({{ l.id }}, 'Approved')" class="bg-[#22c55e] hover:bg-[#16a34a] text-white text-[11px] font-semibold px-4 py-1.5 rounded-[6px] shadow-sm w-[70px] transition">Approve</button>
+                                            <button onclick="updateLeaveStatus({{ l.id }}, 'Rejected')" class="bg-[#ef4444] hover:bg-[#dc2626] text-white text-[11px] font-semibold px-4 py-1.5 rounded-[6px] shadow-sm w-[70px] transition">Reject</button>
+                                        </div>
+                                        {% else %}
+                                            <span class="text-gray-300">-</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr><td colspan="6" class="text-center py-10 text-gray-400 font-medium">No leave requests pending.</td></tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Footer Pagination -->
+                <div class="flex justify-center mt-8 pb-4">
+                    <div class="flex gap-2">
+                        <button class="w-8 h-8 flex items-center justify-center rounded-[6px] bg-[#0f766e] text-white text-xs font-bold shadow-sm">1</button>
+                        <button class="w-8 h-8 flex items-center justify-center rounded-[6px] bg-[#f8fafc] text-[#64748b] text-xs font-bold hover:bg-[#e2e8f0] transition">2</button>
+                        <button class="w-8 h-8 flex items-center justify-center rounded-[6px] bg-[#f8fafc] text-[#64748b] text-xs font-bold hover:bg-[#e2e8f0] transition">3</button>
+                        <button class="w-8 h-8 flex items-center justify-center rounded-[6px] bg-[#f8fafc] text-[#64748b] text-xs font-bold hover:bg-[#e2e8f0] transition">4</button>
+                        <button class="w-8 h-8 flex items-center justify-center rounded-[6px] bg-[#f8fafc] text-[#64748b] text-xs font-bold hover:bg-[#e2e8f0] transition"><i class="fas fa-angle-double-right"></i></button>
+                    </div>
+                </div>
             </div>
         </div>
 

@@ -329,7 +329,12 @@ def admin_dashboard():
     
     all_feedback = Feedback.query.order_by(Feedback.timestamp.desc()).all()
     all_complaints = Complaint.query.order_by(Complaint.created_at.desc()).all()
-    all_leaves = LeaveRequest.query.order_by(LeaveRequest.created_at.desc()).all()
+    # Fetch all leave requests and left join with users to get names instead of just ST00x IDs
+    leave_records = db.session.query(LeaveRequest, User).outerjoin(User, LeaveRequest.student_id == User.student_id).order_by(LeaveRequest.created_at.desc()).all()
+    all_leaves = []
+    for l, u in leave_records:
+        l.student_name = u.full_name if (u and u.full_name) else (u.username if (u and u.username) else l.student_id)
+        all_leaves.append(l)
     all_ingredients = Ingredient.query.all()
     
     return render_template(

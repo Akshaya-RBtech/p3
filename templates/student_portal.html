@@ -490,17 +490,18 @@
         </div>
 
         <!-- Notifications -->
-        <div id="content-notifications" class="tab-content relative items-start min-h-[100vh] flex flex-col items-center">
-            
-            <div class="w-full max-w-[700px]">
-                <div class="flex justify-between items-center mb-5">
-                    <h2 class="text-[#1e293b] text-[22px] fw-800">Notifications</h2>
-                    <button onclick="readAllNotifs()" class="bg-[#10b981] hover:bg-[#059669] text-white px-4 py-2 rounded-lg text-[12px] fw-700 shadow-sm transition"><i class="fas fa-check-double mr-2"></i> Mark All Read</button>
-                </div>
-                
-                <div class="card p-0 shadow-lg border border-[var(--border)] overflow-hidden rounded-[16px]">
-                    <div id="full-notif-list" class="bg-white max-h-[500px] overflow-y-auto">
-                        <div class="text-center p-8 text-muted"><i class="fas fa-spinner fa-spin text-2xl mb-3 block"></i> Loading notifications...</div>
+        <div id="content-notifications" class="tab-content">
+            <div class="flex flex-col items-center min-h-[50vh]">
+                <div class="w-full max-w-[700px]">
+                    <div class="flex justify-between items-center mb-5">
+                        <h2 class="text-[#1e293b] text-[22px] fw-800">Notifications</h2>
+                        <button onclick="readAllNotifs()" class="bg-[#10b981] hover:bg-[#059669] text-white px-4 py-2 rounded-lg text-[12px] fw-700 shadow-sm transition"><i class="fas fa-check-double mr-2"></i> Mark All Read</button>
+                    </div>
+                    
+                    <div class="card p-0 shadow-lg border border-[var(--border)] overflow-hidden rounded-[16px]">
+                        <div id="full-notif-list" class="bg-white max-h-[600px] overflow-y-auto">
+                            <div class="text-center p-8 text-muted"><i class="fas fa-spinner fa-spin text-2xl mb-3 block"></i> Loading notifications...</div>
+                        </div>
                     </div>
                 </div>
             </div>
