@@ -225,65 +225,124 @@
         </div>
 
         <!-- Weekly Meal Calendar -->
+        <!-- Weekly Meal Calendar -->
         <div id="content-calendar" class="tab-content">
-            <h2 style="font-size:24px;font-weight:800;margin-bottom:24px;">Weekly Meal Calendar & Attendance</h2>
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-[20px] fw-800 text-[var(--text-color)]"><i class="fas fa-arrow-left text-muted mr-3 hidden lg:inline"></i> Weekly Meal Calendar</h2>
+                <div class="flex gap-3 text-muted">
+                    <button class="w-8 h-8 rounded-full hover:bg-[var(--input-bg)] flex items-center justify-center"><i class="fas fa-search"></i></button>
+                    <button class="w-8 h-8 rounded-full hover:bg-[var(--input-bg)] flex items-center justify-center"><i class="fas fa-filter"></i></button>
+                </div>
+            </div>
+
+            <!-- Date Scroller (Visual) -->
+            <div class="flex items-center gap-3 overflow-x-auto pb-4 mb-4 hide-scrollbar">
+                <button class="flex-shrink-0 text-muted"><i class="fas fa-chevron-left"></i></button>
+                <div class="flex gap-3 text-sm fw-600 flex-1 px-2">
+                    <div class="bg-[#10b981] text-white px-5 py-2.5 rounded-xl text-center shadow-sm flex flex-col items-center justify-center min-w-[70px]"><div>Mon</div><div class="fw-800 text-lg">28</div></div>
+                    <div class="bg-white border border-[var(--border)] text-[#475569] px-5 py-2.5 rounded-xl text-center flex flex-col items-center justify-center min-w-[70px]"><div>Tue</div><div class="fw-800 text-lg">29</div></div>
+                    <div class="bg-white border border-[var(--border)] text-[#475569] px-5 py-2.5 rounded-xl text-center flex flex-col items-center justify-center min-w-[70px]"><div>Wed</div><div class="fw-800 text-lg">30</div></div>
+                    <div class="bg-white border border-[var(--border)] text-[#475569] px-5 py-2.5 rounded-xl text-center flex flex-col items-center justify-center min-w-[70px]"><div>Thu</div><div class="fw-800 text-lg">1</div></div>
+                    <div class="bg-white border border-[var(--border)] text-[#475569] px-5 py-2.5 rounded-xl text-center flex flex-col items-center justify-center min-w-[70px]"><div>Fri</div><div class="fw-800 text-lg">2</div></div>
+                    <div class="bg-white border border-[var(--border)] text-[#475569] px-5 py-2.5 rounded-xl text-center flex flex-col items-center justify-center min-w-[70px]"><div>Sat</div><div class="fw-800 text-lg">3</div></div>
+                </div>
+                <button class="flex-shrink-0 text-muted"><i class="fas fa-chevron-right"></i></button>
+            </div>
+
             {% if menus %}
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-8">
-                {% for menu in menus %}
-                <div class="card" id="menu-card-{{ menu.id }}" style="overflow:hidden;transition:all 0.2s;">
-                    <!-- Card Header -->
-                    <div style="background:linear-gradient(135deg, var(--primary), var(--primary-dark));padding:16px 20px;">
-                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-                            <span style="font-size:22px;">{% if menu.meal_type == 'Breakfast' %}🌅{% elif menu.meal_type == 'Lunch' %}☀️{% elif menu.meal_type == 'Dinner' %}🌙{% else %}🍪{% endif %}</span>
-                            <span style="font-size:10px;font-weight:700;background:rgba(255,255,255,0.2);color:white;border-radius:100px;padding:4px 10px;text-transform:uppercase;">{{ menu.event_type }}</span>
-                        </div>
-                        <div style="font-weight:800;color:white;font-size:17px;">{{ menu.meal_type }}</div>
-                        <div style="font-size:12px;color:rgba(255,255,255,0.75);margin-top:3px;">📅 {{ menu.date }}</div>
-                    </div>
+            <div class="bg-white rounded-xl shadow-sm border border-[var(--border)] overflow-x-auto">
+                <table class="w-full text-left border-collapse min-w-[900px]">
+                    <thead>
+                        <tr class="bg-[#f8fafc] border-b border-[var(--border)] text-[#475569] text-xs uppercase fw-700">
+                            <th class="p-4 w-[120px]">Day</th>
+                            <th class="p-4 w-[25%] border-l border-[var(--border)]">Breakfast</th>
+                            <th class="p-4 w-[25%] border-l border-[var(--border)]">Lunch</th>
+                            <th class="p-4 w-[25%] border-l border-[var(--border)]">Snacks</th>
+                            <th class="p-4 w-[25%] border-l border-[var(--border)]">Dinner</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[var(--border)]">
+                        {% set grouped_menus = {} %}
+                        {% for m in menus %}
+                            {% set date_str = m.date %}
+                            {% if date_str not in grouped_menus %}
+                                {% set _ = grouped_menus.update({date_str: {}}) %}
+                            {% endif %}
+                            {% set _ = grouped_menus[date_str].update({m.meal_type: m}) %}
+                        {% endfor %}
 
-                    <!-- Card Body -->
-                    <div style="padding:18px 20px;">
-                        <p style="font-size:14px;font-weight:600;line-height:1.5;margin-bottom:18px;">{{ menu.items }}</p>
+                        {% for date_str, daily_menus in grouped_menus.items() %}
+                        <tr class="hover:bg-[#f8fafc] transition-colors">
+                            <td class="p-4 align-top">
+                                <div class="fw-800 text-[#1a365d] text-[15px]">{{ date_str }}</div>
+                            </td>
+                            
+                            {% for meal_type in ['Breakfast', 'Lunch', 'Snacks', 'Dinner'] %}
+                            <td class="p-4 border-l border-[var(--border)] align-top relative">
+                                {% if meal_type in daily_menus %}
+                                    {% set menu = daily_menus[meal_type] %}
+                                    
+                                    <div class="flex gap-3">
+                                        <div class="w-6 h-6 rounded-full bg-[#ecfdf5] border border-[#a7f3d0] text-[#10b981] flex items-center justify-center text-[10px] mt-0.5 flex-shrink-0">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="text-[12px] fw-600 text-[#475569] mb-3 leading-tight">{{ menu.items }}</div>
+                                            
+                                            {% if menu.id in voted_ids %}
+                                                <div class="inline-flex bg-[#ecfdf5] text-[#10b981] border border-[#a7f3d0] px-3 py-1 rounded-full text-[11px] fw-700 items-center justify-center gap-1.5"><i class="fas fa-check"></i> Confirmed</div>
+                                            {% else %}
+                                                <div class="flex gap-1.5 mt-2">
+                                                    <button onclick="quickVote({{ menu.id }}, 'Yes')" class="flex-1 bg-[#f0fdf4] text-[#16a34a] border border-[#bbf7d0] py-1.5 rounded text-[11px] fw-700 hover:bg-[#dcfce7] transition shadow-sm">
+                                                        <i class="fas fa-check text-[9px] mr-1"></i> Yes
+                                                    </button>
+                                                    <button onclick="openSkipModal({{ menu.id }})" class="flex-1 bg-[#fef2f2] text-[#ef4444] border border-[#fecaca] py-1.5 rounded text-[11px] fw-700 hover:bg-[#fee2e2] transition shadow-sm">
+                                                        <i class="fas fa-times text-[9px] mr-1"></i> No
+                                                    </button>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <div class="text-xs text-muted fw-500 italic opacity-50">No Menu</div>
+                                {% endif %}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
 
-                        {% if menu.id in voted_ids %}
-                        <div style="text-align:center;padding:14px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:12px;">
-                            <span style="color:var(--success);font-weight:700;font-size:13px;"><i class="fas fa-circle-check"></i> Attendance Confirmed</span>
-                        </div>
-                        {% else %}
-                        <form onsubmit="submitVoteAjax(event, {{ menu.id }})" id="vote-form-{{ menu.id }}">
-                            <input type="hidden" id="choice-{{ menu.id }}" value="">
-                            <div style="display:flex;gap:8px;margin-bottom:10px;">
-                                <button type="button" onclick="selectVote({{ menu.id }}, 'Yes')" id="btn-yes-{{ menu.id }}" style="flex:1;padding:10px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;border:2px solid rgba(16,185,129,0.3);background:rgba(16,185,129,0.06);color:var(--success);transition:all 0.2s;"><i class="fas fa-check"></i> Yes, I'll Eat</button>
-                                <button type="button" onclick="selectVote({{ menu.id }}, 'No')" id="btn-no-{{ menu.id }}" style="flex:1;padding:10px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;border:2px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.06);color:var(--danger);transition:all 0.2s;"><i class="fas fa-times"></i> No, I Will Skip</button>
-                            </div>
-                            <div id="reason-box-{{ menu.id }}" style="display:none;margin-bottom:10px;">
-                                <select id="reason-{{ menu.id }}" class="form-input w-full text-xs">
-                                    <option value="">Select Reason for Skipping...</option>
-                                    <option value="Don't like the menu">Don't like the menu</option>
-                                    <option value="Going outside">Going outside (Restaurant/Friends)</option>
-                                    <option value="Sick">Sick / Unwell</option>
-                                    <option value="Fasting">Fasting</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                            </div>
-                            <div id="vote-error-{{ menu.id }}" class="text-danger text-[11px] fw-600 mb-2 hidden"></div>
-                            <button type="submit" id="submit-btn-{{ menu.id }}" style="display:none;width:100%;justify-content:center;" class="btn-primary"><i class="fas fa-paper-plane mr-2"></i> Confirm Attendance</button>
-                        </form>
-                        <div id="vote-success-{{ menu.id }}" style="display:none;text-align:center;padding:14px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:12px;">
-                            <span style="color:var(--success);font-weight:700;font-size:13px;"><i class="fas fa-circle-check"></i> Attendance Confirmed</span>
-                        </div>
-                        {% endif %}
+            <!-- Skip Reason Modal -->
+            <div id="skip-modal" class="fixed inset-0 bg-black/50 z-[200] hidden items-center justify-center p-4">
+                <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm">
+                    <h3 class="text-[18px] fw-800 text-[#1a365d] mb-4">Skip Reason</h3>
+                    <input type="hidden" id="skip-menu-id">
+                    <label class="form-label">Why are you skipping?</label>
+                    <select id="skip-reason-select" class="form-input mb-3" onchange="toggleOtherReason()">
+                        <option value="Don't like the menu">Don't like the menu</option>
+                        <option value="Going outside">Going outside</option>
+                        <option value="Sick">Sick</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <input type="text" id="skip-reason-other" class="form-input mb-5 hidden" placeholder="Please specify...">
+                    
+                    <div class="flex gap-3">
+                        <button onclick="closeSkipModal()" class="flex-1 border border-[var(--border)] text-[var(--text-color)] py-2.5 rounded-lg fw-700 hover:bg-gray-50">Cancel</button>
+                        <button onclick="submitSkipVote()" id="skip-submit-btn" class="flex-1 bg-[#ef4444] text-white py-2.5 rounded-lg fw-700 hover:bg-[#dc2626]">Confirm Skip</button>
                     </div>
                 </div>
-                {% endfor %}
             </div>
+            
             {% else %}
-            <div class="card p-10 text-center">
-                <i class="fas fa-calendar-times text-4xl text-[var(--border)] mb-4 block"></i>
+            <div class="card p-10 text-center border border-[var(--border)]">
+                <i class="far fa-calendar-times text-4xl text-[var(--border)] mb-4 block"></i>
                 <h3 class="fw-700 text-lg">No Menus Scheduled</h3>
-                <p class="text-muted text-sm max-w-md mx-auto">There are currently no active menus to display in the calendar view.</p>
+                <p class="text-muted text-sm max-w-md mx-auto">There are currently no active menus to display in the calendar table.</p>
             </div>
             {% endif %}
+        </div>
         </div>
         
         <!-- Attendance -->
@@ -634,7 +693,74 @@ async function quickVote(menuId, choice) {
     }
 }
 
+// Skip Reason Modal Logic
+function openSkipModal(menuId) {
+    document.getElementById('skip-menu-id').value = menuId;
+    document.getElementById('skip-reason-select').value = "Don't like the menu";
+    document.getElementById('skip-reason-other').value = '';
+    document.getElementById('skip-reason-other').classList.add('hidden');
+    document.getElementById('skip-modal').classList.remove('hidden');
+    document.getElementById('skip-modal').classList.add('flex');
+}
+
+function closeSkipModal() {
+    document.getElementById('skip-modal').classList.add('hidden');
+    document.getElementById('skip-modal').classList.remove('flex');
+}
+
+function toggleOtherReason() {
+    const reason = document.getElementById('skip-reason-select').value;
+    if (reason === 'Other') {
+        document.getElementById('skip-reason-other').classList.remove('hidden');
+    } else {
+        document.getElementById('skip-reason-other').classList.add('hidden');
+    }
+}
+
+async function submitSkipVote() {
+    const menuId = document.getElementById('skip-menu-id').value;
+    const btn = document.getElementById('skip-submit-btn');
+    const originalText = btn.innerText;
+    
+    let reason = document.getElementById('skip-reason-select').value;
+    if (reason === 'Other') {
+        reason = document.getElementById('skip-reason-other').value.trim();
+        if (!reason) {
+            alert('Please specify your reason.');
+            return;
+        }
+    }
+    
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+    btn.disabled = true;
+    
+    try {
+        const formData = new FormData();
+        formData.append('menu_id', menuId);
+        formData.append('choice', 'No');
+        formData.append('reason', reason);
+        
+        const res = await fetch('/student/vote', { method: 'POST', body: formData });
+        const data = await res.json();
+        
+        if (data.success) {
+            closeSkipModal();
+            alert('Attendance skip recorded.');
+            window.location.reload();
+        } else {
+            alert(data.error || 'Failed to save attendance skip.');
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    } catch(e) {
+        alert('Network error. Please try again.');
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+
 // Student Chat 
+
 let studentSessionId = 'student_' + Math.random().toString(36).substr(2, 9);
 function setStudentPrompt(txt) { 
     document.getElementById('student-chat-input').value = txt; 
