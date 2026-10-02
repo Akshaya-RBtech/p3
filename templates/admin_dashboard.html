@@ -97,30 +97,36 @@
                 <!-- Calculate from valid attendance logs-->
                 <div class="card p-5 border-l-4 border-success">
                     <div class="text-[11px] fw-700 uppercase tracking-widest text-muted">Coming</div>
-                    <div class="text-3xl fw-800 text-success mt-1">112</div>
+                <div class="card p-5 border-l-4 border-success">
+                    <div class="text-[11px] fw-700 uppercase tracking-widest text-muted">Coming</div>
+                    <div class="text-3xl fw-800 text-success mt-1">{{ coming_count|default(0) }}</div>
                 </div>
                 <div class="card p-5 border-l-4 border-danger">
                     <div class="text-[11px] fw-700 uppercase tracking-widest text-muted">Not Coming</div>
-                    <div class="text-3xl fw-800 text-danger mt-1">45</div>
+                    <div class="text-3xl fw-800 text-danger mt-1">{{ not_coming_count|default(0) }}</div>
                 </div>
                 <div class="card p-5 border-l-4 border-warning">
                     <div class="text-[11px] fw-700 uppercase tracking-widest text-muted">Pending</div>
-                    <div class="text-3xl fw-800 text-warning mt-1">{{ total_students - (112 + 45) }}</div>
+                    {% set pending = total_students - ((coming_count|default(0)) + (not_coming_count|default(0))) %}
+                    <div class="text-3xl fw-800 text-warning mt-1">{{ pending if pending > 0 else 0 }}</div>
                 </div>
             </div>
             
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 <div class="card p-5 border-t border-[var(--border)]">
                     <div class="text-[11px] fw-700 uppercase tracking-widest text-muted">Response Rate</div>
-                    <div class="text-2xl fw-800 text-primary mt-1">78%</div>
+                    {% set total_res = (coming_count|default(0)) + (not_coming_count|default(0)) %}
+                    {% set rr = ((total_res / total_students) * 100)|int if total_students > 0 else 0 %}
+                    <div class="text-2xl fw-800 text-primary mt-1">{{ rr }}%</div>
                 </div>
                 <div class="card p-5 border-t border-[var(--border)]">
                     <div class="text-[11px] fw-700 uppercase tracking-widest text-muted">Predicted Att.</div>
-                    <div class="text-2xl fw-800 text-success mt-1">116</div>
+                    {% set pred = (coming_count|default(0)) + ((pending if pending > 0 else 0) // 2) %}
+                    <div class="text-2xl fw-800 text-success mt-1">{{ pred }}</div>
                 </div>
                 <div class="card p-5 border-t border-[var(--border)]">
                     <div class="text-[11px] fw-700 uppercase tracking-widest text-muted">Recommended Qty</div>
-                    <div class="text-2xl fw-800 text-primary mt-1">125 kg</div>
+                    <div class="text-2xl fw-800 text-primary mt-1">{{ (pred * 0.8)|round(1) }} kg</div>
                 </div>
                 <div class="card p-5 border-t border-[var(--border)]">
                     <div class="text-[11px] fw-700 uppercase tracking-widest text-muted">Food Waste Logs</div>
@@ -391,10 +397,17 @@
         <div id="content-attendance" class="tab-content">
             <h2 class="section-title mb-6">Attendance Management</h2>
             <div class="grid grid-cols-4 gap-4 mb-4">
-                <div class="card p-3 text-center"><div class="fw-700 text-[10px] uppercase text-muted">Coming</div><div class="fw-800 text-lg text-success">112</div></div>
-                <div class="card p-3 text-center"><div class="fw-700 text-[10px] uppercase text-muted">Not Coming</div><div class="fw-800 text-lg text-danger">45</div></div>
-                <div class="card p-3 text-center"><div class="fw-700 text-[10px] uppercase text-muted">Pending</div><div class="fw-800 text-lg text-warning">23</div></div>
-                <div class="card p-3 text-center"><div class="fw-700 text-[10px] uppercase text-muted">Response Rate</div><div class="fw-800 text-lg text-primary">87%</div></div>
+                <div class="card p-3 text-center"><div class="fw-700 text-[10px] uppercase text-muted">Coming</div><div class="fw-800 text-lg text-success">{{ coming_count|default(0) }}</div></div>
+                <div class="card p-3 text-center"><div class="fw-700 text-[10px] uppercase text-muted">Not Coming</div><div class="fw-800 text-lg text-danger">{{ not_coming_count|default(0) }}</div></div>
+                <div class="card p-3 text-center"><div class="fw-700 text-[10px] uppercase text-muted">Pending</div>
+                    {% set pending = total_students - ((coming_count|default(0)) + (not_coming_count|default(0))) %}
+                    <div class="fw-800 text-lg text-warning">{{ pending if pending > 0 else 0 }}</div>
+                </div>
+                <div class="card p-3 text-center"><div class="fw-700 text-[10px] uppercase text-muted">Response Rate</div>
+                    {% set total_res = (coming_count|default(0)) + (not_coming_count|default(0)) %}
+                    {% set rr = ((total_res / total_students) * 100)|int if total_students > 0 else 0 %}
+                    <div class="fw-800 text-lg text-primary">{{ rr }}%</div>
+                </div>
             </div>
             
             <div class="mb-3 flex gap-2 flex-wrap">
