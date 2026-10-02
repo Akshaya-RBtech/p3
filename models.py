@@ -214,6 +214,7 @@ class Complaint(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.String(50), nullable=False)
     category = db.Column(db.String(50), nullable=False) 
+    subject = db.Column(db.String(200), nullable=True)
     description = db.Column(db.Text, nullable=False)
     status = db.Column(db.String(20), default='Open') 
     admin_note = db.Column(db.Text, nullable=True)
