@@ -64,14 +64,14 @@
         </div>
         
         <button id="tab-home" class="sidebar-btn active-tab" onclick="switchTab('home', this)"><i class="fas fa-home"></i> Dashboard</button>
-        <button id="tab-calendar" class="sidebar-btn" onclick="switchTab('calendar', this)"><i class="fas fa-calendar-alt"></i> Meal Calendar</button>
+        <button id="tab-calendar" class="sidebar-btn" onclick="switchTab('calendar', this)"><i class="far fa-calendar-alt"></i> Meal Calendar</button>
         <button id="tab-attendance" class="sidebar-btn" onclick="switchTab('attendance', this)"><i class="fas fa-clipboard-check"></i> Attendance</button>
         <button id="tab-notifications" class="sidebar-btn" onclick="switchTab('notifications', this)"><i class="far fa-bell"></i> Notifications</button>
-        <button id="tab-assistant" class="sidebar-btn" onclick="switchTab('assistant', this)"><i class="fas fa-robot"></i> AI Assistant</button>
-        <button id="tab-feedback" class="sidebar-btn" onclick="switchTab('feedback', this)"><i class="far fa-star"></i> Feedback</button>
-        <button id="tab-leave" class="sidebar-btn" onclick="switchTab('leave', this)"><i class="far fa-calendar-minus"></i> Leave Request</button>
-        <button id="tab-complaints" class="sidebar-btn" onclick="switchTab('complaints', this)"><i class="far fa-flag"></i> Complaints</button>
-        <button id="tab-profile" class="sidebar-btn" onclick="switchTab('profile', this)"><i class="far fa-user-circle"></i> Profile</button>
+        <button id="tab-assistant" class="sidebar-btn" onclick="switchTab('assistant', this)"><i class="fas fa-magic"></i> AI Assistant</button>
+        <button id="tab-feedback" class="sidebar-btn" onclick="switchTab('feedback', this)"><i class="far fa-comment-dots"></i> Feedback</button>
+        <button id="tab-leave" class="sidebar-btn" onclick="switchTab('leave', this)"><i class="fas fa-user-clock"></i> Leave Request</button>
+        <button id="tab-complaints" class="sidebar-btn" onclick="switchTab('complaints', this)"><i class="far fa-file-alt"></i> Complaints</button>
+        <button id="tab-profile" class="sidebar-btn" onclick="switchTab('profile', this)"><i class="far fa-user"></i> Profile</button>
         <button id="tab-settings" class="sidebar-btn" onclick="switchTab('settings', this)"><i class="fas fa-cog"></i> Settings</button>
         
         <div style="margin-top:auto; padding:20px;">
@@ -143,21 +143,21 @@
                 <div class="lg:col-span-5 flex flex-col gap-5">
                     
                     <!-- Tomorrow's Attendance Card -->
-                    <div class="bg-[#ebfbf3] rounded-xl p-5 border border-[#c6f6d5]">
+                    <div class="bg-[#e6f7ef] rounded-xl p-5 border border-[#abecd6]">
                         <h3 class="fw-800 text-[16px] text-[#065f46] mb-4">Tomorrow's Attendance</h3>
                         
                         {% set tomorrow_menus = menus|selectattr("date", "equalto", tomorrow)|list %}
                         {% if tomorrow_menus %}
                             {% set tm = tomorrow_menus[0] %}
-                            <div class="flex items-center gap-3 mb-5 px-1">
+                            <div class="flex items-center gap-3 mb-5 px-1 bg-white p-3 rounded-lg border border-[#c6f6d5]">
                                 <i class="fas fa-utensils text-[#10b981] opacity-70"></i>
                                 <div class="text-[13px] fw-600 text-[#064e3b]">{{ tm.meal_type }} - {{ tm.items[:30] }}...</div>
                             </div>
-                            <div class="flex gap-3">
-                                <button onclick="selectVote({{ tm.id }}, 'Yes')" class="flex-1 bg-[#10b981] text-white py-2.5 rounded-lg fw-700 text-[13px] hover:bg-[#059669] transition shadow-sm border border-[#059669]">
+                            <div class="flex gap-4">
+                                <button onclick="selectVote({{ tm.id }}, 'Yes')" class="flex-1 bg-[#10b981] text-white py-2.5 rounded-lg fw-700 text-[14px] hover:bg-[#059669] transition shadow-sm border border-[#059669]">
                                     Coming
                                 </button>
-                                <button onclick="selectVote({{ tm.id }}, 'No')" class="flex-1 bg-white text-[#ef4444] py-2.5 rounded-lg fw-700 text-[13px] hover:bg-[#fef2f2] transition shadow-sm border border-[#fca5a5]">
+                                <button onclick="selectVote({{ tm.id }}, 'No')" class="flex-1 bg-white text-[#ef4444] py-2.5 rounded-lg fw-700 text-[14px] hover:bg-[#fef2f2] transition shadow-sm border border-[#fca5a5]">
                                     Not Coming
                                 </button>
                             </div>
@@ -168,21 +168,24 @@
 
                     <!-- Quick Stats Card -->
                     <div class="card rounded-xl shadow-sm border border-[var(--border)] overflow-hidden">
-                        <div class="px-5 py-4 border-b border-[var(--border)]">
-                            <h3 class="fw-800 text-[15px] text-[var(--text-color)]">Quick Stats</h3>
-                        </div>
-                        <div class="grid grid-cols-3 divide-x divide-[var(--border)] p-4">
-                            <div class="text-center">
-                                <div class="text-[11px] fw-600 text-[var(--primary)] uppercase mb-2">Confirmed</div>
-                                <div class="text-[28px] fw-800 text-[var(--primary)]">{{ voted_ids|length }}</div>
-                            </div>
-                            <div class="text-center">
-                                <div class="text-[11px] fw-600 text-[#f59e0b] uppercase mb-2">Pending</div>
-                                <div class="text-[28px] fw-800 text-[#f59e0b]">{{ menus|length - voted_ids|length }}</div>
-                            </div>
-                            <div class="text-center">
-                                <div class="text-[11px] fw-600 text-[#ef4444] uppercase mb-2">Skipped</div>
-                                <div class="text-[28px] fw-800 text-[#ef4444]">0</div>
+                        <div class="px-5 py-4">
+                            <h3 class="fw-800 text-[16px] text-[#1a365d] mb-4">Quick Stats</h3>
+                            <div class="grid grid-cols-3 gap-3">
+                                <!-- Confirmed -->
+                                <div class="text-center bg-[#ecfdf5] border border-[#d1fae5] rounded-xl p-3">
+                                    <div class="text-[11px] fw-700 text-[#047857] mb-1">Confirmed</div>
+                                    <div class="text-[28px] fw-800 text-[#059669]">{{ voted_ids|length }}</div>
+                                </div>
+                                <!-- Pending -->
+                                <div class="text-center bg-[#fffbeb] border border-[#fef3c7] rounded-xl p-3">
+                                    <div class="text-[11px] fw-700 text-[#d97706] mb-1">Pending</div>
+                                    <div class="text-[28px] fw-800 text-[#d97706]">{{ menus|length - voted_ids|length }}</div>
+                                </div>
+                                <!-- Skipped -->
+                                <div class="text-center bg-[#fef2f2] border border-[#fee2e2] rounded-xl p-3">
+                                    <div class="text-[11px] fw-700 text-[#b91c1c] mb-1">Skipped</div>
+                                    <div class="text-[28px] fw-800 text-[#ef4444]">0</div>
+                                </div>
                             </div>
                         </div>
                     </div>
