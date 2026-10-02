@@ -847,6 +847,21 @@ def ai_chat():
                 if vote_stats:
                     context += f"\nCurrent Vote Stats: {vote_stats[:3]}\n"
                     
+            if user_role == 'admin':
+                recent_complaints = Complaint.query.order_by(Complaint.created_at.desc()).limit(5).all()
+                context += f"| Admin Dash - Recent Complaints: {[{'id':c.id, 'category':c.category, 'status':c.status} for c in recent_complaints]}\n"
+                recent_leaves = LeaveRequest.query.order_by(LeaveRequest.created_at.desc()).limit(5).all()
+                context += f"| Admin Dash - Recent Leaves: {[{'id':l.id, 'status':l.status, 'dates':l.start_date+' to '+l.end_date} for l in recent_leaves]}\n"
+                inventory = Ingredient.query.all()
+                context += f"| Admin Dash - Inventory: {[{'item':i.name, 'qty':i.quantity} for i in inventory]}\n"
+                recent_anns = Announcement.query.order_by(Announcement.created_at.desc()).limit(3).all()
+                context += f"| Admin Dash - Announcements: {[{'title':a.title, 'msg':a.message} for a in recent_anns]}\n"
+            else:
+                my_complaints = Complaint.query.filter_by(student_id=student_id).order_by(Complaint.created_at.desc()).limit(3).all()
+                context += f"| Student Dash - My Complaints: {[{'category':c.category, 'status':c.status} for c in my_complaints]}\n"
+                my_leaves = LeaveRequest.query.filter_by(student_id=student_id).order_by(LeaveRequest.created_at.desc()).limit(3).all()
+                context += f"| Student Dash - My Leaves: {[{'status':l.status, 'dates':l.start_date+' to '+l.end_date} for l in my_leaves]}\n"
+
             context += "\nDo not invent statistics or attendance numbers. If you don't know, say so based on the data provided."
             
             # Use RAG to fetch relevant context
