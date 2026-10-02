@@ -95,8 +95,8 @@
                             <div><label class="text-[11px] fw-700 text-muted uppercase">Description</label><input type="text" class="form-input w-full" placeholder="Optional notes"></div>
                         </div>
                         <div class="flex gap-2 mt-2">
-                            <button type="submit" class="btn-primary flex-1 justify-center bg-[var(--text-color)] text-white"><i class="fas fa-save mr-1"></i> Save as Draft</button>
-                            <button type="submit" class="btn-primary flex-1 justify-center bg-success hover:bg-green-600"><i class="fas fa-upload mr-1"></i> Publish</button>
+                            <button type="submit" name="action" value="draft" class="btn-primary flex-1 justify-center bg-[var(--text-color)] text-white"><i class="fas fa-save mr-1"></i> Save as Draft</button>
+                            <button type="submit" name="action" value="publish" class="btn-primary flex-1 justify-center bg-success hover:bg-green-600"><i class="fas fa-upload mr-1"></i> Publish</button>
                         </div>
                     </form>
                 </div>
@@ -110,7 +110,7 @@
                             {% for m in menus[:15] %}
                             <tr class="border-b border-[var(--border)]">
                                 <td class="p-2 fw-700">{{ m.date }}</td><td class="p-2">{{ m.meal_type }}</td><td class="p-2">{{ m.items }}</td>
-                                <td class="p-2"><span class="badge badge-success text-[9px] uppercase">Published</span></td>
+                                <td class="p-2"><span class="badge {{ 'badge-success' if m.published else 'badge-warning' }} text-[9px] uppercase">{{ 'Published' if m.published else 'Draft' }}</span></td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -126,23 +126,20 @@
                 <div class="card p-5">
                     <h3 class="fw-700 mb-4 text-primary"><i class="fas fa-magic mr-2"></i> Generate Menu Suggestion</h3>
                     <div class="mb-4">
-                        <label class="text-[11px] fw-700 text-muted uppercase">Previous Menu Context</label>
-                        <select class="form-input w-full text-sm">
-                            <option>Select/view a past menu...</option>
-                            {% for m in menus[:5] %}<option>{{ m.date }} - {{ m.meal_type }}: {{ m.items }}</option>{% endfor %}
+                        <label class="text-[11px] fw-700 text-muted uppercase">Meal Type Context</label>
+                        <select id="ai-meal-type" class="form-input w-full text-sm">
+                            <option>Breakfast</option>
+                            <option>Lunch</option>
+                            <option>Dinner</option>
+                            <option>Snacks</option>
                         </select>
                     </div>
                     <div class="flex gap-2 mb-4">
-                        <button class="btn-primary flex-1 justify-center bg-gray-200 text-black border shadow-none"><i class="fas fa-plus mr-1"></i> Generate New Menu</button>
-                        <button class="btn-primary flex-1 justify-center bg-indigo-50 text-indigo-600 border border-indigo-200 outline-none"><i class="fas fa-level-up-alt mr-1"></i> Improve Previous</button>
+                        <button type="button" onclick="suggestMenu()" class="btn-primary flex-1 justify-center bg-gray-200 text-black border shadow-none"><i class="fas fa-magic mr-1"></i> Ask AI for Menu</button>
                     </div>
                     
-                    <div class="p-4 bg-[var(--input-bg)] border border-[var(--border)] rounded text-xs text-muted h-[150px] mb-3">AI Suggestions appear here...</div>
+                    <div id="ai-suggestion-box" class="p-4 bg-[var(--input-bg)] border border-[var(--border)] rounded text-xs text-muted h-[150px] mb-3 overflow-y-auto">AI Suggestions appear here...</div>
                     <div class="text-[10px] text-danger fw-600 mb-2"><i class="fas fa-exclamation-triangle"></i> AI-generated menu suggestions MUST NOT automatically become published menus.</div>
-                    <div class="flex gap-3">
-                        <button class="flex-1 btn-primary justify-center bg-success shadow-none"><i class="fas fa-check mr-1"></i> Admin Approve</button>
-                        <button class="flex-1 btn-primary justify-center bg-black text-white shadow-none"><i class="fas fa-save mr-1"></i> Save Draft</button>
-                    </div>
                 </div>
                 
                 <div class="card p-5">
@@ -221,9 +218,18 @@
             <div class="card p-5 overflow-x-auto">
                 <h3 class="fw-700 m-0 mb-4 text-xs uppercase text-muted tracking-widest">Metrics Table</h3>
                 <table class="w-full text-left text-[12px] data-table">
-                    <thead><tr><th class="p-2">Dish</th><th class="p-2">Popularity</th><th class="p-2">Att. Impact</th><th class="p-2">Ratings</th><th class="p-2">Skip Freq.</th><th class="p-2">Related Feedback</th></tr></thead>
+                    <thead><tr><th class="p-2">Dish</th><th class="p-2">Skip Freq (No Votes)</th></tr></thead>
                     <tbody>
-                        <tr><td colspan="6" class="p-10 text-center text-muted">Insufficient data exists for these exact timeframe filters. Appropriate empty state.</td></tr>
+                        {% if no_votes %}
+                            {% for items, no_count in no_votes %}
+                            <tr class="border-b border-[var(--border)]">
+                                <td class="p-3 fw-700">{{ items }}</td>
+                                <td class="p-3 text-danger fw-700">{{ no_count }} NO votes</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr><td colspan="2" class="p-10 text-center text-muted">Insufficient data exists for these exact timeframe filters. Appropriate empty state.</td></tr>
+                        {% endif %}
                     </tbody>
                 </table>
             </div>
@@ -343,7 +349,21 @@
                         <tr><th class="p-3">Student</th><th class="p-3">Dish / Meal</th><th class="p-3">Date</th><th class="p-3">Rating (Like/Neutral/Dislike)</th><th class="p-3">Comment</th></tr>
                     </thead>
                     <tbody>
-                        <tr><td colspan="5" class="p-8 text-center text-muted">Do not fabricate feedback. Awaiting actual student feedback to populate UI.</td></tr>
+                        {% if all_feedback %}
+                            {% for f in all_feedback %}
+                            <tr class="border-b border-[var(--border)]">
+                                <td class="p-3">{{ f.student_id }}</td>
+                                <td class="p-3">{{ f.menu.items if f.menu else 'Unknown' }}</td>
+                                <td class="p-3 text-muted text-[10px]">{{ f.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td class="p-3">
+                                    <span class="badge {{ 'badge-success' if f.rating == 'Like' else 'badge-danger' if f.rating == 'Dislike' else 'badge-warning' }} text-[9px] uppercase">{{ f.rating }}</span>
+                                </td>
+                                <td class="p-3 text-muted">{{ f.comments }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr><td colspan="5" class="p-8 text-center text-muted">No feedback available.</td></tr>
+                        {% endif %}
                     </tbody>
                 </table>
             </div>
@@ -391,8 +411,106 @@
         
         <!-- SECTION 12: INVENTORY LOG MAPPED AS EXTRA ADMIN SETTINGS/REPORTS -->
         <div id="content-inventory" class="tab-content">
-            <h2 class="section-title mb-6">Inventory / Reports</h2>
-            <div class="card p-5"><p class="text-xs text-muted">Required placeholder content successfully loaded.</p></div>
+            <h2 class="section-title mb-6">Inventory Logs</h2>
+            <div class="card p-0 overflow-y-auto">
+                <table class="data-table w-full text-left text-[12px]">
+                    <thead class="bg-input border-b border-[var(--border)]">
+                        <tr><th class="p-3">Ingredient</th><th class="p-3">Quantity</th><th class="p-3">Unit</th><th class="p-3">Min Stock</th><th class="p-3">Last Updated</th></tr>
+                    </thead>
+                    <tbody>
+                        {% if all_ingredients %}
+                            {% for ing in all_ingredients %}
+                            <tr class="border-b border-[var(--border)]">
+                                <td class="p-3 fw-700 text-primary">{{ ing.name }}</td>
+                                <td class="p-3 text-{{ 'danger' if ing.quantity < ing.min_stock else 'success' }} fw-700">{{ ing.quantity }}</td>
+                                <td class="p-3">{{ ing.unit }}</td>
+                                <td class="p-3 text-muted">{{ ing.min_stock }}</td>
+                                <td class="p-3 text-muted text-[10px]">{{ ing.last_updated.strftime('%Y-%m-%d') if ing.last_updated else '-' }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr><td colspan="5" class="p-8 text-center text-muted">No inventory records found.</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- SECTION COMPLAINTS -->
+        <div id="content-complaints" class="tab-content">
+            <h2 class="section-title mb-6">Complaint Management</h2>
+            <div class="card p-0 overflow-y-auto">
+                <table class="data-table w-full text-left text-[12px]">
+                    <thead class="bg-input border-b border-[var(--border)]">
+                        <tr><th class="p-3">ID</th><th class="p-3">Student</th><th class="p-3">Category</th><th class="p-3">Description</th><th class="p-3">Status</th><th class="p-3">Date</th></tr>
+                    </thead>
+                    <tbody>
+                        {% if all_complaints %}
+                            {% for c in all_complaints %}
+                            <tr class="border-b border-[var(--border)]">
+                                <td class="p-3 fw-700">#{{ c.id }}</td>
+                                <td class="p-3">{{ c.student_id }}</td>
+                                <td class="p-3"><span class="badge badge-warning text-[9px] uppercase">{{ c.category }}</span></td>
+                                <td class="p-3 text-muted">{{ c.description }}</td>
+                                <td class="p-3">
+                                    <span class="badge {{ 'badge-success' if c.status == 'Resolved' else 'badge-danger' }} text-[9px] uppercase">{{ c.status }}</span>
+                                </td>
+                                <td class="p-3 text-muted text-[10px]">{{ c.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr><td colspan="6" class="p-8 text-center text-muted">No complaints found.</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SECTION LEAVE REQUESTS -->
+        <div id="content-leave" class="tab-content">
+            <h2 class="section-title mb-6">Leave Requests</h2>
+            <div class="card p-0 overflow-y-auto">
+                <table class="data-table w-full text-left text-[12px]">
+                    <thead class="bg-input border-b border-[var(--border)]">
+                        <tr><th class="p-3">Student</th><th class="p-3">From</th><th class="p-3">To</th><th class="p-3">Type / Reason</th><th class="p-3">Status</th></tr>
+                    </thead>
+                    <tbody>
+                        {% if all_leaves %}
+                            {% for l in all_leaves %}
+                            <tr class="border-b border-[var(--border)]">
+                                <td class="p-3 fw-700">{{ l.student_id }}</td>
+                                <td class="p-3">{{ l.start_date.strftime('%Y-%m-%d') }}</td>
+                                <td class="p-3">{{ l.end_date.strftime('%Y-%m-%d') }}</td>
+                                <td class="p-3 text-muted">{{ l.leave_type }} - {{ l.reason }}</td>
+                                <td class="p-3">
+                                    <span class="badge {{ 'badge-success' if l.status == 'Approved' else 'badge-warning' if l.status == 'Pending' else 'badge-danger' }} text-[9px] uppercase">{{ l.status }}</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr><td colspan="5" class="p-8 text-center text-muted">No leave requests found.</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SECTION COMMUNICATION -->
+        <div id="content-comm" class="tab-content">
+            <h2 class="section-title mb-6">Communication / Announcements</h2>
+            <div class="card p-5">
+                <h3 class="fw-700 mb-4 text-primary">Broadcast Message</h3>
+                <form action="/admin/post_announcement" method="POST" class="grid gap-4">
+                    <input type="text" name="title" placeholder="Announcement Title" class="form-input w-full" required>
+                    <textarea name="message" placeholder="Message content..." class="form-input w-full h-[100px]" required></textarea>
+                    <select name="category" class="form-input w-full">
+                        <option value="General">General</option>
+                        <option value="Urgent">Urgent</option>
+                        <option value="Menu Update">Menu Update</option>
+                    </select>
+                    <button type="submit" class="btn-primary w-max bg-primary"><i class="fas fa-paper-plane mr-2"></i> Send Broadcast</button>
+                    <p class="text-xs text-muted mt-2">Announcements appear on students' dashboards.</p>
+                </form>
+            </div>
         </div>
 
         <!-- SECTION 12: ADMIN SETTINGS -->
@@ -425,6 +543,24 @@
         if(btn) btn.classList.add('active-tab');
         if(window.innerWidth <= 768) { document.querySelector('.sidebar-nav').classList.remove('api-show'); }
     }
+    
+    async function suggestMenu() {
+        const box = document.getElementById('ai-suggestion-box');
+        const mealType = document.getElementById('ai-meal-type').value;
+        box.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating recommendations for ' + mealType + '...';
+        try {
+            const res = await fetch('/api/ai/chat', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({message: 'Suggest a new healthy menu for ' + mealType + '. List Date, Meal Type, and Items briefly.'})
+            });
+            const data = await res.json();
+            box.innerHTML = data.reply || data.text || "No insights found.";
+        } catch (e) {
+            box.innerHTML = "Error reaching AI engine.";
+        }
+    }
+    
     function changeTheme(t){ localStorage.setItem('wastezero-theme',t); document.documentElement.setAttribute('data-theme',t);}
     document.documentElement.setAttribute('data-theme', localStorage.getItem('wastezero-theme') || 'light');
 </script>

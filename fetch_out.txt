@@ -1,0 +1,9 @@
+556: const res = await fetch('/student/vote', {
+619: const res = await fetch('/api/ai/chat', {
+639: const res = await fetch('/api/notifications');
+673: await fetch('/api/notifications/read', {method:'POST'});
+682: const cRes = await fetch('/api/complaints');
+689: const lRes = await fetch('/api/leave');
+712: const res = await fetch('/api/complaints', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({category:cat, description:desc}) });
+738: const res = await fetch('/api/leave', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({start_date:start, end_date:end, reason:lr, type:lt}) });
+758: const res = await fetch('/api/feedback', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({menu_id:menu, rating:rating, comments:comment}) });

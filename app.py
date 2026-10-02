@@ -437,6 +437,11 @@ def admin_dashboard():
     ai_reports = AIReport.query.order_by(AIReport.generated_at.desc()).limit(10).all()
     recent_votes = Vote.query.order_by(Vote.timestamp.desc()).limit(50).all()
     
+    all_feedback = Feedback.query.order_by(Feedback.timestamp.desc()).all()
+    all_complaints = Complaint.query.order_by(Complaint.created_at.desc()).all()
+    all_leaves = LeaveRequest.query.order_by(LeaveRequest.created_at.desc()).all()
+    all_ingredients = Ingredient.query.all()
+    
     return render_template(
         'admin_dashboard.html',
         menus=menus,
@@ -452,7 +457,12 @@ def admin_dashboard():
         utilization_pct=round(utilization_pct, 1),
         active_recommendations=active_recommendations[:8],
         ai_reports=ai_reports,
-        negative_attendance=recent_votes
+        recent_votes=recent_votes,
+        negative_attendance=[v for v in recent_votes if v.choice == 'No'],
+        all_feedback=all_feedback,
+        all_complaints=all_complaints,
+        all_leaves=all_leaves,
+        all_ingredients=all_ingredients
     )
 
 @app.route('/admin/record_consumption', methods=['POST'])
@@ -556,12 +566,19 @@ def add_menu():
     date = request.form.get('date')
     meal_type = request.form.get('meal_type')
     items = request.form.get('items')
-    event_type = request.form.get('event_type')
+    event_type = request.form.get('event_type', 'Normal')
+    action = request.form.get('action', 'publish')
     
-    menu = MenuEntry(date=date, meal_type=meal_type, items=items, event_type=event_type)
+    is_published = (action == 'publish')
+    
+    menu = MenuEntry(date=date, meal_type=meal_type, items=items, event_type=event_type, published=is_published)
     db.session.add(menu)
     db.session.commit()
-    flash('Menu published successfully!')
+    
+    if is_published:
+        flash('Menu published successfully!')
+    else:
+        flash('Menu saved as draft!')
     return redirect(url_for('admin_dashboard'))
 
 @app.route('/api/predict_quantity', methods=['POST'])
@@ -675,7 +692,7 @@ def student_portal():
     tomorrow = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
     today = datetime.now().strftime('%Y-%m-%d')
     
-    upcoming_menus = MenuEntry.query.filter(MenuEntry.date.in_([today, tomorrow])).all()
+    upcoming_menus = MenuEntry.query.filter(MenuEntry.date.in_([today, tomorrow]), MenuEntry.published == True).all()
     
     my_votes = Vote.query.filter_by(student_id=current_user.student_id).all()
     voted_menu_ids = [v.menu_id for v in my_votes]
@@ -704,20 +721,22 @@ def menu_stats(menu_id):
 @app.route('/student/vote', methods=['POST'])
 @login_required
 def vote():
-    menu_id = request.form.get('menu_id')
-    choice = request.form.get('choice')
-    reason = request.form.get('reason', '')
+    data = request.json
+    menu_id = data.get('menu_id')
+    choice = data.get('choice')
+    reason = data.get('reason', '')
     
+    if not menu_id:
+        return jsonify({'error': 'Menu ID is required.'}), 400
+        
     existing_vote = Vote.query.filter_by(student_id=current_user.student_id, menu_id=menu_id).first()
     if existing_vote:
-        flash('You have already voted for this meal.')
+        return jsonify({'error': 'You have already voted for this meal.'}), 400
     else:
-        vote = Vote(student_id=current_user.student_id, menu_id=menu_id, choice=choice, reason=reason)
-        db.session.add(vote)
+        vote_record = Vote(student_id=current_user.student_id, menu_id=menu_id, choice=choice, reason=reason)
+        db.session.add(vote_record)
         db.session.commit()
-        flash('Vote submitted!')
-    
-    return redirect(url_for('student_portal'))
+        return jsonify({'success': True, 'message': 'Vote submitted!'})
 
 @app.route('/api/analytics')
 @login_required
