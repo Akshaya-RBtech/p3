@@ -227,6 +227,7 @@ class LeaveRequest(db.Model):
     leave_type = db.Column(db.String(50), nullable=True) 
     reason = db.Column(db.String(200), nullable=True)
     status = db.Column(db.String(20), default='Pending') 
+    admin_remarks = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
 # ── Inventory & Feedback ──

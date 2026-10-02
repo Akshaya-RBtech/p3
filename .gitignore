@@ -3,3 +3,34 @@
 __pycache__/
 *.pyc
 instance/
+*.db
+*.sqlite3
+
+# Scratch / test files
+test*.py
+patch*.py
+fix*.py
+local_test*.py
+*out*.txt
+routes.txt
+debug*.txt
+
+# Build Artifacts
+android-app/app/build/
+android-app/build/
+android-app/.gradle/
+*.apk
+*.aab
+
+# Sensitive Keystores
+*.jks
+*.keystore
+
+# Optional Scripts
+extract_jinja.py
+find_fetch.py
+find_route.py
+search_buttons.py
+check_tags.py
+dump_routes.py
+update_ui.py

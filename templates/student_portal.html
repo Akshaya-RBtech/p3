@@ -166,14 +166,26 @@
                                 <i class="fas fa-utensils text-[#10b981] opacity-70"></i>
                                 <div class="text-[13px] fw-600 text-[#064e3b]">{{ tm.meal_type }} - {{ tm.items[:30] }}...</div>
                             </div>
-                            <div class="flex gap-4">
-                                <button onclick="quickVote({{ tm.id }}, 'Yes')" class="flex-1 bg-[#10b981] text-white py-2.5 rounded-lg fw-700 text-[14px] hover:bg-[#059669] transition shadow-sm border border-[#059669]">
-                                    Coming
-                                </button>
-                                <button onclick="quickVote({{ tm.id }}, 'No')" class="flex-1 bg-white text-[#ef4444] py-2.5 rounded-lg fw-700 text-[14px] hover:bg-[#fef2f2] transition shadow-sm border border-[#fca5a5]">
-                                    Not Coming
-                                </button>
-                            </div>
+                            
+                            {% set tm_vote = vote_dict.get(tm.id) %}
+                            {% if tm_vote == 'Yes' %}
+                                <div class="w-full text-center py-2 bg-[#dcfce7] border border-[#bbf7d0] rounded-lg text-[#16a34a] fw-700 text-sm">
+                                    <i class="fas fa-check-circle mr-1"></i> You are Coming
+                                </div>
+                            {% elif tm_vote == 'No' %}
+                                <div class="w-full text-center py-2 bg-[#fef2f2] border border-[#fecaca] rounded-lg text-[#ef4444] fw-700 text-sm">
+                                    <i class="fas fa-times-circle mr-1"></i> Not Coming
+                                </div>
+                            {% else %}
+                                <div class="flex gap-4">
+                                    <button onclick="quickVote({{ tm.id }}, 'Yes')" class="flex-1 bg-[#10b981] text-white py-2.5 rounded-lg fw-700 text-[14px] hover:bg-[#059669] transition shadow-sm border border-[#059669]">
+                                        Coming
+                                    </button>
+                                    <button onclick="quickVote({{ tm.id }}, 'No')" class="flex-1 bg-white text-[#ef4444] py-2.5 rounded-lg fw-700 text-[14px] hover:bg-[#fef2f2] transition shadow-sm border border-[#fca5a5]">
+                                        Not Coming
+                                    </button>
+                                </div>
+                            {% endif %}
                         {% else %}
                             <div class="text-[13px] fw-600 text-[#064e3b] opacity-70">No menu published for tomorrow yet.</div>
                         {% endif %}
@@ -490,22 +502,14 @@
         </div>
 
         <!-- Notifications -->
-        <div id="content-notifications" class="tab-content" style="padding: 16px;">
-            <div class="max-w-[700px] w-full mx-auto pb-10">
-                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6 pt-2">
-                    <h2 class="text-[#1e293b] text-[24px] fw-800 m-0 text-center">Notifications</h2>
-                    <button onclick="readAllNotifs()" class="bg-[#10b981] hover:bg-[#059669] text-white px-5 py-2.5 rounded-[8px] text-[13px] fw-700 shadow-sm transition flex items-center justify-center min-w-[140px]">
-                        <i class="fas fa-check-double mr-2"></i> Mark All Read
-                    </button>
-                </div>
-                
-                <div class="bg-white shadow-md border border-[#e2e8f0] overflow-hidden rounded-[16px] w-full">
-                    <div id="full-notif-list" class="max-h-[65vh] overflow-y-auto">
-                        <div class="text-center p-12 text-muted">
-                            <i class="fas fa-spinner fa-spin text-3xl mb-4 block text-[#cbd5e1]"></i> 
-                            <span class="text-[14px] fw-500">Loading notifications...</span>
-                        </div>
-                    </div>
+        <div id="content-notifications" class="tab-content">
+            <div class="flex justify-between items-center mb-5">
+                <h2 style="font-size:24px;font-weight:800;">Notifications</h2>
+                <button onclick="readAllNotifs()" class="btn-primary px-3 py-1 text-xs"><i class="fas fa-check-double mr-2"></i> Mark All Read</button>
+            </div>
+            <div class="card bg-[var(--card-bg)]" style="max-height:500px;overflow-y:auto;">
+                <div id="full-notif-list">
+                    <div class="text-center p-8 text-muted"><i class="fas fa-spinner fa-spin text-2xl mb-3 block"></i> Loading notifications...</div>
                 </div>
             </div>
         </div>
@@ -576,98 +580,43 @@
         </div>
 
         <!-- Student Leave Requests -->
-        <div id="content-leave" class="tab-content relative items-start min-h-[100vh] flex flex-col items-center">
-            
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full max-w-[1000px]">
-                
-                <!-- NEW LEAVE REQUEST CARD (Matching Screen 08) -->
-                <div class="card bg-white p-0 shadow-lg border border-[var(--border)] overflow-hidden flex flex-col rounded-[16px] relative mx-auto w-full max-w-[420px]">
-                    <!-- Header -->
-                    <div class="flex items-center justify-between px-5 py-4 border-b border-[var(--border)]">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full overflow-hidden bg-gray-200">
-                                <img src="https://i.pravatar.cc/150?img=11" alt="Avatar" class="w-full h-full object-cover">
+        <div id="content-leave" class="tab-content">
+            <h2 style="font-size:24px;font-weight:800;margin-bottom:24px;">Student Leave Requests</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="card p-5">
+                    <h3 class="fw-700 mb-4"><i class="fas fa-calendar-minus text-warning mr-2"></i> Apply for Hostel Leave</h3>
+                    <p class="text-[11px] text-muted mb-4">Applying for leave will automatically skip your meals for the approved duration to save food waste.</p>
+                    <form onsubmit="submitStudentLeave(event)">
+                        <div class="flex gap-3 mb-4">
+                            <div class="flex-1">
+                                <label class="text-[11px] fw-600 text-muted uppercase mb-1 block">From Date</label>
+                                <input type="date" id="leave-start" class="form-input w-full" required>
                             </div>
-                            <span class="text-[14px] fw-700 text-[#1e293b]">New Leave Request</span>
+                            <div class="flex-1">
+                                <label class="text-[11px] fw-600 text-muted uppercase mb-1 block">To Date</label>
+                                <input type="date" id="leave-end" class="form-input w-full" required>
+                            </div>
                         </div>
-                        <button class="text-gray-400 hover:text-gray-600 transition">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-
-                    <!-- Form Body -->
-                    <div class="p-5 flex-1">
-                        <form onsubmit="submitStudentLeave(event)" class="flex flex-col gap-4">
-                            
-                            <!-- Leave Start Date -->
-                            <div>
-                                <label class="text-[12px] fw-600 text-[#475569] mb-1.5 block">Leave Start Date</label>
-                                <div class="relative">
-                                    <input type="text" id="leave-start" onfocus="(this.type='date')" onblur="if(!this.value)this.type='text'" class="form-input w-full text-[13px] py-2.5 px-3 border-[#e2e8f0] rounded-lg text-[#334155] pr-10" placeholder="2025-05-02" required>
-                                    <i class="far fa-calendar-alt absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
-                                </div>
-                            </div>
-                            
-                            <!-- Leave End Date -->
-                            <div>
-                                <label class="text-[12px] fw-600 text-[#475569] mb-1.5 block">Leave End Date</label>
-                                <div class="relative">
-                                    <input type="text" id="leave-end" onfocus="(this.type='date')" onblur="if(!this.value)this.type='text'" class="form-input w-full text-[13px] py-2.5 px-3 border-[#e2e8f0] rounded-lg text-[#334155] pr-10" placeholder="2025-05-05" required>
-                                    <i class="far fa-calendar-alt absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
-                                </div>
-                            </div>
-                            
-                            <!-- Leave Type -->
-                            <div>
-                                <label class="text-[12px] fw-600 text-[#475569] mb-1.5 block">Leave Type</label>
-                                <div class="relative">
-                                    <select id="leave-type" class="form-input w-full text-[13px] py-2.5 px-3 border-[#e2e8f0] rounded-lg text-[#334155] appearance-none" required>
-                                        <option value="Personal Leave">Personal Leave</option>
-                                        <option value="Medical Leave">Medical Leave</option>
-                                        <option value="Family Event">Family Event</option>
-                                        <option value="Other">Other</option>
-                                    </select>
-                                    <i class="fas fa-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-[10px] pointer-events-none"></i>
-                                </div>
-                            </div>
-                            
-                            <!-- Reason -->
-                            <div>
-                                <label class="text-[12px] fw-600 text-[#475569] mb-1.5 block">Reason</label>
-                                <textarea id="leave-reason" class="form-input w-full text-[13px] py-2.5 px-3 border-[#e2e8f0] rounded-lg text-[#334155] resize-none" rows="3" placeholder="Family function at home" required></textarea>
-                            </div>
-                            
-                            <!-- Optional Document -->
-                            <div>
-                                <label class="text-[12px] fw-600 text-[#475569] mb-1.5 block">Optional Document</label>
-                                <div class="flex items-center border border-[#e2e8f0] rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-green-100 bg-[#f8fafc]">
-                                    <label class="cursor-pointer bg-[#f1f5f9] hover:bg-[#e2e8f0] border-r border-[#e2e8f0] px-4 py-2 text-[12px] fw-600 text-[#475569] flex items-center gap-2 transition">
-                                        <i class="fas fa-paperclip text-muted"></i> Choose File
-                                        <input type="file" id="leave-doc" class="hidden" onchange="document.getElementById('file-chosen-text').textContent = this.files[0] ? this.files[0].name : 'No file chosen'">
-                                    </label>
-                                    <span id="file-chosen-text" class="text-[12px] text-gray-400 px-3 truncate flex-1">No file chosen</span>
-                                </div>
-                            </div>
-                            
-                            <!-- Submit Button -->
-                            <div class="mt-2 text-center">
-                                <button type="submit" class="w-full bg-[#10b981] hover:bg-[#059669] text-white py-3 rounded-lg text-[14px] fw-700 shadow-sm transition">Submit Request</button>
-                                <div id="leave-status" class="mt-3 text-center text-[12px] fw-600 hidden"></div>
-                            </div>
-                        </form>
-                    </div>
+                        <label class="text-[11px] fw-600 text-muted uppercase mb-1 block">Leave Type</label>
+                        <select id="leave-type" class="form-input mb-4 w-full" required>
+                            <option value="">Select leave type...</option>
+                            <option value="Home Visit">Home Visit / Weekend</option>
+                            <option value="Medical">Medical Leave</option>
+                            <option value="College Event">College Event / Tour</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <label class="text-[11px] fw-600 text-muted uppercase mb-1 block">Reason (Optional)</label>
+                        <input type="text" id="leave-reason" class="form-input mb-4 w-full" placeholder="Brief reason">
+                        <button type="submit" class="btn-primary w-full justify-center bg-warning border-warning"><i class="fas fa-paper-plane mr-2"></i> Submit Leave Request</button>
+                    </form>
+                    <div id="leave-status" class="mt-3 text-center text-xs fw-600 hidden"></div>
                 </div>
-
-                <!-- HISTORY CARD -->
-                <div class="card p-5 shadow-lg border border-[var(--border)] rounded-[16px] h-full flex flex-col min-h-[400px]">
-                    <div class="flex justify-between items-center mb-5 pb-3 border-b border-[var(--border)]">
-                        <h3 class="fw-700 text-[16px] text-primary"><i class="fas fa-history mr-2"></i> Leave History</h3>
-                    </div>
-                    <div id="stu-leave-list" class="flex-1 flex flex-col gap-3 overflow-y-auto pr-1">
+                <div class="card p-5 flex flex-col h-full">
+                    <h3 class="fw-700 mb-4"><i class="fas fa-history mr-2 text-warning"></i> Leave History</h3>
+                    <div id="stu-leave-list" class="flex-1 flex flex-col gap-2 overflow-y-auto max-h-[300px]">
                         <div class="text-center text-sm text-muted p-4"><i class="fas fa-spinner fa-spin mr-2"></i> Loading history...</div>
                     </div>
                 </div>
-
             </div>
         </div>
 
@@ -708,6 +657,86 @@
                     <button onclick="selectTheme('dark')" class="badge bg-input border hover:bg-[var(--border)] transition-colors text-left" style="cursor:pointer;padding:12px;font-size:14px;"><i class="fas fa-moon mr-3 text-primary"></i> Dark Mode</button>
                     <button onclick="selectTheme('dark-blue')" class="badge bg-input border hover:bg-[var(--border)] transition-colors text-left" style="cursor:pointer;padding:12px;font-size:14px;"><i class="fas fa-water mr-3 text-[var(--link-color)]"></i> Deep Blue Mode</button>
                     <button onclick="selectTheme('system')" class="badge bg-input border hover:bg-[var(--border)] transition-colors text-left" style="cursor:pointer;padding:12px;font-size:14px;"><i class="fas fa-desktop mr-3 text-muted"></i> System Default</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION: LEAVE REQUEST -->
+        <div id="content-leave" class="tab-content">
+            <h2 class="text-2xl fw-800 text-[var(--text-primary)] mb-6">Leave Requests</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Request Form (Matches Reference Screen 08) -->
+                <div>
+                    <div class="card p-0 overflow-hidden shadow" style="border-radius: 12px; background: white;">
+                        <div class="flex items-center justify-between p-4 border-b border-[#e2e8f0]">
+                            <div class="flex items-center gap-3">
+                                <img src="https://ui-avatars.com/api/?name={{ current_user.full_name or current_user.username }}&background=0D8ABC&color=fff" class="w-8 h-8 rounded-full" alt="Avatar">
+                                <h3 class="fw-700 text-[#1e293b]">New Leave Request</h3>
+                            </div>
+                            <button class="text-[#94a3b8] hover:text-[#475569]"><i class="fas fa-times"></i></button>
+                        </div>
+                        <div class="p-6">
+                            <form id="leave-form" onsubmit="submitLeave(event)">
+                                <div class="mb-5">
+                                    <label class="block text-[13px] fw-600 text-[#475569] mb-1.5">Leave Start Date</label>
+                                    <div class="relative">
+                                        <input type="date" id="leave-start" required class="w-full p-3 border border-[#cbd5e1] rounded hover:border-[#94a3b8] focus:border-[#3b82f6] outline-none text-[#334155] text-sm bg-transparent">
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-5">
+                                    <label class="block text-[13px] fw-600 text-[#475569] mb-1.5">Leave End Date</label>
+                                    <div class="relative">
+                                        <input type="date" id="leave-end" required class="w-full p-3 border border-[#cbd5e1] rounded hover:border-[#94a3b8] focus:border-[#3b82f6] outline-none text-[#334155] text-sm bg-transparent">
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-5">
+                                    <label class="block text-[13px] fw-600 text-[#475569] mb-1.5">Leave Type</label>
+                                    <div class="relative">
+                                        <select id="leave-type" required class="w-full p-3 border border-[#cbd5e1] rounded hover:border-[#94a3b8] focus:border-[#3b82f6] outline-none text-[#334155] text-sm bg-transparent appearance-none">
+                                            <option>Personal Leave</option>
+                                            <option>Sick Leave</option>
+                                            <option>Family Function</option>
+                                            <option>Other</option>
+                                        </select>
+                                        <i class="fas fa-chevron-down text-[#94a3b8] absolute right-4 top-[15px] text-xs pointer-events-none"></i>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-5">
+                                    <label class="block text-[13px] fw-600 text-[#475569] mb-1.5">Reason</label>
+                                    <textarea id="leave-reason" required rows="3" class="w-full p-3 border border-[#cbd5e1] rounded hover:border-[#94a3b8] focus:border-[#3b82f6] outline-none text-[#334155] text-sm resize-none" placeholder="Family function at home"></textarea>
+                                </div>
+                                
+                                <div class="mb-6">
+                                    <label class="block text-[13px] fw-600 text-[#475569] mb-1.5">Optional Document</label>
+                                    <div class="flex items-center gap-3 border border-[#cbd5e1] rounded p-1.5">
+                                        <div class="bg-[#f1f5f9] text-[#475569] text-xs fw-600 py-2 px-4 rounded border border-[#e2e8f0] cursor-pointer flex items-center gap-2 hover:bg-[#e2e8f0]">
+                                            <i class="fas fa-cloud-upload-alt"></i> Choose File
+                                        </div>
+                                        <span class="text-xs text-[#94a3b8]">No file chosen</span>
+                                    </div>
+                                </div>
+                                
+                                <div id="leave-error" class="hidden mb-4 p-3 bg-red-50 text-red-600 text-xs rounded border border-red-200"></div>
+                                <div id="leave-success" class="hidden mb-4 p-3 bg-green-50 text-green-600 text-xs rounded border border-green-200">Leave request submitted successfully.</div>
+                                
+                                <button type="submit" id="leave-submit-btn" class="w-full py-3.5 bg-[#409b62] hover:bg-[#348451] text-white rounded font-bold transition-colors shadow">
+                                    Submit Request
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- History Side -->
+                <div class="card p-6 shadow hidden" id="leave-history-container">
+                    <h3 class="fw-700 text-lg mb-6"><i class="fas fa-history text-muted mr-2"></i> Your Request History</h3>
+                    <div id="leave-history-list" class="space-y-4">
+                        <div class="text-sm text-muted text-center py-8">Loading history...</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1238,9 +1267,42 @@ async function loadStudentHistory() {
         const lRes = await fetch('/api/leave');
         const lData = await lRes.json();
         const lDiv = document.getElementById('stu-leave-list');
-        if(lDiv && lData.length===0) lDiv.innerHTML='<div class="text-muted text-[11px] p-3 text-center">No leave requests found.</div>';
-        else if(lDiv) lDiv.innerHTML = lData.map(l => `<div class="bg-[var(--input-bg)] border border-[var(--border)] p-3 rounded"><div class="flex justify-between items-center"><span class="fw-700 text-[11px] text-primary">${l.start_date} to ${l.end_date}</span><span class="badge ${l.status==='Approved'?'badge-success':l.status==='Rejected'?'badge-danger':'badge-warning'} text-[10px]">${l.status}</span></div><div class="text-[11px] mt-1 text-muted">Reason: ${l.reason||'None'}</div></div>`).join('');
-    } catch(e){}
+        const lDivNew = document.getElementById('leave-history-list');
+        
+        if (lData.length === 0) {
+            if(lDiv) lDiv.innerHTML='<div class="text-muted text-[11px] p-3 text-center">No leave requests found.</div>';
+            if(lDivNew) lDivNew.innerHTML='<div class="text-sm text-muted text-center py-8">No past leave requests found.</div>';
+        } else {
+            const getBadge = s => s==='Approved' ? 'badge-success' : (s==='Rejected' ? 'badge-danger' : 'badge-warning');
+            
+            if(lDiv) lDiv.innerHTML = lData.map(l => `<div class="bg-[var(--input-bg)] border border-[var(--border)] p-3 rounded"><div class="flex justify-between items-center"><span class="fw-700 text-[11px] text-primary">${l.start_date} to ${l.end_date}</span><span class="badge ${getBadge(l.status)} text-[10px]">${l.status}</span></div><div class="text-[11px] mt-1 text-muted">Reason: ${l.reason||'None'}</div></div>`).join('');
+            
+            if(lDivNew) {
+                document.getElementById('leave-history-container').classList.remove('hidden');
+                
+                lDivNew.innerHTML = lData.map(l => `
+                <div class="p-4 border border-[#e2e8f0] rounded bg-[#f8fafc]">
+                    <div class="flex justify-between items-center mb-3">
+                        <div>
+                            <span class="text-[13px] fw-700 text-[#0f172a] block">Request #${l.id} &bull; ${l.type}</span>
+                            <span class="text-[11px] text-[#64748b]">${l.start_date} to ${l.end_date}</span>
+                        </div>
+                        <span class="badge ${getBadge(l.status)} rounded shadow-sm text-[10px]">${l.status}</span>
+                    </div>
+                    <div class="text-[12px] text-[#334155] mb-2 p-2 bg-white rounded border border-[#e2e8f0]">
+                        <span class="fw-600">Reason:</span> ${l.reason}
+                    </div>
+                    ${l.admin_remarks ? `
+                        <div class="text-[12px] text-[#1e40af] p-2 bg-[#eff6ff] rounded border border-[#bfdbfe]">
+                            <i class="fas fa-reply mr-1"></i> <span class="fw-600">Admin Remark:</span> ${l.admin_remarks}
+                        </div>
+                    ` : ''}
+                    <div class="text-[10px] text-[#94a3b8] mt-2 text-right">Submitted: ${l.created_at}</div>
+                </div>
+                `).join('');
+            }
+        }
+    } catch(e) {}
 }
 
 // Initialize home tab on load
@@ -1270,30 +1332,51 @@ async function submitStudentComplaint(e) {
     setTimeout(()=>st.style.display='none', 5000);
 }
 
-async function submitStudentLeave(e) {
+async function submitLeave(e) {
     e.preventDefault();
-    const start = document.getElementById('leave-start').value, end = document.getElementById('leave-end').value;
-    const lr = document.getElementById('leave-reason').value, lt = document.getElementById('leave-type').value;
-    const st = document.getElementById('leave-status');
-    const btn = e.target.querySelector('button');
+    const start = document.getElementById('leave-start').value;
+    const end = document.getElementById('leave-end').value;
+    const lr = document.getElementById('leave-reason').value;
+    const lt = document.getElementById('leave-type').value;
+    const errBox = document.getElementById('leave-error');
+    const succBox = document.getElementById('leave-success');
+    const btn = document.getElementById('leave-submit-btn');
+    
+    errBox.classList.add('hidden');
+    succBox.classList.add('hidden');
     
     if(new Date(end) < new Date(start)){ 
-        st.style.display='block'; st.style.color='var(--danger)'; st.innerHTML='<i class="fas fa-times-circle mr-1"></i> End date cannot be before start date.'; 
+        errBox.classList.remove('hidden');
+        errBox.innerHTML = '<i class="fas fa-times-circle mr-1"></i> End date cannot be before start date.'; 
         return; 
     }
     
-    btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Submitting...';
+    btn.disabled = true; 
+    const origHtml = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Submitting...';
+    
     try {
-        const res = await fetch('/api/leave', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({start_date:start, end_date:end, reason:lr, type:lt}) });
+        const res = await fetch('/api/leave', { 
+            method:'POST', 
+            headers:{'Content-Type':'application/json'}, 
+            body:JSON.stringify({start_date:start, end_date:end, reason:lr, type:lt}) 
+        });
         if(res.ok) {
-            st.style.display='block'; st.style.color='var(--success)'; st.innerHTML='<i class="fas fa-check-circle mr-1"></i> Request submitted. Awaiting admin approval.'; 
+            succBox.classList.remove('hidden');
+            succBox.innerHTML = '<i class="fas fa-check-circle mr-1"></i> Leave request submitted successfully.'; 
             e.target.reset();
-        } else throw new Error();
+            loadStudentHistory(); // refresh the view dynamically
+            setTimeout(() => succBox.classList.add('hidden'), 5000);
+        } else {
+            errBox.classList.remove('hidden');
+            errBox.innerHTML = '<i class="fas fa-times-circle mr-1"></i> Submission failed.';
+        }
     } catch(err) { 
-        st.style.display='block'; st.style.color='var(--danger)'; st.innerHTML='<i class="fas fa-times-circle mr-1"></i> Failed to submit.';
+        errBox.classList.remove('hidden');
+        errBox.innerHTML = '<i class="fas fa-times-circle mr-1"></i> Network error.';
     }
-    btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> Submit Leave Request';
-    setTimeout(()=>st.style.display='none', 5000);
+    btn.disabled = false; 
+    btn.innerHTML = origHtml;
 }
 
 async function submitStudentFeedback(e) {

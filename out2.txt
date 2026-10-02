@@ -1,4 +1,0 @@
-[Firebase] Configured for project: gen-lang-client-0798508405
-Model trained and saved.
-Rendering Student Portal with NO student ID...
-Success, length = 65715
