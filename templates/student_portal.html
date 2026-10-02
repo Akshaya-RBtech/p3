@@ -316,111 +316,118 @@
                 </table>
             </div>
 
-            <!-- Skip Reason Modal -->
-            <div id="skip-modal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4">
-                <!-- Blurred dark green backdrop -->
-                <div class="absolute inset-0 bg-[#064e3b]/40 backdrop-blur-sm" onclick="closeSkipModal()"></div>
-                
-                <div class="bg-white rounded-2xl shadow-2xl w-full max-w-[420px] relative z-10 overflow-hidden border border-[#d1fae5]">
-                    <!-- Header -->
-                    <div class="bg-white px-6 py-5 flex items-start gap-4">
-                        <div class="w-11 h-11 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center bg-[#10b981] text-white shadow-sm ring-4 ring-[#d1fae5]">
-                            <i class="fas fa-leaf text-[20px]"></i>
-                        </div>
-                        <div class="flex-1 mt-0.5">
-                            <h3 class="text-[#1e293b] text-[15px] fw-800" id="skip-modal-title">Lunch - Apr 29, 2025</h3>
-                            <p class="text-[#64748b] text-[12px] mt-1" id="skip-modal-items">Rice - Sambar - Veg Curry (12:30 - 1:30 PM)</p>
-                        </div>
-                        <button onclick="closeSkipModal()" class="text-muted hover:text-[#0f172a] bg-transparent border-none text-[18px]"><i class="fas fa-times"></i></button>
-                    </div>
-
-                    <div class="px-6 pb-6 pt-2">
-                        <!-- Buttons -->
-                        <div class="flex gap-4 mb-6">
-                            <button onclick="quickVote(document.getElementById('skip-menu-id').value, 'Yes')" class="flex-1 bg-[#22c55e] border border-[#16a34a] text-white py-3 rounded-xl text-[14px] fw-700 shadow-sm hover:bg-[#16a34a] transition flex justify-center items-center gap-2">
-                                <i class="far fa-check-circle text-lg"></i> Coming
-                            </button>
-                            <button class="flex-1 bg-[#fee2e2] text-[#b91c1c] border border-[#fca5a5] py-3 rounded-xl text-[14px] fw-700 shadow-sm flex justify-center items-center gap-2 cursor-default">
-                                <i class="far fa-times-circle text-lg"></i> Not Coming
-                            </button>
-                        </div>
-
-                        <input type="hidden" id="skip-menu-id">
-                        
-                        <p class="text-[#334155] text-[13px] fw-600 mb-4 tracking-tight">If Not Coming, please select reason:</p>
-                        
-                        <!-- Radio Options -->
-                        <div class="flex flex-col gap-3.5 mb-5 ml-1">
-                            <label class="flex items-center gap-3 cursor-pointer group w-fit">
-                                <input type="radio" name="skip_reason" value="Don't like the menu" onchange="toggleOtherReason()" class="w-[18px] h-[18px] accent-[#0f766e] border-[#94a3b8] focus:ring-0">
-                                <span class="text-[#475569] text-[13px] group-hover:text-[#0f172a] transition fw-500">Don't like the menu</span>
-                            </label>
-                            <label class="flex items-center gap-3 cursor-pointer group w-fit">
-                                <input type="radio" name="skip_reason" value="Going outside" onchange="toggleOtherReason()" class="w-[18px] h-[18px] accent-[#0f766e] border-[#94a3b8] focus:ring-0">
-                                <span class="text-[#475569] text-[13px] group-hover:text-[#0f172a] transition fw-500">Going outside</span>
-                            </label>
-                            <label class="flex items-center gap-3 cursor-pointer group w-fit">
-                                <input type="radio" name="skip_reason" value="Sick" onchange="toggleOtherReason()" class="w-[18px] h-[18px] accent-[#0f766e] border-[#94a3b8] focus:ring-0">
-                                <span class="text-[#475569] text-[13px] group-hover:text-[#0f172a] transition fw-500">Sick</span>
-                            </label>
-                            <label class="flex items-center gap-3 cursor-pointer group w-fit">
-                                <input type="radio" name="skip_reason" value="Other" onchange="toggleOtherReason()" class="w-[18px] h-[18px] accent-[#0f766e] border-[#94a3b8] focus:ring-0">
-                                <span class="text-[#475569] text-[13px] group-hover:text-[#0f172a] transition fw-500">Other</span>
-                            </label>
-                        </div>
-                        
-                        <input type="text" id="skip-reason-other" class="form-input w-full border-[#cbd5e1] rounded-xl text-[13px] px-4 py-3 mb-6 hidden focus:ring-1 focus:ring-[#0f766e]" placeholder="Enter reason (if other)">
-                        
-                        <!-- Actions -->
-                        <div class="flex gap-4">
-                            <button onclick="submitSkipVote()" id="skip-submit-btn" class="flex-1 bg-[#10b981] text-white py-3 rounded-xl text-[14px] fw-700 shadow-sm hover:bg-[#059669] transition shadow-[0_4px_12px_rgba(16,185,129,0.25)]">Submit</button>
-                            <button onclick="closeSkipModal()" class="flex-1 bg-[#f8fafc] text-[#475569] border border-[#e2e8f0] py-3 rounded-xl text-[14px] fw-700 shadow-sm hover:bg-[#f1f5f9] transition">Cancel</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!-- Skip Reason Modal Removed for Dedicated View Below -->
             
             {% else %}
-            <div class="card p-10 text-center border border-[var(--border)]">
+            <div class="card p-10 text-center border border-[var(--border)] mt-4">
                 <i class="far fa-calendar-times text-4xl text-[var(--border)] mb-4 block"></i>
                 <h3 class="fw-700 text-lg">No Menus Scheduled</h3>
                 <p class="text-muted text-sm max-w-md mx-auto">There are currently no active menus to display in the calendar table.</p>
             </div>
             {% endif %}
         </div>
-        </div>
         
-        <!-- Attendance -->
-        <div id="content-attendance" class="tab-content">
-            <h2 class="section-title mb-6"><i class="fas fa-clipboard-check text-success mr-2"></i> Attendance Tracker</h2>
-            <div class="card p-6">
-                <p class="text-muted text-sm mb-4">View your historical meal attendance and voting history.</p>
-                <div class="overflow-x-auto">
-                    <table class="data-table w-full">
-                        <thead><tr>
-                            <th class="p-3 bg-[var(--input-bg)]">Date</th>
-                            <th class="p-3 bg-[var(--input-bg)]">Meal Info</th>
-                            <th class="p-3 bg-[var(--input-bg)]">Status / Reason</th>
-                        </tr></thead>
-                        <tbody>
-                            {% for m in menus %}
-                                {% set vote = m.votes|selectattr("student_id", "equalto", current_user.student_id)|first if m.votes else None %}
-                                {% if vote %}
-                                <tr class="border-b border-[var(--border)]">
-                                    <td class="p-3">{{ m.date }}</td>
-                                    <td class="p-3"><span class="badge badge-primary">{{ m.meal_type }}</span> <span class="text-xs text-muted ml-2">{{ m.items[:30] }}...</span></td>
-                                    <td class="p-3">
-                                        {% if vote.choice == 'Yes' %}
-                                            <span class="text-success fw-700 text-[11px]"><i class="fas fa-check-circle"></i> Coming</span>
-                                        {% else %}
-                                            <span class="text-danger fw-700 text-[11px]"><i class="fas fa-times-circle"></i> Not Coming ({{ vote.reason|default('Other') }})</span>
+        <!-- API Closing -->
+        </div>
+
+        <!-- Attendance Voting Tab -->
+        <div id="content-attendance" class="tab-content relative items-start min-h-[100vh] bg-[#f0fdf4]">
+            <!-- Leafy Background Overlay -->
+            <div class="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-multiply pointer-events-none" style="background-image: url('https://www.transparenttextures.com/patterns/leaves.png');"></div>
+            
+            <div class="relative z-10 p-4 sm:p-6 flex flex-col items-center">
+                <h2 class="text-[#064e3b] text-[22px] fw-800 mb-6 drop-shadow-sm w-full max-w-[500px]">6. Attendance Voting & Skip Reason</h2>
+                
+                <div class="w-full max-w-[500px] flex flex-col gap-6">
+                    {% for m in menus %}
+                        {% set choice = vote_dict.get(m.id) %}
+                        {% if not choice %}  <!-- ONLY SHOW UPCOMING UNVOTED MEALS -->
+                        <div class="bg-white rounded-[24px] shadow-xl border border-[#d1fae5] overflow-hidden transition-all">
+                            <!-- Card Header -->
+                            <div class="bg-white px-6 py-5 flex items-start gap-4">
+                                <div class="w-11 h-11 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center bg-[#10b981] text-white shadow-sm ring-4 ring-[#d1fae5]">
+                                    <i class="fas fa-leaf text-[20px]"></i>
+                                </div>
+                                <div class="flex-1 mt-0.5">
+                                    <h3 class="text-[#1e293b] text-[16px] fw-800">{{ m.meal_type }} - {{ m.date }}</h3>
+                                    <p class="text-[#64748b] text-[13px] mt-1">{{ m.items }}</p>
+                                </div>
+                            </div>
+
+                            <div class="px-6 pb-6 pt-2">
+                                <!-- Coming / Not Coming Action Buttons -->
+                                <div class="flex gap-4 mb-2 transition-all duration-300" id="btn-group-{{ m.id }}">
+                                    <button onclick="quickVote({{ m.id }}, 'Yes')" class="flex-1 bg-[#22c55e] border border-[#16a34a] text-white py-3.5 rounded-xl text-[15px] fw-700 shadow-sm hover:bg-[#16a34a] transition flex justify-center items-center gap-2">
+                                        <i class="far fa-check-circle text-[20px]"></i> Coming
+                                    </button>
+                                    <button onclick="openCardSkip({{ m.id }})" class="flex-1 bg-[#fef2f2] text-[#ef4444] border border-[#fca5a5] py-3.5 rounded-xl text-[15px] fw-700 shadow-sm hover:bg-[#fee2e2] transition flex justify-center items-center gap-2">
+                                        <i class="far fa-times-circle text-[20px]"></i> Not Coming
+                                    </button>
+                                </div>
+
+                                <!-- Skip Reason Form (Hidden Initially) -->
+                                <div id="skip-form-{{ m.id }}" class="hidden transition-all duration-300 mt-2">
+                                    <p class="text-[#1e293b] text-[14px] fw-700 mb-4 tracking-tight">If Not Coming, please select reason:</p>
+                                    
+                                    <div class="flex flex-col gap-4 mb-6 ml-1">
+                                        <label class="flex items-center gap-3.5 cursor-pointer group w-fit">
+                                            <input type="radio" name="skip_reason_{{ m.id }}" value="Don't like the menu" onchange="toggleCardOther({{ m.id }})" class="w-[20px] h-[20px] accent-[#2563eb] border-[#94a3b8] focus:ring-0">
+                                            <span class="text-[#475569] text-[14px] group-hover:text-[#0f172a] transition fw-500">Don't like the menu</span>
+                                        </label>
+                                        <label class="flex items-center gap-3.5 cursor-pointer group w-fit">
+                                            <input type="radio" name="skip_reason_{{ m.id }}" value="Going outside" onchange="toggleCardOther({{ m.id }})" class="w-[20px] h-[20px] accent-[#2563eb] border-[#94a3b8] focus:ring-0">
+                                            <span class="text-[#475569] text-[14px] group-hover:text-[#0f172a] transition fw-500">Going outside</span>
+                                        </label>
+                                        <label class="flex items-center gap-3.5 cursor-pointer group w-fit">
+                                            <input type="radio" name="skip_reason_{{ m.id }}" value="Sick" onchange="toggleCardOther({{ m.id }})" class="w-[20px] h-[20px] accent-[#2563eb] border-[#94a3b8] focus:ring-0">
+                                            <span class="text-[#475569] text-[14px] group-hover:text-[#0f172a] transition fw-500">Sick</span>
+                                        </label>
+                                        <label class="flex items-center gap-3.5 cursor-pointer group w-fit">
+                                            <input type="radio" name="skip_reason_{{ m.id }}" value="Other" onchange="toggleCardOther({{ m.id }})" class="w-[20px] h-[20px] accent-[#2563eb] border-[#94a3b8] focus:ring-0">
+                                            <span class="text-[#475569] text-[14px] group-hover:text-[#0f172a] transition fw-500">Other</span>
+                                        </label>
+                                    </div>
+                                    
+                                    <input type="text" id="skip-other-{{ m.id }}" class="form-input w-full border-[#e2e8f0] bg-[#f8fafc] rounded-xl text-[14px] px-4 py-3.5 mb-6 hidden focus:ring-2 focus:ring-[#3b82f6] focus:bg-white transition-colors" placeholder="Enter reason (if other)">
+                                    
+                                    <div class="flex gap-4">
+                                        <button onclick="submitCardSkip({{ m.id }}, this)" class="flex-1 bg-[#10b981] text-white py-3.5 rounded-xl text-[15px] fw-700 shadow-md hover:bg-[#059669] transition shadow-[0_4px_12px_rgba(16,185,129,0.25)]">Submit</button>
+                                        <button onclick="closeCardSkip({{ m.id }})" class="flex-1 bg-white text-[#64748b] border border-[#cbd5e1] py-3.5 rounded-xl text-[15px] fw-700 shadow-sm hover:bg-[#f1f5f9] transition">Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    <!-- Include Historical Table -->
+                    <div class="bg-white rounded-[24px] shadow-sm border border-[#e2e8f0] overflow-hidden mt-4">
+                        <div class="p-5 bg-gray-50 border-b border-[#e2e8f0]"><h3 class="fw-800 text-[15px] text-[#1e293b]"><i class="fas fa-history mr-2 text-muted"></i> Past Attendance Records</h3></div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <tbody>
+                                    {% for m in menus %}
+                                        {% set choice = vote_dict.get(m.id) %}
+                                        {% if choice %}
+                                        <tr class="border-b border-[#f1f5f9] hover:bg-gray-50 transition">
+                                            <td class="p-4"><span class="badge badge-primary text-[11px] bg-blue-50 text-blue-700 border-blue-200">{{ m.meal_type }}</span> <div class="text-[12px] text-muted mt-1 fw-500">{{ m.date }}</div></td>
+                                            <td class="p-4">
+                                                {% if choice == 'Yes' %}
+                                                    <span class="inline-flex bg-[#dcfce7] text-[#16a34a] px-3 py-1.5 rounded-full text-[11px] fw-800 items-center gap-1.5 shadow-sm border border-[#bbf7d0]"><i class="fas fa-check-circle text-[13px]"></i> Coming</span>
+                                                {% else %}
+                                                    <span class="inline-flex bg-[#fef2f2] text-[#ef4444] px-3 py-1.5 rounded-full text-[11px] fw-800 items-center gap-1.5 shadow-sm border border-[#fecaca]"><i class="fas fa-times-circle text-[13px]"></i> Not Coming</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
                                         {% endif %}
-                                    </td>
-                                </tr>
-                                {% endif %}
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                                    {% endfor %}
+                                    {% if not vote_dict %}
+                                        <tr><td colspan="2" class="p-6 text-center text-muted text-sm italic">No past attendance records found.</td></tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -912,13 +919,16 @@ async function submitSkipVote() {
 
 // Attendance Voting Tab Card JS
 function openCardSkip(menuId) {
-    document.getElementById('btn-group-' + menuId).classList.add('hidden');
+    // Reveal skip reason form
     document.getElementById('skip-form-' + menuId).classList.remove('hidden');
+    // Visually highlight that Not Coming was selected (dim the coming button)
+    document.getElementById('btn-coming-' + menuId).classList.add('opacity-40');
 }
 
 function closeCardSkip(menuId) {
     document.getElementById('skip-form-' + menuId).classList.add('hidden');
-    document.getElementById('btn-group-' + menuId).classList.remove('hidden');
+    // Restore button opacities
+    document.getElementById('btn-coming-' + menuId).classList.remove('opacity-40');
 }
 
 function toggleCardOther(menuId) {
