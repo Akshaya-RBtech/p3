@@ -610,6 +610,132 @@ def get_waste_analytics():
         'wastage': wastage
     })
 
+@app.route('/api/ai_insights')
+@login_required
+def ai_insights():
+    if current_user.role != 'admin':
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    from collections import defaultdict
+    import json as json_mod
+
+    # --- 1. Dish popularity: count Yes votes per dish ---
+    yes_votes = Vote.query.filter_by(choice='Yes').all()
+    no_votes_all = Vote.query.filter_by(choice='No').all()
+    dish_yes = defaultdict(int)
+    dish_no = defaultdict(int)
+    for v in yes_votes:
+        if v.menu and v.menu.items:
+            for dish in v.menu.items.split(','):
+                dish = dish.strip()
+                if dish:
+                    dish_yes[dish] += 1
+    for v in no_votes_all:
+        if v.menu and v.menu.items:
+            for dish in v.menu.items.split(','):
+                dish = dish.strip()
+                if dish:
+                    dish_no[dish] += 1
+
+    # Sort by yes votes desc
+    sorted_popular = sorted(dish_yes.items(), key=lambda x: x[1], reverse=True)
+    popular_dishes = [{'dish': d, 'yes': c, 'no': dish_no.get(d, 0)} for d, c in sorted_popular[:10]]
+
+    # Lower acceptance: dishes with most no votes
+    all_dishes = set(list(dish_yes.keys()) + list(dish_no.keys()))
+    acceptance = []
+    for dish in all_dishes:
+        y = dish_yes.get(dish, 0)
+        n = dish_no.get(dish, 0)
+        total = y + n
+        rate = (y / total * 100) if total > 0 else 0
+        acceptance.append({'dish': dish, 'yes': y, 'no': n, 'rate': round(rate, 1), 'total': total})
+    low_acceptance = sorted([a for a in acceptance if a['total'] > 0], key=lambda x: x['rate'])[:10]
+
+    # --- 2. Menu acceptance trend (by date) ---
+    menus_all = MenuEntry.query.order_by(MenuEntry.date.asc()).all()
+    trend_dates = []
+    trend_yes = []
+    trend_no = []
+    seen_dates = set()
+    date_yes_map = defaultdict(int)
+    date_no_map = defaultdict(int)
+    for v in yes_votes:
+        if v.menu:
+            date_yes_map[str(v.menu.date)] += 1
+    for v in no_votes_all:
+        if v.menu:
+            date_no_map[str(v.menu.date)] += 1
+    all_vote_dates = sorted(set(list(date_yes_map.keys()) + list(date_no_map.keys())))
+    for d in all_vote_dates:
+        trend_dates.append(d)
+        trend_yes.append(date_yes_map[d])
+        trend_no.append(date_no_map[d])
+
+    # --- 3. Waste by meal type ---
+    waste_by_meal = defaultdict(float)
+    logs = FoodConsumption.query.join(MenuEntry).all()
+    for log in logs:
+        meal = log.menu.meal_type if log.menu else 'Unknown'
+        waste_by_meal[meal] += log.wastage_qty
+    waste_meals = [{'meal': k, 'waste': round(v, 2)} for k, v in waste_by_meal.items()]
+
+    # --- 4. Attendance (vote) trends by week ---
+    from datetime import datetime, timedelta
+    week_yes = defaultdict(int)
+    week_no = defaultdict(int)
+    for v in yes_votes:
+        if v.menu and v.menu.date:
+            try:
+                d = datetime.strptime(str(v.menu.date), '%Y-%m-%d')
+                week_label = f"W{d.isocalendar()[1]} {d.year}"
+                week_yes[week_label] += 1
+            except:
+                pass
+    for v in no_votes_all:
+        if v.menu and v.menu.date:
+            try:
+                d = datetime.strptime(str(v.menu.date), '%Y-%m-%d')
+                week_label = f"W{d.isocalendar()[1]} {d.year}"
+                week_no[week_label] += 1
+            except:
+                pass
+    all_weeks = sorted(set(list(week_yes.keys()) + list(week_no.keys())))
+    att_trend = [{'week': w, 'yes': week_yes[w], 'no': week_no[w]} for w in all_weeks]
+
+    # --- 5. Repeated dishes (appearing more than once in menu history) ---
+    dish_dates = defaultdict(list)
+    for m in menus_all:
+        if m.items:
+            for dish in m.items.split(','):
+                dish = dish.strip()
+                if dish:
+                    dish_dates[dish].append(str(m.date))
+    repeated = [{'dish': d, 'count': len(dates), 'dates': dates[:5]}
+                for d, dates in dish_dates.items() if len(dates) > 1]
+    repeated = sorted(repeated, key=lambda x: x['count'], reverse=True)[:10]
+
+    # --- 6. Feedback trends ---
+    all_fb = Feedback.query.order_by(Feedback.timestamp.asc()).all()
+    fb_by_date = defaultdict(int)
+    for fb in all_fb:
+        fb_by_date[str(fb.timestamp.date())] += 1
+    fb_dates = sorted(fb_by_date.keys())
+    fb_counts = [fb_by_date[d] for d in fb_dates]
+
+    return jsonify({
+        'popular_dishes': popular_dishes,
+        'low_acceptance': low_acceptance,
+        'trend_dates': trend_dates,
+        'trend_yes': trend_yes,
+        'trend_no': trend_no,
+        'waste_by_meal': waste_meals,
+        'att_trend': att_trend,
+        'repeated_dishes': repeated,
+        'fb_dates': fb_dates,
+        'fb_counts': fb_counts
+    })
+
 @app.route('/admin/add_menu', methods=['POST'])
 @login_required
 def add_menu():

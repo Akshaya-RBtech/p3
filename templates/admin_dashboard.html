@@ -75,6 +75,7 @@
         <button id="tab-attendance" class="sidebar-btn" onclick="switchTab('attendance', this)"><i class="fas fa-clipboard-check mr-2"></i> Attendance Mgmt</button>
         <button id="tab-predict" class="sidebar-btn" onclick="switchTab('predict', this)"><i class="fas fa-brain mr-2"></i> AI Prediction</button>
         <button id="tab-dish" class="sidebar-btn" onclick="switchTab('dish', this)"><i class="fas fa-chart-bar mr-2"></i> Dish Analytics</button>
+        <button id="tab-ai_insights" class="sidebar-btn" onclick="switchTab('ai_insights', this)"><i class="fas fa-lightbulb mr-2"></i> AI Insights</button>
         <button id="tab-waste" class="sidebar-btn" onclick="switchTab('waste', this)"><i class="fas fa-trash-alt mr-2"></i> Food Waste Tracking</button>
         <button id="tab-leave" class="sidebar-btn" onclick="switchTab('leave', this)"><i class="fas fa-calendar-minus mr-2"></i> Leave Requests</button>
         <button id="tab-comm" class="sidebar-btn" onclick="switchTab('comm', this)"><i class="fas fa-bullhorn mr-2"></i> Communication</button>
@@ -813,6 +814,112 @@
             </div>
         </div>
 
+        <!-- SECTION: AI INSIGHTS (Screen 15) -->
+        <div id="content-ai_insights" class="tab-content w-full">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow">
+                        <i class="fas fa-user-circle text-lg"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-extrabold text-[#1e293b] text-[20px] leading-tight">AI Menu Insights</h2>
+                        <p class="text-[12px] text-[#94a3b8]">Powered by real WasteZero database records</p>
+                    </div>
+                </div>
+                <div class="flex gap-2 items-center flex-wrap">
+                    <select id="ins_filter_meal" onchange="loadInsights()" class="form-input text-[12px] py-1.5 px-3 border border-[#cbd5e1] rounded-lg bg-white">
+                        <option value="">All Meals</option>
+                        <option value="Breakfast">Breakfast</option>
+                        <option value="Lunch">Lunch</option>
+                        <option value="Snacks">Snacks</option>
+                        <option value="Dinner">Dinner</option>
+                    </select>
+                    <button onclick="loadInsights()" class="bg-[#0f4e4a] hover:bg-[#0d3d3a] text-white font-bold px-4 py-2 rounded-lg text-[12px] flex items-center gap-2 transition-colors">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                    <button onclick="generateAiInsightSummary()" class="bg-[#22c55e] hover:bg-[#16a34a] text-white font-bold px-4 py-2 rounded-lg text-[12px] flex items-center gap-2 transition-colors">
+                        <i class="fas fa-robot"></i> AI Summary
+                    </button>
+                </div>
+            </div>
+
+            <!-- AI Summary Box (hidden initially) -->
+            <div id="ai_insight_summary_box" class="hidden mb-5 bg-gradient-to-br from-[#f0fdf4] to-[#ecfdf5] border border-[#bbf7d0] rounded-2xl p-5 shadow-sm">
+                <div class="flex items-center gap-2 mb-2">
+                    <i class="fas fa-robot text-[#22c55e]"></i>
+                    <span class="font-bold text-[#0f4e4a] text-[14px]">Gemini AI Analysis</span>
+                    <span id="ai_insight_loading" class="text-[#94a3b8] text-[12px] hidden"><i class="fas fa-spinner fa-spin"></i> Thinking...</span>
+                </div>
+                <div id="ai_insight_text" class="text-[#374151] text-[13.5px] leading-relaxed whitespace-pre-wrap"></div>
+            </div>
+
+            <!-- Top 2 lists: Popular + Low Acceptance -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                <!-- Most Popular Dishes -->
+                <div class="bg-white rounded-2xl border border-[#e2e8f0] shadow-sm p-5">
+                    <h3 class="font-bold text-[#1e293b] text-[15px] mb-4 flex items-center gap-2"><i class="fas fa-star text-yellow-400"></i> Most Popular Dishes</h3>
+                    <div id="popular_list" class="space-y-2">
+                        <div class="text-[#94a3b8] text-[13px] italic">Loading...</div>
+                    </div>
+                </div>
+                <!-- Lower Acceptance Dishes -->
+                <div class="bg-white rounded-2xl border border-[#e2e8f0] shadow-sm p-5">
+                    <h3 class="font-bold text-[#1e293b] text-[15px] mb-4 flex items-center gap-2"><i class="fas fa-thumbs-down text-red-400"></i> Lower-Acceptance Dishes</h3>
+                    <div id="low_acceptance_list" class="space-y-2">
+                        <div class="text-[#94a3b8] text-[13px] italic">Loading...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row 1: Acceptance Trend + Waste by Meal -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                <div class="bg-white rounded-2xl border border-[#e2e8f0] shadow-sm p-5">
+                    <h3 class="font-bold text-[#1e293b] text-[14px] mb-4 flex items-center gap-2"><i class="fas fa-chart-line text-blue-400"></i> Menu Acceptance Trend</h3>
+                    <div id="acceptance_chart_wrap" class="h-[200px] flex items-center justify-center">
+                        <canvas id="acceptanceTrendChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl border border-[#e2e8f0] shadow-sm p-5">
+                    <h3 class="font-bold text-[#1e293b] text-[14px] mb-4 flex items-center gap-2"><i class="fas fa-trash text-red-400"></i> Food Waste by Meal</h3>
+                    <div id="waste_chart_wrap" class="h-[200px] flex items-center justify-center">
+                        <canvas id="wasteByMealChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row 2: Attendance Trend + Feedback Trend -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                <div class="bg-white rounded-2xl border border-[#e2e8f0] shadow-sm p-5">
+                    <h3 class="font-bold text-[#1e293b] text-[14px] mb-4 flex items-center gap-2"><i class="fas fa-users text-green-400"></i> Attendance Trends (by Week)</h3>
+                    <div class="h-[200px]">
+                        <canvas id="attendanceTrendChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl border border-[#e2e8f0] shadow-sm p-5">
+                    <h3 class="font-bold text-[#1e293b] text-[14px] mb-4 flex items-center gap-2"><i class="fas fa-comment-dots text-purple-400"></i> Feedback Trends</h3>
+                    <div class="h-[200px]">
+                        <canvas id="feedbackTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Repeated Dishes -->
+            <div class="bg-white rounded-2xl border border-[#e2e8f0] shadow-sm p-5 mb-5">
+                <h3 class="font-bold text-[#1e293b] text-[15px] mb-4 flex items-center gap-2"><i class="fas fa-redo text-orange-400"></i> Repeated Dishes</h3>
+                <div id="repeated_list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                    <div class="text-[#94a3b8] text-[13px] italic">Loading...</div>
+                </div>
+            </div>
+
+            <!-- View Detailed Analytics button -->
+            <div class="flex justify-center mb-8">
+                <button onclick="switchTab('waste', document.getElementById('tab-waste'))" class="bg-[#22c55e] hover:bg-[#16a34a] text-white font-bold px-10 py-3 rounded-full text-[15px] shadow-lg flex items-center gap-3 transition-all hover:shadow-xl">
+                    <i class="fas fa-chart-bar"></i> View Detailed Analytics
+                </button>
+            </div>
+        </div>
+
         <!-- SECTION 12: ADMIN SETTINGS -->
         <div id="content-settings" class="tab-content">
             <h2 class="section-title mb-6">Admin Settings</h2>
@@ -1070,5 +1177,185 @@
 
     function changeTheme(t){ localStorage.setItem('wastezero-theme',t); document.documentElement.setAttribute('data-theme',t);}
     document.documentElement.setAttribute('data-theme', localStorage.getItem('wastezero-theme') || 'light');
+
+    // ===== AI INSIGHTS SECTION =====
+    let insightCharts = {};
+
+    function destroyChart(id) {
+        if (insightCharts[id]) { insightCharts[id].destroy(); delete insightCharts[id]; }
+    }
+
+    async function loadInsights() {
+        try {
+            const res = await fetch('/api/ai_insights');
+            if (!res.ok) { showInsightsError(); return; }
+            const d = await res.json();
+            renderPopularList(d.popular_dishes);
+            renderLowAcceptanceList(d.low_acceptance);
+            renderAcceptanceTrendChart(d.trend_dates, d.trend_yes, d.trend_no);
+            renderWasteByMealChart(d.waste_by_meal);
+            renderAttendanceTrendChart(d.att_trend);
+            renderFeedbackTrendChart(d.fb_dates, d.fb_counts);
+            renderRepeatedDishes(d.repeated_dishes);
+        } catch(e) { showInsightsError(); }
+    }
+
+    function showInsightsError() {
+        ['popular_list','low_acceptance_list','repeated_list'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.innerHTML = '<div class="text-[#94a3b8] text-[13px] italic">No data available.</div>';
+        });
+    }
+
+    function renderPopularList(dishes) {
+        const el = document.getElementById('popular_list');
+        if (!el) return;
+        if (!dishes || dishes.length === 0) { el.innerHTML = '<div class="text-[#94a3b8] text-[13px] italic">No data available.</div>'; return; }
+        el.innerHTML = dishes.slice(0,5).map((d, i) => `
+            <div class="flex items-center justify-between py-2 border-b border-[#f1f5f9] last:border-0">
+                <div class="flex items-center gap-3">
+                    <span class="w-6 h-6 rounded-full bg-[#22c55e] text-white text-[11px] font-extrabold flex items-center justify-center">${i+1}</span>
+                    <span class="font-semibold text-[#1e293b] text-[13.5px]">${d.dish}</span>
+                </div>
+                <span class="text-[#22c55e] font-bold text-[13px]">${d.yes} <span class="text-[#94a3b8] font-normal">yes</span></span>
+            </div>`).join('');
+    }
+
+    function renderLowAcceptanceList(dishes) {
+        const el = document.getElementById('low_acceptance_list');
+        if (!el) return;
+        if (!dishes || dishes.length === 0) { el.innerHTML = '<div class="text-[#94a3b8] text-[13px] italic">No data available.</div>'; return; }
+        el.innerHTML = dishes.slice(0,5).map((d, i) => `
+            <div class="flex items-center justify-between py-2 border-b border-[#f1f5f9] last:border-0">
+                <div class="flex items-center gap-3">
+                    <span class="w-6 h-6 rounded-full bg-red-100 text-red-500 text-[11px] font-extrabold flex items-center justify-center">${i+1}</span>
+                    <span class="font-semibold text-[#1e293b] text-[13.5px]">${d.dish}</span>
+                </div>
+                <span class="text-red-500 font-bold text-[13px]">${d.rate}% <span class="text-[#94a3b8] font-normal">acc.</span></span>
+            </div>`).join('');
+    }
+
+    function renderAcceptanceTrendChart(dates, yesData, noData) {
+        destroyChart('acceptanceTrendChart');
+        const wrap = document.getElementById('acceptance_chart_wrap');
+        if (!dates || dates.length === 0) { if(wrap) wrap.innerHTML = '<div class="text-[#94a3b8] text-[13px] italic">No data available.</div>'; return; }
+        if(wrap) wrap.innerHTML = '<canvas id="acceptanceTrendChart"></canvas>';
+        const ctx = document.getElementById('acceptanceTrendChart');
+        if (!ctx) return;
+        insightCharts['acceptanceTrendChart'] = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: dates,
+                datasets: [
+                    { label: 'Coming (Yes)', data: yesData, backgroundColor: 'rgba(34,197,94,0.7)', borderRadius: 4 },
+                    { label: 'Not Coming (No)', data: noData, backgroundColor: 'rgba(239,68,68,0.7)', borderRadius: 4 }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } }, scales: { x: { ticks: { font: { size: 10 }, maxRotation: 45 } } } }
+        });
+    }
+
+    function renderWasteByMealChart(wasteMeals) {
+        destroyChart('wasteByMealChart');
+        const wrap = document.getElementById('waste_chart_wrap');
+        if (!wasteMeals || wasteMeals.length === 0) { if(wrap) wrap.innerHTML = '<div class="text-[#94a3b8] text-[13px] italic">No data available.</div>'; return; }
+        if(wrap) wrap.innerHTML = '<canvas id="wasteByMealChart"></canvas>';
+        const ctx = document.getElementById('wasteByMealChart');
+        if (!ctx) return;
+        const colors = ['#3b82f6','#22c55e','#f59e0b','#ef4444'];
+        insightCharts['wasteByMealChart'] = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: wasteMeals.map(w => w.meal),
+                datasets: [{ data: wasteMeals.map(w => w.waste), backgroundColor: colors, borderWidth: 2 }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { font: { size: 11 }, generateLabels: (chart) => Chart.defaults.plugins.legend.labels.generateLabels(chart).map((l, i) => ({ ...l, text: `${wasteMeals[i]?.meal} ${wasteMeals[i]?.waste}kg` })) } } } }
+        });
+    }
+
+    function renderAttendanceTrendChart(attTrend) {
+        destroyChart('attendanceTrendChart');
+        const ctx = document.getElementById('attendanceTrendChart');
+        if (!ctx) return;
+        if (!attTrend || attTrend.length === 0) { ctx.parentElement.innerHTML = '<div class="h-full flex items-center justify-center text-[#94a3b8] text-[13px] italic">No data available.</div>'; return; }
+        insightCharts['attendanceTrendChart'] = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: attTrend.map(a => a.week),
+                datasets: [
+                    { label: 'Yes', data: attTrend.map(a => a.yes), borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.1)', tension: 0.4, fill: true },
+                    { label: 'No', data: attTrend.map(a => a.no), borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)', tension: 0.4, fill: true }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } }, scales: { x: { ticks: { font: { size: 10 } } } } }
+        });
+    }
+
+    function renderFeedbackTrendChart(dates, counts) {
+        destroyChart('feedbackTrendChart');
+        const ctx = document.getElementById('feedbackTrendChart');
+        if (!ctx) return;
+        if (!dates || dates.length === 0) { ctx.parentElement.innerHTML = '<div class="h-full flex items-center justify-center text-[#94a3b8] text-[13px] italic">No data available.</div>'; return; }
+        insightCharts['feedbackTrendChart'] = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{ label: 'Feedback Count', data: counts, borderColor: '#a855f7', backgroundColor: 'rgba(168,85,247,0.1)', tension: 0.4, fill: true }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } }, scales: { x: { ticks: { font: { size: 10 } } } } }
+        });
+    }
+
+    function renderRepeatedDishes(repeated) {
+        const el = document.getElementById('repeated_list');
+        if (!el) return;
+        if (!repeated || repeated.length === 0) { el.innerHTML = '<div class="text-[#94a3b8] text-[13px] italic col-span-3">No repeated dishes found.</div>'; return; }
+        el.innerHTML = repeated.map(r => `
+            <div class="bg-[#fff7ed] border border-[#fed7aa] rounded-xl p-4">
+                <div class="font-bold text-[#9a3412] text-[13.5px] mb-1">${r.dish}</div>
+                <div class="text-[#ea580c] text-[12px] font-semibold mb-2">Served ${r.count} times</div>
+                <div class="text-[10px] text-[#94a3b8]">${r.dates.join(', ')}</div>
+            </div>`).join('');
+    }
+
+    async function generateAiInsightSummary() {
+        const box = document.getElementById('ai_insight_summary_box');
+        const text = document.getElementById('ai_insight_text');
+        const loading = document.getElementById('ai_insight_loading');
+        box.classList.remove('hidden');
+        loading.classList.remove('hidden');
+        text.innerText = '';
+        try {
+            const res = await fetch('/api/ai_insights');
+            const d = await res.json();
+            const prompt = `You are the WasteZero Mess Management AI. Based on the following REAL data from the database, provide a concise 5-6 line analysis with actionable insights. Do not invent numbers.
+
+Most popular dishes: ${d.popular_dishes?.slice(0,3).map(x=>x.dish+' ('+x.yes+' yes votes)').join(', ') || 'None'}
+Lower acceptance dishes: ${d.low_acceptance?.slice(0,3).map(x=>x.dish+' ('+x.rate+'% acceptance)').join(', ') || 'None'}
+Waste by meal: ${d.waste_by_meal?.map(x=>x.meal+': '+x.waste+'kg').join(', ') || 'No waste data'}
+Repeated dishes: ${d.repeated_dishes?.slice(0,3).map(x=>x.dish+' ('+x.count+'x)').join(', ') || 'None'}
+
+Provide 3-4 bullet point recommendations.`;
+
+            const chatRes = await fetch('/api/ai/chat', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ message: prompt })
+            });
+            const chatData = await chatRes.json();
+            loading.classList.add('hidden');
+            text.innerText = chatData.reply || chatData.text || 'No response from AI.';
+        } catch(e) {
+            loading.classList.add('hidden');
+            text.innerText = 'Could not generate AI summary. Please try again.';
+        }
+    }
+
+    // Auto-load insights when the tab is opened
+    const origSwitchTab = window.switchTab;
+    window.switchTab = function(tab, btn) {
+        if (origSwitchTab) origSwitchTab(tab, btn);
+        if (tab === 'ai_insights') setTimeout(loadInsights, 100);
+    };
 </script>
 {% endblock %}
