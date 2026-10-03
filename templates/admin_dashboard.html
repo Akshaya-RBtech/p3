@@ -72,7 +72,6 @@
         <button id="tab-overview" class="sidebar-btn active-tab" onclick="switchTab('overview', this)"><i class="fas fa-chart-pie mr-2"></i> Dashboard Overview</button>
         <button id="tab-menu" class="sidebar-btn" onclick="switchTab('menu', this)"><i class="fas fa-utensils mr-2"></i> Menu Management</button>
         <button id="tab-ai_meal" class="sidebar-btn" onclick="switchTab('ai_meal', this)"><i class="fas fa-robot mr-2"></i> AI Meal Assistant</button>
-        <button id="tab-attendance" class="sidebar-btn" onclick="switchTab('attendance', this)"><i class="fas fa-clipboard-check mr-2"></i> Attendance Mgmt</button>
         <button id="tab-predict" class="sidebar-btn" onclick="switchTab('predict', this)"><i class="fas fa-brain mr-2"></i> AI Prediction</button>
         <button id="tab-dish" class="sidebar-btn" onclick="switchTab('dish', this)"><i class="fas fa-chart-bar mr-2"></i> Dish Analytics</button>
         <button id="tab-ai_insights" class="sidebar-btn" onclick="switchTab('ai_insights', this)"><i class="fas fa-lightbulb mr-2"></i> AI Insights</button>
@@ -495,44 +494,53 @@
         <div id="content-predict" class="tab-content">
             <h2 class="section-title mb-6">AI Prediction Configuration</h2>
             <div class="card p-5">
+                {% if upcoming_menu %}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <h3 class="fw-700 text-success mb-2">XGBoost Forecast</h3>
                         <p class="text-xs text-muted mb-4">Utilizing historical data. Gemini logic NOT USED for prediction.</p>
                         
                         <div class="bg-[var(--input-bg)] p-4 rounded border border-[var(--border)] mb-4">
-                            <div class="flex justify-between text-xs mb-2"><span>Prediction Date:</span> <span class="fw-700">Tomorrow</span></div>
-                            <div class="flex justify-between text-xs mb-2"><span>Meal:</span> <span class="fw-700">Lunch</span></div>
-                            <div class="flex justify-between text-xs mb-2"><span>Current Menu:</span> <span class="fw-700">Rice, Dal, Paneer</span></div>
-                            <div class="flex justify-between text-sm mt-3 pt-3 border-t border-[var(--border)]"><span class="fw-800 text-success">Predicted Attendance:</span> <span class="fw-800 text-success">116 (X)</span></div>
+                            <div class="flex justify-between text-xs mb-2"><span>Prediction Date:</span> <span class="fw-700">{{ upcoming_menu.date }}</span></div>
+                            <div class="flex justify-between text-xs mb-2"><span>Meal:</span> <span class="fw-700">{{ upcoming_menu.meal_type }}</span></div>
+                            <div class="flex justify-between text-xs mb-2"><span>Current Menu:</span> <span class="fw-700">{{ upcoming_menu.items }}</span></div>
+                            <div class="flex justify-between text-sm mt-3 pt-3 border-t border-[var(--border)]"><span class="fw-800 text-success">Predicted Attendance:</span> <span class="fw-800 text-success">{{ xgb_prediction }}</span></div>
                         </div>
                         
                         <div class="flex items-center gap-3 mb-4">
-                            <label class="text-[11px] fw-700 text-muted uppercase whitespace-nowrap">Safety Buffer (Y%):</label>
-                            <input type="number" class="form-input w-[100px] text-center" value="10"> %
+                            <label class="text-[11px] fw-700 text-muted uppercase whitespace-nowrap">Safety Buffer (10%):</label>
+                            <input type="number" class="form-input w-[100px] text-center" value="10" readonly> %
                         </div>
                         
                         <div class="bg-[rgba(99,102,241,0.05)] p-4 rounded border border-[rgba(99,102,241,0.2)]">
-                            <div class="flex justify-between text-sm"><span class="fw-800 text-primary">Recommended Food Qty:</span> <span class="fw-800 text-primary">127 kg</span></div>
+                            <div class="flex justify-between text-sm"><span class="fw-800 text-primary">Recommended Food Qty:</span> <span class="fw-800 text-primary">{{ xgb_rec_qty }} kg</span></div>
                             <div class="text-[9px] text-muted text-right mt-1">Calculated value explicitly</div>
                         </div>
                     </div>
                     
                     <div>
                         <h3 class="fw-700 text-danger mb-4">Admin Approval / Override</h3>
-                        <input type="number" class="form-input w-full mb-3" placeholder="Override Final Admin Quantity (kg)">
-                        <div class="flex gap-2">
-                            <button class="btn-primary flex-1 justify-center bg-gray-200 text-black border"><i class="fas fa-edit"></i> Override</button>
-                            <button class="btn-primary flex-1 justify-center bg-danger"><i class="fas fa-check-double"></i> Approve</button>
-                        </div>
+                        <form action="/admin/approve_prediction" method="POST">
+                            <input type="hidden" name="menu_id" value="{{ upcoming_menu.id }}">
+                            <input type="number" step="0.1" name="final_qty" id="predict_final_qty" class="form-input w-full mb-3" value="{{ xgb_rec_qty }}" required>
+                            <div class="flex gap-2">
+                                <button type="button" onclick="document.getElementById('predict_final_qty').focus()" class="btn-primary flex-1 justify-center bg-gray-200 text-black border"><i class="fas fa-edit"></i> Override</button>
+                                <button type="submit" class="btn-primary flex-1 justify-center bg-danger"><i class="fas fa-check-double"></i> Approve & Save</button>
+                            </div>
+                        </form>
                         <div class="p-3 bg-[var(--input-bg)] text-[10px] mt-4 border border-l-4 border-[var(--border)] text-muted">
-                            <div class="fw-700 underline mb-1">Audit Trail Saved to DB:</div>
-                            Orig. Prediction: 116 | Orig Rec: 127 kg<br>
-                            Buffer: 10% | Override: None<br>
-                            Final: 127 kg | Admin ID: {{ current_user.id }} | Time: Now
+                            <div class="fw-700 underline mb-1">Status:</div>
+                            {% if upcoming_menu.kitchen_status %}
+                            <div class="text-success fw-700 text-xs">{{ upcoming_menu.kitchen_status }}</div>
+                            {% else %}
+                            Pending Admin Approval
+                            {% endif %}
                         </div>
                     </div>
                 </div>
+                {% else %}
+                <div class="text-center text-muted p-10">No upcoming menu published to predict on. Go publish a menu first.</div>
+                {% endif %}
             </div>
         </div>
 
@@ -554,19 +562,32 @@
             </div>
             
             <div class="card p-5 overflow-x-auto">
-                <h3 class="fw-700 m-0 mb-4 text-xs uppercase text-muted tracking-widest">Metrics Table</h3>
+                <h3 class="fw-700 m-0 mb-4 text-xs uppercase text-muted tracking-widest">Metrics Table (Real Database Feed)</h3>
                 <table class="w-full text-left text-[12px] data-table">
-                    <thead><tr><th class="p-2">Dish</th><th class="p-2">Skip Freq (No Votes)</th></tr></thead>
+                    <thead class="bg-[#f8fafc] border-b border-[#e2e8f0]">
+                        <tr>
+                            <th class="p-3 text-[#475569]">Date</th>
+                            <th class="p-3 text-[#475569]">Meal</th>
+                            <th class="p-3 text-[#475569]">Dish</th>
+                            <th class="p-3 text-success">Coming (YES)</th>
+                            <th class="p-3 text-danger">Skipping (NO)</th>
+                            <th class="p-3 text-primary">Acceptance Rate</th>
+                        </tr>
+                    </thead>
                     <tbody>
-                        {% if no_votes %}
-                            {% for items, no_count in no_votes %}
-                            <tr class="border-b border-[var(--border)]">
-                                <td class="p-3 fw-700">{{ items }}</td>
-                                <td class="p-3 text-danger fw-700">{{ no_count }} NO votes</td>
+                        {% if dish_analytics_data %}
+                            {% for da in dish_analytics_data %}
+                            <tr class="border-b border-[var(--border)] hover:bg-[#f8fafc]">
+                                <td class="p-3 text-muted">{{ da.date }}</td>
+                                <td class="p-3 text-muted">{{ da.meal }}</td>
+                                <td class="p-3 fw-700 text-[#1e293b]">{{ da.dish }}</td>
+                                <td class="p-3 text-success fw-700">{{ da.yes }} votes</td>
+                                <td class="p-3 text-danger fw-700">{{ da.no }} votes</td>
+                                <td class="p-3 text-primary fw-700">{{ da.rate }}%</td>
                             </tr>
                             {% endfor %}
                         {% else %}
-                            <tr><td colspan="2" class="p-10 text-center text-muted">Insufficient data exists for these exact timeframe filters. Appropriate empty state.</td></tr>
+                            <tr><td colspan="6" class="p-10 text-center text-muted">No menu data available.</td></tr>
                         {% endif %}
                     </tbody>
                 </table>
@@ -581,11 +602,17 @@
                 <div class="card p-5 col-span-5">
                     <h3 class="fw-700 text-danger mb-4">Log Actual Real Waste</h3>
                     <form action="/admin/record_consumption" method="POST" class="grid gap-3">
-                        <div class="grid grid-cols-2 gap-2">
-                            <div><label class="text-[10px] fw-700 text-muted uppercase">Date</label><input type="date" class="form-input w-full text-xs" required></div>
-                            <div><label class="text-[10px] fw-700 text-muted uppercase">Meal Type</label><select class="form-input w-full text-xs" required><option>Lunch</option></select></div>
+                        <div>
+                            <label class="text-[10px] fw-700 text-muted uppercase">Select Menu to Log Waste</label>
+                            <select name="menu_id" class="form-input w-full text-xs" required>
+                                <option value="" disabled selected>-- Select Published Menu --</option>
+                                {% for m in menus %}
+                                {% if m.published %}
+                                <option value="{{ m.id }}">{{ m.date }} - {{ m.meal_type }} ({{ m.items[:30] }}{% if m.items|length > 30 %}...{% endif %})</option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
                         </div>
-                        <div><label class="text-[10px] fw-700 text-muted uppercase">Dish</label><input type="text" class="form-input w-full text-xs" required></div>
                         <div class="grid grid-cols-2 gap-2">
                             <div><label class="text-[10px] fw-700 text-muted uppercase">Prepared (kg)</label><input type="number" step="0.1" name="prepared_qty" class="form-input w-full text-xs" required></div>
                             <div><label class="text-[10px] fw-700 text-muted uppercase">Consumed (kg)</label><input type="number" step="0.1" name="consumed_qty" class="form-input w-full text-xs" required></div>
@@ -614,45 +641,7 @@
         </div>
 
 
-        <!-- SECTION 11: ATTENDANCE MANAGEMENT -->
-        <div id="content-attendance" class="tab-content">
-            <h2 class="section-title mb-6">Attendance Management</h2>
-            <div class="grid grid-cols-4 gap-4 mb-4">
-                <div class="card p-3 text-center"><div class="fw-700 text-[10px] uppercase text-muted">Coming</div><div class="fw-800 text-lg text-success">112</div></div>
-                <div class="card p-3 text-center"><div class="fw-700 text-[10px] uppercase text-muted">Not Coming</div><div class="fw-800 text-lg text-danger">45</div></div>
-                <div class="card p-3 text-center"><div class="fw-700 text-[10px] uppercase text-muted">Pending</div><div class="fw-800 text-lg text-warning">23</div></div>
-                <div class="card p-3 text-center"><div class="fw-700 text-[10px] uppercase text-muted">Response Rate</div><div class="fw-800 text-lg text-primary">87%</div></div>
-            </div>
-            
-            <div class="mb-3 flex gap-2 flex-wrap">
-                <input type="date" class="form-input text-xs w-[120px]">
-                <select class="form-input text-xs w-[100px]"><option>Meal</option></select>
-                <input type="text" class="form-input text-xs w-[100px]" placeholder="Student ID">
-                <select class="form-input text-xs w-[120px]"><option>Status (YES/NO)</option></select>
-                <select class="form-input text-xs w-[120px]"><option>Skip reason</option></select>
-            </div>
-            
-            <div class="card p-0 overflow-y-auto">
-                <table class="data-table w-full text-left text-[12px]">
-                    <thead class="bg-[var(--input-bg)] border-b border-[var(--border)]">
-                        <tr><th class="p-2">Student</th><th class="p-2">Date</th><th class="p-2">Meal</th><th class="p-2">YES/NO</th><th class="p-2">Skip reason</th><th class="p-2">Custom reason</th><th class="p-2">Timestamp</th></tr>
-                    </thead>
-                    <tbody>
-                        {% if negative_attendance %}
-                        {% for att in negative_attendance %}
-                        <tr class="border-b border-[var(--border)]">
-                            <td class="p-2 fw-700 text-primary">{{ att.student_id }}</td><td class="p-2">{{ att.menu.date if att.menu else 'Unknown' }}</td><td class="p-2">{{ att.menu.meal_type if att.menu else 'Unknown' }}</td>
-                            <td class="p-2"><span class="badge {{ 'badge-success' if att.choice == 'Yes' else 'badge-danger' }} text-[9px] uppercase">{{ att.choice }}</span></td>
-                            <td class="p-2 text-muted">{{ att.reason if att.reason and att.choice == 'No' else '-' }}</td><td class="p-2">-</td><td class="p-2 text-[9px] opacity-70">{{ att.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
-                        </tr>
-                        {% endfor %}
-                        {% else %}
-                        <tr><td colspan="7" class="p-6 text-center text-muted">Values calculated from actual database records (Empty).</td></tr>
-                        {% endif %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+
         
         <!-- SECTION 12: INVENTORY LOG MAPPED AS EXTRA ADMIN SETTINGS/REPORTS -->
         <div id="content-inventory" class="tab-content">

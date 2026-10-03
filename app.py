@@ -423,6 +423,24 @@ def admin_dashboard():
         return redirect(url_for('index'))
     
     menus = MenuEntry.query.all()
+    
+    # Calculate real dish analytics based on actual votes for published menus
+    dish_analytics_data = []
+    published_menus = MenuEntry.query.order_by(MenuEntry.date.desc()).all()
+    for m_entry in published_menus:
+        y_count = Vote.query.filter_by(menu_id=m_entry.id, choice='Yes').count()
+        n_count = Vote.query.filter_by(menu_id=m_entry.id, choice='No').count()
+        if y_count > 0 or n_count > 0 or m_entry.published:
+            dish_analytics_data.append({
+                'date': m_entry.date,
+                'meal': m_entry.meal_type,
+                'dish': m_entry.items,
+                'yes': y_count,
+                'no': n_count,
+                'total': y_count + n_count,
+                'rate': round((y_count/(y_count+n_count)*100),1) if (y_count+n_count)>0 else 0
+            })
+            
     no_votes = db.session.query(MenuEntry.items, db.func.count(Vote.id)).join(Vote).filter(Vote.choice == 'No').group_by(MenuEntry.items).all()
     
     # Consumption Logs & Waste KPIs
@@ -489,6 +507,23 @@ def admin_dashboard():
     predicted_att = coming_count + (pending_count_val // 2)
     recommended_qty = predicted_att * 0.4
     
+    # AI Prediction Configuration logic for next unpublished or published menu
+    from datetime import timedelta
+    tomorrow_str = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
+    upcoming_menu = MenuEntry.query.filter(MenuEntry.date >= today_str).order_by(MenuEntry.date.asc()).first()
+    xgb_prediction = 0
+    xgb_rec_qty = 0
+    if upcoming_menu:
+        try:
+            dt = datetime.strptime(upcoming_menu.date, '%Y-%m-%d')
+            day_of_week = dt.strftime('%A')
+        except:
+            day_of_week = 'Monday'
+        y_c = Vote.query.filter_by(menu_id=upcoming_menu.id, choice='Yes').count()
+        xgb_prediction = int(predictor.predict(day=day_of_week, meal=upcoming_menu.meal_type, event=upcoming_menu.event_type, yes_count=y_c, guest_count=0))
+        xgb_rec_qty = round(xgb_prediction * 0.4, 1)
+
+    
     return render_template(
         'admin_dashboard.html',
         menus=menus,
@@ -499,7 +534,11 @@ def admin_dashboard():
         response_rate=response_rate,
         predicted_att=predicted_att,
         recommended_qty=round(recommended_qty, 1),
+        upcoming_menu=upcoming_menu,
+        xgb_prediction=xgb_prediction,
+        xgb_rec_qty=xgb_rec_qty,
         no_votes=no_votes,
+        dish_analytics_data=dish_analytics_data,
         consumption_logs=consumption_logs,
         unrecorded_menus=unrecorded_menus,
         total_prepared=round(total_prepared, 1),
@@ -590,6 +629,21 @@ def record_consumption():
     db.session.commit()
     flash('Consumption tracked successfully!')
     return redirect(url_for('admin_dashboard') + "?tab=waste")
+
+@app.route('/admin/approve_prediction', methods=['POST'])
+@login_required
+def approve_prediction():
+    if current_user.role != 'admin':
+        return jsonify({'error': 'Unauthorized'}), 403
+    menu_id = request.form.get('menu_id')
+    final_qty = request.form.get('final_qty')
+    if menu_id and final_qty:
+        m = MenuEntry.query.get(menu_id)
+        if m:
+            m.kitchen_status = f"Approved: {final_qty} kg"
+            db.session.commit()
+            flash(f"Prediction approved ({final_qty} kg) for {m.date} - {m.meal_type}")
+    return redirect(url_for('admin_dashboard') + "?tab=predict")
 
 @app.route('/api/waste_analytics')
 @login_required
