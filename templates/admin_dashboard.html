@@ -71,6 +71,7 @@
         
         <button id="tab-overview" class="sidebar-btn active-tab" onclick="switchTab('overview', this)"><i class="fas fa-chart-pie mr-2"></i> Dashboard Overview</button>
         <button id="tab-menu" class="sidebar-btn" onclick="switchTab('menu', this)"><i class="fas fa-utensils mr-2"></i> Menu Management</button>
+        <button id="tab-ai_meal" class="sidebar-btn" onclick="switchTab('ai_meal', this)"><i class="fas fa-robot mr-2"></i> AI Meal Assistant</button>
         <button id="tab-attendance" class="sidebar-btn" onclick="switchTab('attendance', this)"><i class="fas fa-clipboard-check mr-2"></i> Attendance Mgmt</button>
         <button id="tab-predict" class="sidebar-btn" onclick="switchTab('predict', this)"><i class="fas fa-brain mr-2"></i> AI Prediction</button>
         <button id="tab-dish" class="sidebar-btn" onclick="switchTab('dish', this)"><i class="fas fa-chart-bar mr-2"></i> Dish Analytics</button>
@@ -92,33 +93,32 @@
                     <div class="text-[11px] fw-700 uppercase tracking-widest text-muted">Active Students</div>
                     <div class="text-3xl fw-800 text-[var(--primary)] mt-1">{{ total_students }}</div>
                 </div>
-                <!-- Calculate from valid attendance logs-->
                 <div class="card p-5 border-l-4 border-success">
                     <div class="text-[11px] fw-700 uppercase tracking-widest text-muted">Coming</div>
-                    <div class="text-3xl fw-800 text-success mt-1">112</div>
+                    <div class="text-3xl fw-800 text-success mt-1">{{ coming_count|default(0) }}</div>
                 </div>
                 <div class="card p-5 border-l-4 border-danger">
                     <div class="text-[11px] fw-700 uppercase tracking-widest text-muted">Not Coming</div>
-                    <div class="text-3xl fw-800 text-danger mt-1">45</div>
+                    <div class="text-3xl fw-800 text-danger mt-1">{{ not_coming_count|default(0) }}</div>
                 </div>
                 <div class="card p-5 border-l-4 border-warning">
                     <div class="text-[11px] fw-700 uppercase tracking-widest text-muted">Pending</div>
-                    <div class="text-3xl fw-800 text-warning mt-1">{{ total_students - (112 + 45) }}</div>
+                    <div class="text-3xl fw-800 text-warning mt-1">{{ pending_count|default(0) }}</div>
                 </div>
             </div>
             
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 <div class="card p-5 border-t border-[var(--border)]">
                     <div class="text-[11px] fw-700 uppercase tracking-widest text-muted">Response Rate</div>
-                    <div class="text-2xl fw-800 text-primary mt-1">78%</div>
+                    <div class="text-2xl fw-800 text-primary mt-1">{{ response_rate|default(0) }}%</div>
                 </div>
                 <div class="card p-5 border-t border-[var(--border)]">
                     <div class="text-[11px] fw-700 uppercase tracking-widest text-muted">Predicted Att.</div>
-                    <div class="text-2xl fw-800 text-success mt-1">116</div>
+                    <div class="text-2xl fw-800 text-success mt-1">{{ predicted_att|default(0) }}</div>
                 </div>
                 <div class="card p-5 border-t border-[var(--border)]">
                     <div class="text-[11px] fw-700 uppercase tracking-widest text-muted">Recommended Qty</div>
-                    <div class="text-2xl fw-800 text-primary mt-1">125 kg</div>
+                    <div class="text-2xl fw-800 text-primary mt-1">{{ recommended_qty|default(0.0) }} kg</div>
                 </div>
                 <div class="card p-5 border-t border-[var(--border)]">
                     <div class="text-[11px] fw-700 uppercase tracking-widest text-muted">Food Waste Logs</div>

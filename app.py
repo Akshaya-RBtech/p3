@@ -458,10 +458,47 @@ def admin_dashboard():
     all_leaves = LeaveRequest.query.order_by(LeaveRequest.created_at.desc()).all()
     all_ingredients = Ingredient.query.all()
     
+    
+    # Overview Dynamic KPIs for Today
+    today_str = datetime.now().strftime('%Y-%m-%d')
+    today_menus = MenuEntry.query.filter_by(date=today_str).all()
+    today_menu_ids = [m.id for m in today_menus]
+    
+    total_students_val = User.query.filter_by(role='student').count()
+    if today_menu_ids:
+        max_coming = 0
+        max_not_coming = 0
+        for md in today_menu_ids:
+            c = Vote.query.filter_by(menu_id=md, choice='Yes').count()
+            nc = Vote.query.filter_by(menu_id=md, choice='No').count()
+            if (c + nc) > (max_coming + max_not_coming):
+                max_coming = c
+                max_not_coming = nc
+        coming_count = max_coming
+        not_coming_count = max_not_coming
+    else:
+        coming_count = Vote.query.filter_by(choice='Yes').count()
+        not_coming_count = Vote.query.filter_by(choice='No').count()
+        if (coming_count + not_coming_count) > total_students_val and total_students_val > 0:
+            scale = total_students_val / (coming_count + not_coming_count)
+            coming_count = int(coming_count * scale)
+            not_coming_count = int(not_coming_count * scale)
+        
+    pending_count_val = max(0, total_students_val - (coming_count + not_coming_count))
+    response_rate = int(((coming_count + not_coming_count) / total_students_val) * 100) if total_students_val > 0 else 0
+    predicted_att = coming_count + (pending_count_val // 2)
+    recommended_qty = predicted_att * 0.4
+    
     return render_template(
         'admin_dashboard.html',
         menus=menus,
-        total_students=User.query.filter_by(role='student').count(),
+        total_students=total_students_val,
+        coming_count=coming_count,
+        not_coming_count=not_coming_count,
+        pending_count=pending_count_val,
+        response_rate=response_rate,
+        predicted_att=predicted_att,
+        recommended_qty=round(recommended_qty, 1),
         no_votes=no_votes,
         consumption_logs=consumption_logs,
         unrecorded_menus=unrecorded_menus,
