@@ -793,8 +793,117 @@
             </div>
         </div>
 
-        <!-- 9. Settings (Hidden Dummy Tab to catch navigation calls) -->
-        <div id="content-settings" class="hidden"></div>
+        <!-- SECTION 9: SETTINGS (Screen 20 - Theme Toggle) -->
+        <div id="content-settings" class="tab-content">
+            <div class="w-full max-w-lg mx-auto">
+
+                <!-- Page Header -->
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 rounded-2xl bg-[#10b981] text-white flex items-center justify-center shadow-sm">
+                        <i class="fas fa-cog text-[16px]"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-extrabold text-[20px] text-[#111827] leading-none">Settings</h2>
+                        <p class="text-[12px] text-[#6b7280] mt-0.5">App preferences &amp; account</p>
+                    </div>
+                </div>
+
+                <!-- APPEARANCE CARD -->
+                <div class="mb-5">
+                    <p class="text-[11px] font-bold text-[#9ca3af] uppercase tracking-widest mb-2 px-1">Appearance</p>
+                    <div class="bg-white rounded-2xl shadow-sm border border-[#e5e7eb] p-4">
+                        <div class="flex gap-3">
+                            <!-- Light -->
+                            <button id="stu-theme-btn-light"
+                                onclick="selectTheme('light'); updateAllThemeBtns('light');"
+                                class="stu-theme-pill flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 border-transparent text-[#64748b] hover:border-[#e2e8f0] hover:bg-[#f8fafc] transition-all">
+                                <i class="fas fa-sun text-[#f59e0b] text-[18px]"></i>
+                                <span class="text-[12px] font-bold">Light</span>
+                            </button>
+                            <!-- Dark -->
+                            <button id="stu-theme-btn-dark"
+                                onclick="selectTheme('dark'); updateAllThemeBtns('dark');"
+                                class="stu-theme-pill flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 border-transparent text-[#64748b] hover:border-[#e2e8f0] hover:bg-[#f8fafc] transition-all">
+                                <i class="fas fa-moon text-[#3b82f6] text-[18px]"></i>
+                                <span class="text-[12px] font-bold">Dark</span>
+                            </button>
+                            <!-- System -->
+                            <button id="stu-theme-btn-system"
+                                onclick="selectTheme('system'); updateAllThemeBtns('system');"
+                                class="stu-theme-pill flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 border-transparent text-[#64748b] hover:border-[#e2e8f0] hover:bg-[#f8fafc] transition-all">
+                                <i class="fas fa-desktop text-[#10b981] text-[18px]"></i>
+                                <span class="text-[12px] font-bold">System</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ACCOUNT SETTINGS ROWS -->
+                <div class="mb-2">
+                    <p class="text-[11px] font-bold text-[#9ca3af] uppercase tracking-widest mb-2 px-1">Account</p>
+                    <div class="bg-white rounded-2xl shadow-sm border border-[#e5e7eb] divide-y divide-[#f3f4f6]">
+
+                        <!-- Profile Information -->
+                        <button type="button" onclick="openProfileModal()" class="w-full flex items-center justify-between px-4 py-4 hover:bg-[#f9fafb] transition-colors group">
+                            <div class="flex items-center gap-4">
+                                <div class="w-9 h-9 rounded-full bg-[#eff6ff] text-[#3b82f6] flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                    <i class="fas fa-user text-[14px]"></i>
+                                </div>
+                                <span class="font-semibold text-[14px] text-[#1f2937]">Profile Information</span>
+                            </div>
+                            <i class="fas fa-chevron-right text-[#d1d5db] text-[12px] group-hover:text-[#3b82f6] transition-colors"></i>
+                        </button>
+
+                        <!-- Change Password -->
+                        <button type="button" onclick="openChangePasswordModal()" class="w-full flex items-center justify-between px-4 py-4 hover:bg-[#f9fafb] transition-colors group">
+                            <div class="flex items-center gap-4">
+                                <div class="w-9 h-9 rounded-full bg-[#fdf4ff] text-[#a855f7] flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                    <i class="fas fa-lock text-[14px]"></i>
+                                </div>
+                                <span class="font-semibold text-[14px] text-[#1f2937]">Change Password</span>
+                            </div>
+                            <i class="fas fa-chevron-right text-[#d1d5db] text-[12px] group-hover:text-[#a855f7] transition-colors"></i>
+                        </button>
+
+                        <!-- Notification Settings -->
+                        <button type="button" onclick="openNotifSettingsModal()" class="w-full flex items-center justify-between px-4 py-4 hover:bg-[#f9fafb] transition-colors group">
+                            <div class="flex items-center gap-4">
+                                <div class="w-9 h-9 rounded-full bg-[#fef9c3] text-[#ca8a04] flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                    <i class="fas fa-bell text-[14px]"></i>
+                                </div>
+                                <span class="font-semibold text-[14px] text-[#1f2937]">Notification Settings</span>
+                            </div>
+                            <i class="fas fa-chevron-right text-[#d1d5db] text-[12px] group-hover:text-[#ca8a04] transition-colors"></i>
+                        </button>
+
+                        <!-- Help & Support -->
+                        <button type="button" onclick="openHelpSupportModal()" class="w-full flex items-center justify-between px-4 py-4 hover:bg-[#f9fafb] transition-colors group">
+                            <div class="flex items-center gap-4">
+                                <div class="w-9 h-9 rounded-full bg-[#f0fdf4] text-[#22c55e] flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                    <i class="fas fa-question-circle text-[14px]"></i>
+                                </div>
+                                <span class="font-semibold text-[14px] text-[#1f2937]">Help &amp; Support</span>
+                            </div>
+                            <i class="fas fa-chevron-right text-[#d1d5db] text-[12px] group-hover:text-[#22c55e] transition-colors"></i>
+                        </button>
+
+                        <!-- Logout -->
+                        <a href="{{ url_for('logout') }}" class="w-full flex items-center justify-between px-4 py-4 hover:bg-[#fff5f5] transition-colors group">
+                            <div class="flex items-center gap-4">
+                                <div class="w-9 h-9 rounded-full bg-[#fee2e2] text-[#ef4444] flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                    <i class="fas fa-sign-out-alt text-[14px]"></i>
+                                </div>
+                                <span class="font-semibold text-[14px] text-[#ef4444]">Logout</span>
+                            </div>
+                            <i class="fas fa-chevron-right text-[#fca5a5] text-[12px]"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- App version footer -->
+                <p class="text-center text-[11px] text-[#9ca3af] mt-6">WasteZero v1.0 &bull; Student Portal</p>
+            </div>
+        </div>
 
         <!-- SECTION: LEAVE REQUEST -->
         <div id="content-leave" class="tab-content">
@@ -1833,8 +1942,37 @@ async function submitStudentFeedback(e) {
         }
     }
 
+    // ========== UNIFIED THEME SYSTEM ==========
+    // Applies to ALL theme button styles: small icon buttons in profile + new large pills in settings
+    function updateAllThemeBtns(pref) {
+        const current = pref || localStorage.getItem('wastezero-theme') || 'system';
+
+        // Update large pill buttons (Settings tab - stu-theme-pill)
+        ['light', 'dark', 'system'].forEach(t => {
+            const pill = document.getElementById('stu-theme-btn-' + t);
+            if (pill) {
+                if (t === current) {
+                    pill.className = 'stu-theme-pill flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 border-[#10b981] bg-[#f0fdf4] text-[#10b981] shadow-sm transition-all';
+                } else {
+                    pill.className = 'stu-theme-pill flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 border-transparent text-[#64748b] hover:border-[#e2e8f0] hover:bg-[#f8fafc] transition-all';
+                }
+            }
+        });
+
+        // Also update old small icon buttons if still present
+        updateThemeButtonsUI(current);
+    }
+
+    function selectTheme(pref) {
+        localStorage.setItem('wastezero-theme', pref);
+        // Use the global applyTheme from layout.html
+        if (typeof applyTheme === 'function') applyTheme(pref);
+        else if (typeof changeTheme === 'function') changeTheme(pref);
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
-        updateThemeButtonsUI(localStorage.getItem('wastezero-theme') || 'system');
+        const saved = localStorage.getItem('wastezero-theme') || 'system';
+        updateAllThemeBtns(saved);
     });
 </script>
 {% endblock %}

@@ -1400,44 +1400,109 @@
                     </button>
                 </div>
 
-                <!-- App Settings Section -->
-                <h3 class="font-bold text-[#10b981] text-[14px] mb-2 px-1 flex items-center gap-2"><i class="fas fa-cog"></i> Settings</h3>
-                <div class="bg-white rounded-2xl shadow-sm border border-[#e5e7eb] p-1.5 mb-6 divide-y divide-[#f3f4f6]">
-                    
-                    <!-- Theme Toggle Interactive Row -->
-                    <div class="p-3 flex items-center justify-between gap-4">
-                        <div class="flex items-center gap-4">
-                            <div class="w-9 h-9 rounded-full bg-[#fff7ed] text-[#ea580c] flex items-center justify-center flex-shrink-0"><i class="fas fa-sun text-[15px]"></i></div>
-                            <div>
-                                <p class="font-bold text-[14px] text-[#1f2937] mb-0.5">Theme</p>
-                                <p class="text-[11px] text-[#6b7280]">Light / Dark / System</p>
-                            </div>
-                        </div>
-                        <div class="flex bg-[#f1f5f9] p-1 rounded-lg border border-[#e2e8f0]">
-                            <!-- The JS function updateThemeButtonsUI applies styling to these buttons -->
-                            <button onclick="selectTheme('light'); updateThemeButtonsUI('light');" id="admin-theme-btn-light" class="w-8 h-7 theme-select-btn rounded flex items-center justify-center text-[13px] text-[#64748b] hover:text-[#1e293b] hover:bg-white transition-all"><i class="fas fa-sun"></i></button>
-                            <button onclick="selectTheme('dark'); updateThemeButtonsUI('dark');" id="admin-theme-btn-dark" class="w-8 h-7 theme-select-btn rounded flex items-center justify-center text-[13px] text-[#64748b] hover:text-[#1e293b] hover:bg-white transition-all"><i class="fas fa-moon"></i></button>
-                            <button onclick="selectTheme('system'); updateThemeButtonsUI('system');" id="admin-theme-btn-system" class="w-8 h-7 theme-select-btn rounded flex items-center justify-center text-[13px] text-[#64748b] hover:text-[#1e293b] hover:bg-white transition-all"><i class="fas fa-desktop"></i></button>
-                        </div>
+                <!-- SETTINGS – Reference Screen 20 -->
+                <!-- Page Header -->
+                <div class="flex items-center gap-3 mb-6 mt-2">
+                    <div class="w-10 h-10 rounded-2xl bg-[#10b981] text-white flex items-center justify-center shadow-sm">
+                        <i class="fas fa-cog text-[16px]"></i>
                     </div>
-
-                    <!-- Account Security -->
-                    <button type="button" onclick="openChangePasswordModal()" class="w-full p-3 flex items-center justify-between hover:bg-[#f9fafb] text-left rounded-xl transition-colors group">
-                        <div class="flex items-center gap-4">
-                            <div class="w-9 h-9 rounded-full bg-[#f8fafc] border border-[#e2e8f0] text-[#475569] flex items-center justify-center group-hover:scale-110 transition-transform"><i class="fas fa-shield-alt text-[15px]"></i></div>
-                            <div>
-                                <p class="font-bold text-[14px] text-[#1f2937] mb-0.5">Account Security</p>
-                                <p class="text-[11px] text-[#6b7280]">Manage your account password</p>
-                            </div>
-                        </div>
-                        <i class="fas fa-chevron-right text-[#d1d5db] text-[13px] group-hover:text-[#475569] transition-colors"></i>
-                    </button>
+                    <div>
+                        <h2 class="font-extrabold text-[20px] text-[#111827] leading-none">Settings</h2>
+                        <p class="text-[12px] text-[#6b7280] mt-0.5">App preferences &amp; account</p>
+                    </div>
                 </div>
 
-                <!-- Logout Button -->
-                <a href="{{ url_for('logout') }}" class="w-full flex items-center justify-center gap-2 py-3.5 bg-white border border-[#fca5a5] text-[#ef4444] rounded-2xl font-bold text-[15px] hover:bg-[#fef2f2] transition-colors mb-2 shadow-sm">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
+                <!-- APPEARANCE CARD -->
+                <div class="mb-5">
+                    <p class="text-[11px] font-bold text-[#9ca3af] uppercase tracking-widest mb-2 px-1">Appearance</p>
+                    <div class="bg-white rounded-2xl shadow-sm border border-[#e5e7eb] p-4">
+                        <div class="flex gap-3">
+                            <button id="admin-theme-pill-light"
+                                onclick="selectTheme('light'); updateAllThemeBtns('light');"
+                                class="admin-theme-pill flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 border-transparent text-[#64748b] hover:border-[#e2e8f0] hover:bg-[#f8fafc] transition-all">
+                                <i class="fas fa-sun text-[#f59e0b] text-[18px]"></i>
+                                <span class="text-[12px] font-bold">Light</span>
+                            </button>
+                            <button id="admin-theme-pill-dark"
+                                onclick="selectTheme('dark'); updateAllThemeBtns('dark');"
+                                class="admin-theme-pill flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 border-transparent text-[#64748b] hover:border-[#e2e8f0] hover:bg-[#f8fafc] transition-all">
+                                <i class="fas fa-moon text-[#3b82f6] text-[18px]"></i>
+                                <span class="text-[12px] font-bold">Dark</span>
+                            </button>
+                            <button id="admin-theme-pill-system"
+                                onclick="selectTheme('system'); updateAllThemeBtns('system');"
+                                class="admin-theme-pill flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 border-transparent text-[#64748b] hover:border-[#e2e8f0] hover:bg-[#f8fafc] transition-all">
+                                <i class="fas fa-desktop text-[#10b981] text-[18px]"></i>
+                                <span class="text-[12px] font-bold">System</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ACCOUNT SETTINGS ROWS -->
+                <div class="mb-2">
+                    <p class="text-[11px] font-bold text-[#9ca3af] uppercase tracking-widest mb-2 px-1">Account</p>
+                    <div class="bg-white rounded-2xl shadow-sm border border-[#e5e7eb] divide-y divide-[#f3f4f6]">
+
+                        <!-- Profile Information -->
+                        <button type="button" onclick="openProfileModal()" class="w-full flex items-center justify-between px-4 py-4 hover:bg-[#f9fafb] transition-colors group">
+                            <div class="flex items-center gap-4">
+                                <div class="w-9 h-9 rounded-full bg-[#eff6ff] text-[#3b82f6] flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                    <i class="fas fa-user text-[14px]"></i>
+                                </div>
+                                <span class="font-semibold text-[14px] text-[#1f2937]">Profile Information</span>
+                            </div>
+                            <i class="fas fa-chevron-right text-[#d1d5db] text-[12px] group-hover:text-[#3b82f6] transition-colors"></i>
+                        </button>
+
+                        <!-- Change Password -->
+                        <button type="button" onclick="openChangePasswordModal()" class="w-full flex items-center justify-between px-4 py-4 hover:bg-[#f9fafb] transition-colors group">
+                            <div class="flex items-center gap-4">
+                                <div class="w-9 h-9 rounded-full bg-[#fdf4ff] text-[#a855f7] flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                    <i class="fas fa-lock text-[14px]"></i>
+                                </div>
+                                <span class="font-semibold text-[14px] text-[#1f2937]">Change Password</span>
+                            </div>
+                            <i class="fas fa-chevron-right text-[#d1d5db] text-[12px] group-hover:text-[#a855f7] transition-colors"></i>
+                        </button>
+
+                        <!-- Notification Settings -->
+                        <button type="button" onclick="openAdminNotifModal && openAdminNotifModal()" class="w-full flex items-center justify-between px-4 py-4 hover:bg-[#f9fafb] transition-colors group">
+                            <div class="flex items-center gap-4">
+                                <div class="w-9 h-9 rounded-full bg-[#fef9c3] text-[#ca8a04] flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                    <i class="fas fa-bell text-[14px]"></i>
+                                </div>
+                                <span class="font-semibold text-[14px] text-[#1f2937]">Notification Settings</span>
+                            </div>
+                            <i class="fas fa-chevron-right text-[#d1d5db] text-[12px] group-hover:text-[#ca8a04] transition-colors"></i>
+                        </button>
+
+                        <!-- Help & Support -->
+                        <button type="button" onclick="alert('Contact: support@wastezero.edu | Mon–Sat 9AM–5PM')" class="w-full flex items-center justify-between px-4 py-4 hover:bg-[#f9fafb] transition-colors group">
+                            <div class="flex items-center gap-4">
+                                <div class="w-9 h-9 rounded-full bg-[#f0fdf4] text-[#22c55e] flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                    <i class="fas fa-question-circle text-[14px]"></i>
+                                </div>
+                                <span class="font-semibold text-[14px] text-[#1f2937]">Help &amp; Support</span>
+                            </div>
+                            <i class="fas fa-chevron-right text-[#d1d5db] text-[12px] group-hover:text-[#22c55e] transition-colors"></i>
+                        </button>
+
+                        <!-- Logout -->
+                        <a href="{{ url_for('logout') }}" class="w-full flex items-center justify-between px-4 py-4 hover:bg-[#fff5f5] transition-colors group">
+                            <div class="flex items-center gap-4">
+                                <div class="w-9 h-9 rounded-full bg-[#fee2e2] text-[#ef4444] flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                    <i class="fas fa-sign-out-alt text-[14px]"></i>
+                                </div>
+                                <span class="font-semibold text-[14px] text-[#ef4444]">Logout</span>
+                            </div>
+                            <i class="fas fa-chevron-right text-[#fca5a5] text-[12px]"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- App version footer -->
+                <p class="text-center text-[11px] text-[#9ca3af] mt-6">WasteZero v1.0 &bull; Admin Portal</p>
             </div>
         </div>
 
@@ -2188,3 +2253,33 @@ Provide 3-4 bullet point recommendations.`;
     </div>
 </div>
 {% endblock %}
+
+<script>
+// ========== ADMIN UNIFIED THEME SYSTEM ==========
+function updateAllThemeBtns(pref) {
+    const current = pref || localStorage.getItem('wastezero-theme') || 'system';
+
+    // Update large pill buttons in Settings tab
+    ['light', 'dark', 'system'].forEach(t => {
+        const pill = document.getElementById('admin-theme-pill-' + t);
+        if (pill) {
+            if (t === current) {
+                pill.className = 'admin-theme-pill flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 border-[#10b981] bg-[#f0fdf4] text-[#10b981] shadow-sm transition-all';
+            } else {
+                pill.className = 'admin-theme-pill flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 border-transparent text-[#64748b] hover:border-[#e2e8f0] hover:bg-[#f8fafc] transition-all';
+            }
+        }
+    });
+}
+
+function selectTheme(pref) {
+    localStorage.setItem('wastezero-theme', pref);
+    if (typeof applyTheme === 'function') applyTheme(pref);
+    else if (typeof changeTheme === 'function') changeTheme(pref);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const saved = localStorage.getItem('wastezero-theme') || 'system';
+    updateAllThemeBtns(saved);
+});
+</script>
