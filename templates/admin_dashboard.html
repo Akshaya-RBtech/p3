@@ -1347,7 +1347,6 @@
                         </div>
                         <i class="fas fa-chevron-right text-[#d1d5db] text-[13px] group-hover:text-[#10b981] transition-colors"></i>
                     </button>
-                    
                     <button type="button" onclick="switchTab('menu', document.getElementById('tab-menu'))" class="w-full p-3 flex items-center justify-between hover:bg-[#f9fafb] text-left rounded-xl transition-colors group">
                         <div class="flex items-center gap-4">
                             <div class="w-9 h-9 rounded-full bg-[#fff7ed] text-[#ea580c] flex items-center justify-center group-hover:scale-110 transition-transform"><i class="fas fa-utensils text-[15px]"></i></div>
@@ -1357,6 +1356,16 @@
                             </div>
                         </div>
                         <i class="fas fa-chevron-right text-[#d1d5db] text-[13px] group-hover:text-[#ea580c] transition-colors"></i>
+                    </button>
+                    <button type="button" onclick="switchTab('ai_meal', document.getElementById('tab-ai_meal'))" class="w-full p-3 flex items-center justify-between hover:bg-[#f9fafb] text-left rounded-xl transition-colors group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-9 h-9 rounded-full bg-[#eff6ff] text-[#3b82f6] flex items-center justify-center group-hover:scale-110 transition-transform"><i class="fas fa-robot text-[15px]"></i></div>
+                            <div>
+                                <p class="font-bold text-[14px] text-[#1f2937] mb-0.5">AI Meal</p>
+                                <p class="text-[11px] text-[#6b7280]">Smart AI assistance</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-[#d1d5db] text-[13px] group-hover:text-[#3b82f6] transition-colors"></i>
                     </button>
                     <button type="button" onclick="switchTab('predict', document.getElementById('tab-predict'))" class="w-full p-3 flex items-center justify-between hover:bg-[#f9fafb] text-left rounded-xl transition-colors group">
                         <div class="flex items-center gap-4">
@@ -1378,6 +1387,16 @@
                         </div>
                         <i class="fas fa-chevron-right text-[#d1d5db] text-[13px] group-hover:text-[#3b82f6] transition-colors"></i>
                     </button>
+                    <button type="button" onclick="switchTab('ai_insights', document.getElementById('tab-ai_insights'))" class="w-full p-3 flex items-center justify-between hover:bg-[#f9fafb] text-left rounded-xl transition-colors group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-9 h-9 rounded-full bg-[#fefce8] text-[#eab308] flex items-center justify-center group-hover:scale-110 transition-transform"><i class="fas fa-lightbulb text-[15px]"></i></div>
+                            <div>
+                                <p class="font-bold text-[14px] text-[#1f2937] mb-0.5">AI Insights</p>
+                                <p class="text-[11px] text-[#6b7280]">Smart data charts</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-[#d1d5db] text-[13px] group-hover:text-[#eab308] transition-colors"></i>
+                    </button>
                     <button type="button" onclick="switchTab('waste', document.getElementById('tab-waste'))" class="w-full p-3 flex items-center justify-between hover:bg-[#f9fafb] text-left rounded-xl transition-colors group">
                         <div class="flex items-center gap-4">
                             <div class="w-9 h-9 rounded-full bg-[#f0fdf4] text-[#22c55e] flex items-center justify-center group-hover:scale-110 transition-transform"><i class="fas fa-recycle text-[15px]"></i></div>
@@ -1388,15 +1407,45 @@
                         </div>
                         <i class="fas fa-chevron-right text-[#d1d5db] text-[13px] group-hover:text-[#22c55e] transition-colors"></i>
                     </button>
+                    <button type="button" onclick="switchTab('leave', document.getElementById('tab-leave'))" class="w-full p-3 flex items-center justify-between hover:bg-[#f9fafb] text-left rounded-xl transition-colors group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-9 h-9 rounded-full bg-[#fef2f2] text-[#ef4444] flex items-center justify-center group-hover:scale-110 transition-transform"><i class="fas fa-calendar-minus text-[15px]"></i></div>
+                            <div>
+                                <p class="font-bold text-[14px] text-[#1f2937] mb-0.5">Leave Requests</p>
+                                <p class="text-[11px] text-[#6b7280]">Manage student leaves</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-[#d1d5db] text-[13px] group-hover:text-[#ef4444] transition-colors"></i>
+                    </button>
+                    <button type="button" onclick="switchTab('complaint', document.getElementById('tab-complaint'))" class="w-full p-3 flex items-center justify-between hover:bg-[#f9fafb] text-left rounded-xl transition-colors group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-9 h-9 rounded-full bg-[#fff7ed] text-[#ea580c] flex items-center justify-center group-hover:scale-110 transition-transform"><i class="fas fa-exclamation-circle text-[15px]"></i></div>
+                            <div>
+                                <p class="font-bold text-[14px] text-[#1f2937] mb-0.5">Complaints</p>
+                                <p class="text-[11px] text-[#6b7280]">Resolve student issues</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-[#d1d5db] text-[13px] group-hover:text-[#ea580c] transition-colors"></i>
+                    </button>
+                    <button type="button" onclick="switchTab('comm', document.getElementById('tab-comm'))" class="w-full p-3 flex items-center justify-between hover:bg-[#f9fafb] text-left rounded-xl transition-colors group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-9 h-9 rounded-full bg-[#f3e8ff] text-[#a855f7] flex items-center justify-center group-hover:scale-110 transition-transform"><i class="fas fa-bullhorn text-[15px]"></i></div>
+                            <div>
+                                <p class="font-bold text-[14px] text-[#1f2937] mb-0.5">Communication</p>
+                                <p class="text-[11px] text-[#6b7280]">Mass announcements</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-[#d1d5db] text-[13px] group-hover:text-[#a855f7] transition-colors"></i>
+                    </button>
                     <button type="button" onclick="switchTab('inventory', document.getElementById('tab-inventory'))" class="w-full p-3 flex items-center justify-between hover:bg-[#f9fafb] text-left rounded-xl transition-colors group">
                         <div class="flex items-center gap-4">
-                            <div class="w-9 h-9 rounded-full bg-[#fefce8] text-[#eab308] flex items-center justify-center group-hover:scale-110 transition-transform"><i class="fas fa-box text-[15px]"></i></div>
+                            <div class="w-9 h-9 rounded-full bg-[#f8fafc] text-[#475569] flex items-center justify-center group-hover:scale-110 transition-transform"><i class="fas fa-boxes text-[15px]"></i></div>
                             <div>
                                 <p class="font-bold text-[14px] text-[#1f2937] mb-0.5">Inventory</p>
                                 <p class="text-[11px] text-[#6b7280]">Manage stock and reports</p>
                             </div>
                         </div>
-                        <i class="fas fa-chevron-right text-[#d1d5db] text-[13px] group-hover:text-[#eab308] transition-colors"></i>
+                        <i class="fas fa-chevron-right text-[#d1d5db] text-[13px] group-hover:text-[#475569] transition-colors"></i>
                     </button>
                 </div>
 
