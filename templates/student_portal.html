@@ -632,46 +632,7 @@
             </div>
         </div>
 
-        <!-- Student Leave Requests -->
-        <div id="content-leave" class="tab-content">
-            <h2 style="font-size:24px;font-weight:800;margin-bottom:24px;">Student Leave Requests</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="card p-5">
-                    <h3 class="fw-700 mb-4"><i class="fas fa-calendar-minus text-warning mr-2"></i> Apply for Hostel Leave</h3>
-                    <p class="text-[11px] text-muted mb-4">Applying for leave will automatically skip your meals for the approved duration to save food waste.</p>
-                    <form onsubmit="submitStudentLeave(event)">
-                        <div class="flex gap-3 mb-4">
-                            <div class="flex-1">
-                                <label class="text-[11px] fw-600 text-muted uppercase mb-1 block">From Date</label>
-                                <input type="date" id="leave-start" class="form-input w-full" required>
-                            </div>
-                            <div class="flex-1">
-                                <label class="text-[11px] fw-600 text-muted uppercase mb-1 block">To Date</label>
-                                <input type="date" id="leave-end" class="form-input w-full" required>
-                            </div>
-                        </div>
-                        <label class="text-[11px] fw-600 text-muted uppercase mb-1 block">Leave Type</label>
-                        <select id="leave-type" class="form-input mb-4 w-full" required>
-                            <option value="">Select leave type...</option>
-                            <option value="Home Visit">Home Visit / Weekend</option>
-                            <option value="Medical">Medical Leave</option>
-                            <option value="College Event">College Event / Tour</option>
-                            <option value="Other">Other</option>
-                        </select>
-                        <label class="text-[11px] fw-600 text-muted uppercase mb-1 block">Reason (Optional)</label>
-                        <input type="text" id="leave-reason" class="form-input mb-4 w-full" placeholder="Brief reason">
-                        <button type="submit" class="btn-primary w-full justify-center bg-warning border-warning"><i class="fas fa-paper-plane mr-2"></i> Submit Leave Request</button>
-                    </form>
-                    <div id="leave-status" class="mt-3 text-center text-xs fw-600 hidden"></div>
-                </div>
-                <div class="card p-5 flex flex-col h-full">
-                    <h3 class="fw-700 mb-4"><i class="fas fa-history mr-2 text-warning"></i> Leave History</h3>
-                    <div id="stu-leave-list" class="flex-1 flex flex-col gap-2 overflow-y-auto max-h-[300px]">
-                        <div class="text-center text-sm text-muted p-4"><i class="fas fa-spinner fa-spin mr-2"></i> Loading history...</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
 
         <!-- 8. Profile -->
         <div id="content-profile" class="tab-content">

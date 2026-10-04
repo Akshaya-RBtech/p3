@@ -77,6 +77,7 @@
         <button id="tab-ai_insights" class="sidebar-btn" onclick="switchTab('ai_insights', this)"><i class="fas fa-lightbulb mr-2"></i> AI Insights</button>
         <button id="tab-waste" class="sidebar-btn" onclick="switchTab('waste', this)"><i class="fas fa-trash-alt mr-2"></i> Food Waste Tracking</button>
         <button id="tab-leave" class="sidebar-btn" onclick="switchTab('leave', this)"><i class="fas fa-calendar-minus mr-2"></i> Leave Requests</button>
+        <button id="tab-complaint" class="sidebar-btn" onclick="switchTab('complaint', this)"><i class="fas fa-exclamation-circle mr-2"></i> Complaint Management</button>
         <button id="tab-comm" class="sidebar-btn" onclick="switchTab('comm', this)"><i class="fas fa-bullhorn mr-2"></i> Communication</button>
         <button id="tab-inventory" class="sidebar-btn" onclick="switchTab('inventory', this)"><i class="fas fa-boxes mr-2"></i> Inventory</button>
         <button id="tab-settings" class="sidebar-btn" onclick="switchTab('settings', this)"><i class="fas fa-cog mr-2"></i> Admin Settings</button>
@@ -931,6 +932,153 @@
                     </tbody>
                 </table>
             </div>
+        <!-- SECTION COMPLAINTS (Reference Screen 11 recreation) -->
+        <div id="content-complaint" class="tab-content w-full h-full p-4">
+            <div class="bg-white rounded-[20px] shadow-[0_4px_24px_rgba(0,0,0,0.03)] border border-[#e2e8f0] p-6 max-w-6xl mx-auto">
+                
+                <!-- Card Header -->
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-[#f1f5f9]">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-[#f0fdf4] flex items-center justify-center text-[#22c55e] text-lg font-bold shadow-sm">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-bold text-[#1e293b] text-[18px]">Complaint Management</h2>
+                            <p class="text-[12px] text-[#64748b]">Review student feedback, investigate issues, and send status updates.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 text-[#94a3b8]">
+                        <i class="fas fa-search cursor-pointer hover:text-[#475569]"></i>
+                        <i class="fas fa-[#64748b] fa-sliders-h cursor-pointer hover:text-[#475569]"></i>
+                        <i class="fas fa-times cursor-pointer hover:text-[#475569]"></i>
+                    </div>
+                </div>
+
+                <!-- Filters Bar matching Screen 11 -->
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <!-- Status Filter -->
+                        <div class="relative min-w-[160px]">
+                            <i class="fas fa-shield-alt absolute left-3.5 top-3 text-[#94a3b8] text-xs"></i>
+                            <select id="cm_status_filter" onchange="filterAdminComplaintsTable()" class="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-xl pl-9 pr-8 py-2.5 text-xs font-bold text-[#334155] appearance-none focus:outline-none focus:border-[#3b82f6]">
+                                <option value="all">All Status</option>
+                                <option value="Open">Open / Pending</option>
+                                <option value="In Progress">In Progress / Under Review</option>
+                                <option value="Resolved">Resolved</option>
+                                <option value="Rejected">Rejected</option>
+                            </select>
+                            <i class="fas fa-chevron-down absolute right-3.5 top-3 text-[#94a3b8] text-[10px] pointer-events-none"></i>
+                        </div>
+
+                        <!-- Category Filter -->
+                        <div class="relative min-w-[160px]">
+                            <i class="fas fa-tag absolute left-3.5 top-3 text-[#94a3b8] text-xs"></i>
+                            <select id="cm_category_filter" onchange="filterAdminComplaintsTable()" class="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-xl pl-9 pr-8 py-2.5 text-xs font-bold text-[#334155] appearance-none focus:outline-none focus:border-[#3b82f6]">
+                                <option value="all">All Categories</option>
+                                <option value="Food Quality">Food Quality</option>
+                                <option value="Cleanliness">Cleanliness</option>
+                                <option value="Menu">Menu</option>
+                                <option value="Food Quantity">Food Quantity</option>
+                                <option value="Hygiene">Hygiene</option>
+                            </select>
+                            <i class="fas fa-chevron-down absolute right-3.5 top-3 text-[#94a3b8] text-[10px] pointer-events-none"></i>
+                        </div>
+                    </div>
+
+                    <!-- Search Input -->
+                    <div class="relative min-w-[260px] flex-1 max-w-sm">
+                        <i class="fas fa-search absolute left-3.5 top-3 text-[#94a3b8] text-xs"></i>
+                        <input type="text" id="cm_search_input" onkeyup="filterAdminComplaintsTable()" placeholder="Search..." class="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-xl pl-9 pr-4 py-2 text-xs text-[#334155] focus:outline-none focus:border-[#3b82f6]">
+                    </div>
+                </div>
+
+                <!-- Screen 11 Complaint Table -->
+                <div class="overflow-x-auto rounded-xl border border-[#e2e8f0]">
+                    <table class="w-full text-left border-collapse" id="admin_complaints_table">
+                        <thead>
+                            <tr class="bg-[#f8fafc] border-b border-[#e2e8f0] text-[12px] font-bold text-[#64748b]">
+                                <th class="py-3.5 px-5">Student</th>
+                                <th class="py-3.5 px-5">Category</th>
+                                <th class="py-3.5 px-5">Subject</th>
+                                <th class="py-3.5 px-5">Date</th>
+                                <th class="py-3.5 px-5">Status</th>
+                                <th class="py-3.5 px-5 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-[#f1f5f9] text-[13px]">
+                            {% if all_complaints %}
+                                {% for c in all_complaints %}
+                                <tr class="hover:bg-[#f8fafc]/60 transition-colors complaint-row" 
+                                    data-status="{{ c.status }}" 
+                                    data-category="{{ c.category }}" 
+                                    data-student="{{ c.student_id }}" 
+                                    data-subject="{{ c.subject or c.description }}">
+                                    
+                                    <td class="py-4 px-5 font-bold text-[#1e293b] whitespace-nowrap">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-7 h-7 rounded-full bg-[#eff6ff] text-[#3b82f6] font-bold text-xs flex items-center justify-center">
+                                                {{ c.student_id[:2] }}
+                                            </div>
+                                            <span>{{ c.student_id }}</span>
+                                        </div>
+                                    </td>
+                                    
+                                    <td class="py-4 px-5 text-[#475569] font-medium whitespace-nowrap">
+                                        {{ c.category }}
+                                    </td>
+                                    
+                                    <td class="py-4 px-5 font-medium text-[#3b82f6] max-w-[220px] truncate" title="{{ c.description }}">
+                                        {{ c.subject or c.description }}
+                                    </td>
+                                    
+                                    <td class="py-4 px-5 text-[#64748b] text-xs whitespace-nowrap">
+                                        {{ c.created_at.strftime('%Y-%m-%d') if c.created_at else '' }}
+                                    </td>
+
+                                    <td class="py-4 px-5 whitespace-nowrap">
+                                        {% if c.status == 'Open' or c.status == 'Pending' %}
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold bg-[#fef2f2] text-[#ef4444] border border-[#fecaca]">
+                                                Open
+                                            </span>
+                                        {% elif c.status == 'In Progress' or c.status == 'Under Review' %}
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold bg-[#fffbeb] text-[#f59e0b] border border-[#fef3c7]">
+                                                In Progress
+                                            </span>
+                                        {% elif c.status == 'Resolved' %}
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold bg-[#f0fdf4] text-[#22c55e] border border-[#bbf7d0]">
+                                                Resolved
+                                            </span>
+                                        {% else %}
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold bg-[#f8fafc] text-[#64748b] border border-[#e2e8f0]">
+                                                {{ c.status }}
+                                            </span>
+                                        {% endif %}
+                                    </td>
+
+                                    <td class="py-4 px-5 text-right whitespace-nowrap">
+                                        <div class="flex items-center justify-end gap-3 text-xs font-bold">
+                                            <button onclick="viewComplaintDetails({{ c.id }}, '{{ c.student_id }}', '{{ c.category }}', '{{ (c.subject or c.description)|escapejs }}', '{{ c.description|escapejs }}', '{{ c.status }}', '{{ (c.admin_note or '')|escapejs }}', '{{ c.created_at.strftime('%Y-%m-%d') if c.created_at else '' }}')" class="text-[#3b82f6] hover:underline">
+                                                View
+                                            </button>
+                                            <button onclick="openComplaintModal({{ c.id }}, '{{ c.student_id }}', '{{ c.category }}', '{{ (c.subject or c.description)|escapejs }}', '{{ c.description|escapejs }}', '{{ c.status }}', '{{ (c.admin_note or '')|escapejs }}')" class="text-[#22c55e] hover:underline">
+                                                Reply
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="6" class="py-8 text-center text-[#94a3b8] text-xs">
+                                        No complaints logged yet.
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
         </div>
 
         <!-- SECTION COMMUNICATION (Screen 12 recreation) -->
@@ -1184,6 +1332,59 @@
             </div>
         </form>
     </div>
+<!-- VIEW COMPLAINT MODAL -->
+<div id="viewComplaintModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-[#e2e8f0]">
+        <div class="p-5 border-b border-[#f1f5f9] flex justify-between items-center bg-[#f8fafc]">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-file-alt text-[#3b82f6]"></i>
+                <h3 class="font-bold text-[#1e293b] text-base">Complaint Details</h3>
+            </div>
+            <i class="fas fa-times cursor-pointer text-[#64748b] hover:text-[#0f172a]" onclick="document.getElementById('viewComplaintModal').classList.add('hidden')"></i>
+        </div>
+        <div class="p-6 flex flex-col gap-4">
+            <div class="grid grid-cols-2 gap-4 bg-[#f8fafc] p-4 rounded-xl border border-[#f1f5f9]">
+                <div>
+                    <span class="text-[11px] font-bold text-[#94a3b8] uppercase block">Student ID</span>
+                    <div id="view_cm_student" class="text-sm font-bold text-[#1e293b]"></div>
+                </div>
+                <div>
+                    <span class="text-[11px] font-bold text-[#94a3b8] uppercase block">Category</span>
+                    <div id="view_cm_category" class="text-sm font-medium text-[#475569]"></div>
+                </div>
+            </div>
+
+            <div>
+                <span class="text-[11px] font-bold text-[#94a3b8] uppercase block mb-1">Subject</span>
+                <div id="view_cm_subject" class="text-sm font-bold text-[#0f172a] bg-[#eff6ff] text-[#1d4ed8] p-3 rounded-lg border border-[#dbeafe]"></div>
+            </div>
+
+            <div>
+                <span class="text-[11px] font-bold text-[#94a3b8] uppercase block mb-1">Description</span>
+                <div id="view_cm_desc" class="text-xs text-[#334155] bg-[#f8fafc] p-3 rounded-lg border border-[#e2e8f0] leading-relaxed"></div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <span class="text-[11px] font-bold text-[#94a3b8] uppercase block mb-1">Status</span>
+                    <div id="view_cm_status" class="text-xs font-bold"></div>
+                </div>
+                <div>
+                    <span class="text-[11px] font-bold text-[#94a3b8] uppercase block mb-1">Date Submitted</span>
+                    <div id="view_cm_date" class="text-xs text-[#64748b]"></div>
+                </div>
+            </div>
+
+            <div id="view_cm_note_box" class="hidden">
+                <span class="text-[11px] font-bold text-[#94a3b8] uppercase block mb-1">Admin Remarks</span>
+                <div id="view_cm_note" class="text-xs text-[#1e293b] bg-[#f0fdf4] p-3 rounded-lg border border-[#bbf7d0]"></div>
+            </div>
+
+            <div class="pt-3 flex justify-end">
+                <button type="button" class="px-5 py-2.5 text-xs font-bold text-white bg-[#3b82f6] hover:bg-[#2563eb] rounded-xl shadow" onclick="document.getElementById('viewComplaintModal').classList.add('hidden')">Close</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -1251,21 +1452,62 @@
         }
     }
     
-    function filterAdminComplaints() {
-        const filterStatus = document.getElementById('compFilterStatus').value.toLowerCase();
-        const searchTxt = document.getElementById('compSearch').value.toLowerCase();
-        
-        document.querySelectorAll('.comp-row').forEach(row => {
-            const status = row.querySelector('.comp-status-val')?.dataset.val.toLowerCase() || '';
+    function filterAdminComplaintsTable() {
+        const statusVal = (document.getElementById('cm_status_filter')?.value || 'all').toLowerCase();
+        const catVal = (document.getElementById('cm_category_filter')?.value || 'all').toLowerCase();
+        const searchVal = (document.getElementById('cm_search_input')?.value || '').toLowerCase();
+
+        const rows = document.querySelectorAll('#admin_complaints_table .complaint-row');
+        rows.forEach(row => {
+            const status = (row.getAttribute('data-status') || '').toLowerCase();
+            const category = (row.getAttribute('data-category') || '').toLowerCase();
             const text = row.innerText.toLowerCase();
-            
-            const matchStatus = filterStatus === '' || status === filterStatus;
-            const matchQuery = searchTxt === '' || text.includes(searchTxt);
-            
-            row.style.display = (matchStatus && matchQuery) ? '' : 'none';
+
+            const matchStatus = (statusVal === 'all') || (statusVal === 'open' && (status === 'open' || status === 'pending')) || (statusVal === 'in progress' && (status === 'in progress' || status === 'under review')) || (status === statusVal);
+            const matchCategory = (catVal === 'all') || (category === catVal);
+            const matchSearch = (searchVal === '') || text.includes(searchVal);
+
+            if (matchStatus && matchCategory && matchSearch) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
         });
     }
-    
+
+    function viewComplaintDetails(id, student, category, subject, desc, status, admin_note, date) {
+        document.getElementById('view_cm_student').innerText = student;
+        document.getElementById('view_cm_category').innerText = category;
+        document.getElementById('view_cm_subject').innerText = subject;
+        document.getElementById('view_cm_desc').innerText = desc;
+        document.getElementById('view_cm_date').innerText = date || 'N/A';
+        
+        const statusBadge = document.getElementById('view_cm_status');
+        if (status === 'Open' || status === 'Pending') {
+            statusBadge.className = 'text-xs font-bold text-red-600 bg-red-50 px-2.5 py-1 rounded-full border border-red-200 inline-block';
+            statusBadge.innerText = 'Open';
+        } else if (status === 'In Progress' || status === 'Under Review') {
+            statusBadge.className = 'text-xs font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200 inline-block';
+            statusBadge.innerText = 'In Progress';
+        } else if (status === 'Resolved') {
+            statusBadge.className = 'text-xs font-bold text-green-600 bg-green-50 px-2.5 py-1 rounded-full border border-green-200 inline-block';
+            statusBadge.innerText = 'Resolved';
+        } else {
+            statusBadge.className = 'text-xs font-bold text-gray-600 bg-gray-50 px-2.5 py-1 rounded-full border border-gray-200 inline-block';
+            statusBadge.innerText = status;
+        }
+
+        const noteBox = document.getElementById('view_cm_note_box');
+        if (admin_note && admin_note.trim()) {
+            document.getElementById('view_cm_note').innerText = admin_note;
+            noteBox.classList.remove('hidden');
+        } else {
+            noteBox.classList.add('hidden');
+        }
+
+        document.getElementById('viewComplaintModal').classList.remove('hidden');
+    }
+
     function openComplaintModal(id, student, category, subject, desc, status, admin_note) {
         document.getElementById('cm_id').value = id;
         document.getElementById('cm_student').innerText = student;
@@ -1273,20 +1515,20 @@
         document.getElementById('cm_subject').innerText = subject;
         document.getElementById('cm_desc').innerText = desc;
         document.getElementById('cm_status').value = status;
-        document.getElementById('cm_note').value = admin_note;
+        document.getElementById('cm_note').value = admin_note || '';
         document.getElementById('complaintModal').classList.remove('hidden');
     }
-    
+
     async function submitAdminComplaintUpdate(e) {
         e.preventDefault();
         const btn = document.getElementById('cm_submit_btn');
         const id = document.getElementById('cm_id').value;
         const status = document.getElementById('cm_status').value;
         const note = document.getElementById('cm_note').value;
-        
+
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Saving...';
-        
+
         try {
             const res = await fetch(`/api/complaints/${id}/update`, {
                 method: 'POST',

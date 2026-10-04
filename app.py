@@ -285,6 +285,18 @@ def init_db():
             db.session.add_all(sample_ingredients)
             db.session.commit()
             print("Default inventory ingredients seeded.")
+
+        if Complaint.query.count() == 0:
+            sample_complaints = [
+                Complaint(student_id="ST001", category="Food Quality", subject="Food too spicy", description="The dinner curry yesterday was excessively spicy.", status="Open"),
+                Complaint(student_id="ST002", category="Cleanliness", subject="Mess cleaning", description="Tables in the dining hall need to be cleaned faster between slots.", status="In Progress"),
+                Complaint(student_id="ST003", category="Menu", subject="Repeated dish", description="Paneer was served twice in a row.", status="Resolved", admin_note="Menu updated for next week."),
+                Complaint(student_id="ST004", category="Food Quantity", subject="Less quantity", description="Rice portion was insufficient during lunch.", status="Open"),
+                Complaint(student_id="ST005", category="Food Quality", subject="Taste issue", description="Dal tadka lacked salt.", status="In Progress"),
+            ]
+            db.session.add_all(sample_complaints)
+            db.session.commit()
+            print("Default sample complaints seeded.")
         
         # Train predictor
         predictor.train()
