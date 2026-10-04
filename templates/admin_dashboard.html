@@ -1269,113 +1269,175 @@
             </div>
         </div>
 
-        <!-- SECTION 12: ADMIN SETTINGS (Reference Screen 20 recreation) -->
-        <div id="content-settings" class="tab-content w-full p-4">
-            <div class="bg-white rounded-2xl shadow-sm border border-[#e2e8f0] p-6 max-w-lg mx-auto">
-                <!-- Header -->
-                <div class="flex items-center gap-3 mb-6 pb-4 border-b border-[#f1f5f9]">
-                    <div class="w-10 h-10 rounded-xl bg-[#f0fdf4] text-[#22c55e] flex items-center justify-center text-lg font-bold shadow-sm">
-                        <i class="fas fa-leaf"></i>
+        <!-- SECTION 12: ADMIN PROFILE (App View overlay) -->
+        <div id="content-settings" class="tab-content relative -mx-4 md:-mx-6 -mt-4 md:-mt-6 pb-12 w-[calc(100%+2rem)] md:w-[calc(100%+3rem)] bg-[#f8fafc] min-h-screen">
+            
+            <!-- Green Header -->
+            <div class="bg-gradient-to-r from-[#10b981] to-[#059669] pt-6 pb-24 px-5 text-white flex items-center justify-between sticky top-0 z-10 rounded-b-[2rem] shadow-sm">
+                <div class="flex items-center gap-3">
+                    <button class="text-white hover:bg-white/20 p-2 rounded-full transition-colors"><i class="fas fa-arrow-left"></i></button>
+                    <h2 class="font-bold text-lg">Admin Profile</h2>
+                </div>
+                <button class="text-white hover:bg-white/20 p-2 rounded-full transition-colors"><i class="fas fa-cog"></i></button>
+            </div>
+            
+            <!-- Leaf Logo background -->
+            <div class="absolute top-4 right-4 text-white/10 text-8xl pointer-events-none -rotate-45 z-10">
+                <i class="fas fa-leaf"></i>
+            </div>
+            
+            <!-- Content Area (Overlaps Header) -->
+            <div class="px-4 -mt-16 relative z-20 max-w-lg mx-auto">
+                
+                <!-- Brand header -->
+                <div class="flex items-center gap-2 mb-3 text-white px-2">
+                    <i class="fas fa-leaf text-lg"></i>
+                    <span class="font-bold text-lg tracking-wide">WasteZero</span>
+                </div>
+
+                <!-- Top Avatar Card -->
+                <div class="bg-gradient-to-br from-[#f0fdf4] to-white rounded-2xl shadow-sm p-5 mb-5 flex items-center gap-5 relative overflow-hidden border border-[#dcfce7]">
+                    <div class="relative z-10 w-[72px] h-[72px] rounded-full bg-[#10b981] text-white flex items-center justify-center text-3xl font-bold border-4 border-white shadow-md flex-shrink-0">
+                        {{ current_user.username[:1].upper() if current_user.username else 'A' }}
+                        <button onclick="openProfileModal()" class="absolute bottom-0 right-0 w-7 h-7 bg-[#10b981] rounded-full border-2 border-white text-white flex justify-center items-center text-[11px] hover:bg-[#059669] transition-colors"><i class="fas fa-camera"></i></button>
                     </div>
-                    <div>
-                        <h2 class="font-bold text-[#1e293b] text-xl">Settings</h2>
-                        <p class="text-xs text-[#64748b]">Manage theme appearance and admin account preferences</p>
+                    <div class="relative z-10">
+                        <h3 class="font-extrabold text-[#111827] text-[17px] mb-0.5">{{ current_user.full_name or current_user.username }}</h3>
+                        <p class="text-[#10b981] text-[12px] font-bold mb-1">Administrator</p>
+                        <p class="text-[#6b7280] text-[12px]"><i class="fas fa-envelope text-[#9ca3af] mr-1"></i> {{ current_user.email or ((current_user.username or 'admin') ~ '@wastezero.local') }}</p>
                     </div>
                 </div>
 
-                <!-- Appearance Section -->
-                <div class="mb-8">
-                    <h3 class="font-bold text-[#64748b] text-xs uppercase tracking-wider mb-3">Appearance</h3>
+                <!-- Account Information Section -->
+                <h3 class="font-bold text-[#10b981] text-[14px] mb-2 px-1 flex items-center gap-2"><i class="fas fa-user"></i> Account Information</h3>
+                <div class="bg-white rounded-2xl shadow-sm border border-[#e5e7eb] p-1.5 mb-5 divide-y divide-[#f3f4f6]">
+                    <div class="p-3 flex items-center gap-4">
+                        <div class="w-9 h-9 rounded-full bg-[#f8fafc] text-[#475569] flex items-center justify-center flex-shrink-0"><i class="fas fa-user-circle"></i></div>
+                        <div class="flex-1">
+                            <p class="text-[11px] text-[#9ca3af] font-semibold uppercase tracking-wider mb-0.5">Full Name</p>
+                            <p class="text-[#1f2937] text-[14px] font-bold">{{ current_user.full_name or current_user.username }}</p>
+                        </div>
+                    </div>
+                    <div class="p-3 flex items-center gap-4">
+                        <div class="w-9 h-9 rounded-full bg-[#f8fafc] text-[#475569] flex items-center justify-center flex-shrink-0"><i class="fas fa-envelope"></i></div>
+                        <div class="flex-1">
+                            <p class="text-[11px] text-[#9ca3af] font-semibold uppercase tracking-wider mb-0.5">Email</p>
+                            <p class="text-[#1f2937] text-[14px] font-bold">{{ current_user.email or ((current_user.username or 'admin') ~ '@wastezero.local') }}</p>
+                        </div>
+                    </div>
+                    <div class="p-3 flex items-center gap-4">
+                        <div class="w-9 h-9 rounded-full bg-[#f8fafc] text-[#475569] flex items-center justify-center flex-shrink-0"><i class="fas fa-shield-alt"></i></div>
+                        <div class="flex-1">
+                            <p class="text-[11px] text-[#9ca3af] font-semibold uppercase tracking-wider mb-0.5">Role</p>
+                            <p class="text-[#1f2937] text-[14px] font-bold">Administrator</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Administration Menu Section -->
+                <h3 class="font-bold text-[#10b981] text-[14px] mb-2 px-1 flex items-center gap-2"><i class="fas fa-cogs"></i> Administration</h3>
+                <div class="bg-white rounded-2xl shadow-sm border border-[#e5e7eb] p-1.5 mb-5 divide-y divide-[#f3f4f6]">
+                    <button type="button" onclick="switchTab('overview', document.getElementById('tab-overview'))" class="w-full p-3 flex items-center justify-between hover:bg-[#f9fafb] text-left rounded-xl transition-colors group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-9 h-9 rounded-full bg-[#ecfdf5] text-[#10b981] flex items-center justify-center group-hover:scale-110 transition-transform"><i class="fas fa-home text-[15px]"></i></div>
+                            <div>
+                                <p class="font-bold text-[14px] text-[#1f2937] mb-0.5">Dashboard</p>
+                                <p class="text-[11px] text-[#6b7280]">View operational overview</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-[#d1d5db] text-[13px] group-hover:text-[#10b981] transition-colors"></i>
+                    </button>
                     
-                    <!-- Theme Toggle Buttons Grid matching Screen 20 -->
-                    <div class="grid grid-cols-3 gap-3 bg-[#f8fafc] p-2 rounded-2xl border border-[#e2e8f0]">
-                        <!-- Light -->
-                        <button type="button" onclick="selectTheme('light'); updateThemeButtonsUI('light');" id="admin-theme-btn-light" class="theme-select-btn flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-xs font-bold transition-all border border-transparent text-[#64748b] hover:text-[#1e293b]">
-                            <i class="fas fa-sun text-sm text-[#f59e0b]"></i>
-                            <span>Light</span>
-                        </button>
+                    <button type="button" onclick="switchTab('menu', document.getElementById('tab-menu'))" class="w-full p-3 flex items-center justify-between hover:bg-[#f9fafb] text-left rounded-xl transition-colors group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-9 h-9 rounded-full bg-[#fff7ed] text-[#ea580c] flex items-center justify-center group-hover:scale-110 transition-transform"><i class="fas fa-utensils text-[15px]"></i></div>
+                            <div>
+                                <p class="font-bold text-[14px] text-[#1f2937] mb-0.5">Menu Management</p>
+                                <p class="text-[11px] text-[#6b7280]">Manage and publish menus</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-[#d1d5db] text-[13px] group-hover:text-[#ea580c] transition-colors"></i>
+                    </button>
+                    <button type="button" onclick="switchTab('predict', document.getElementById('tab-predict'))" class="w-full p-3 flex items-center justify-between hover:bg-[#f9fafb] text-left rounded-xl transition-colors group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-9 h-9 rounded-full bg-[#fdf2f8] text-[#db2777] flex items-center justify-center group-hover:scale-110 transition-transform"><i class="fas fa-brain text-[15px]"></i></div>
+                            <div>
+                                <p class="font-bold text-[14px] text-[#1f2937] mb-0.5">AI Prediction</p>
+                                <p class="text-[11px] text-[#6b7280]">ML driven predictions</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-[#d1d5db] text-[13px] group-hover:text-[#db2777] transition-colors"></i>
+                    </button>
+                    <button type="button" onclick="switchTab('dish', document.getElementById('tab-dish'))" class="w-full p-3 flex items-center justify-between hover:bg-[#f9fafb] text-left rounded-xl transition-colors group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-9 h-9 rounded-full bg-[#eff6ff] text-[#3b82f6] flex items-center justify-center group-hover:scale-110 transition-transform"><i class="fas fa-chart-line text-[15px]"></i></div>
+                            <div>
+                                <p class="font-bold text-[14px] text-[#1f2937] mb-0.5">Dish Analytics</p>
+                                <p class="text-[11px] text-[#6b7280]">View dish performance</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-[#d1d5db] text-[13px] group-hover:text-[#3b82f6] transition-colors"></i>
+                    </button>
+                    <button type="button" onclick="switchTab('waste', document.getElementById('tab-waste'))" class="w-full p-3 flex items-center justify-between hover:bg-[#f9fafb] text-left rounded-xl transition-colors group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-9 h-9 rounded-full bg-[#f0fdf4] text-[#22c55e] flex items-center justify-center group-hover:scale-110 transition-transform"><i class="fas fa-recycle text-[15px]"></i></div>
+                            <div>
+                                <p class="font-bold text-[14px] text-[#1f2937] mb-0.5">Food Waste</p>
+                                <p class="text-[11px] text-[#6b7280]">Track food waste records</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-[#d1d5db] text-[13px] group-hover:text-[#22c55e] transition-colors"></i>
+                    </button>
+                    <button type="button" onclick="switchTab('inventory', document.getElementById('tab-inventory'))" class="w-full p-3 flex items-center justify-between hover:bg-[#f9fafb] text-left rounded-xl transition-colors group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-9 h-9 rounded-full bg-[#fefce8] text-[#eab308] flex items-center justify-center group-hover:scale-110 transition-transform"><i class="fas fa-box text-[15px]"></i></div>
+                            <div>
+                                <p class="font-bold text-[14px] text-[#1f2937] mb-0.5">Inventory</p>
+                                <p class="text-[11px] text-[#6b7280]">Manage stock and reports</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-[#d1d5db] text-[13px] group-hover:text-[#eab308] transition-colors"></i>
+                    </button>
+                </div>
 
-                        <!-- Dark -->
-                        <button type="button" onclick="selectTheme('dark'); updateThemeButtonsUI('dark');" id="admin-theme-btn-dark" class="theme-select-btn flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-xs font-bold transition-all border border-transparent text-[#64748b] hover:text-[#1e293b]">
-                            <i class="fas fa-moon text-sm text-[#3b82f6]"></i>
-                            <span>Dark</span>
-                        </button>
-
-                        <!-- System -->
-                        <button type="button" onclick="selectTheme('system'); updateThemeButtonsUI('system');" id="admin-theme-btn-system" class="theme-select-btn flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-xs font-bold transition-all border-2 border-[#22c55e] bg-white text-[#1e293b] shadow-sm">
-                            <i class="fas fa-check-circle text-[#22c55e] text-sm"></i>
-                            <span>System</span>
-                        </button>
+                <!-- App Settings Section -->
+                <h3 class="font-bold text-[#10b981] text-[14px] mb-2 px-1 flex items-center gap-2"><i class="fas fa-cog"></i> Settings</h3>
+                <div class="bg-white rounded-2xl shadow-sm border border-[#e5e7eb] p-1.5 mb-6 divide-y divide-[#f3f4f6]">
+                    
+                    <!-- Theme Toggle Interactive Row -->
+                    <div class="p-3 flex items-center justify-between gap-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-9 h-9 rounded-full bg-[#fff7ed] text-[#ea580c] flex items-center justify-center flex-shrink-0"><i class="fas fa-sun text-[15px]"></i></div>
+                            <div>
+                                <p class="font-bold text-[14px] text-[#1f2937] mb-0.5">Theme</p>
+                                <p class="text-[11px] text-[#6b7280]">Light / Dark / System</p>
+                            </div>
+                        </div>
+                        <div class="flex bg-[#f1f5f9] p-1 rounded-lg border border-[#e2e8f0]">
+                            <!-- The JS function updateThemeButtonsUI applies styling to these buttons -->
+                            <button onclick="selectTheme('light'); updateThemeButtonsUI('light');" id="admin-theme-btn-light" class="w-8 h-7 theme-select-btn rounded flex items-center justify-center text-[13px] text-[#64748b] hover:text-[#1e293b] hover:bg-white transition-all"><i class="fas fa-sun"></i></button>
+                            <button onclick="selectTheme('dark'); updateThemeButtonsUI('dark');" id="admin-theme-btn-dark" class="w-8 h-7 theme-select-btn rounded flex items-center justify-center text-[13px] text-[#64748b] hover:text-[#1e293b] hover:bg-white transition-all"><i class="fas fa-moon"></i></button>
+                            <button onclick="selectTheme('system'); updateThemeButtonsUI('system');" id="admin-theme-btn-system" class="w-8 h-7 theme-select-btn rounded flex items-center justify-center text-[13px] text-[#64748b] hover:text-[#1e293b] hover:bg-white transition-all"><i class="fas fa-desktop"></i></button>
+                        </div>
                     </div>
+
+                    <!-- Account Security -->
+                    <button type="button" onclick="openChangePasswordModal()" class="w-full p-3 flex items-center justify-between hover:bg-[#f9fafb] text-left rounded-xl transition-colors group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-9 h-9 rounded-full bg-[#f8fafc] border border-[#e2e8f0] text-[#475569] flex items-center justify-center group-hover:scale-110 transition-transform"><i class="fas fa-shield-alt text-[15px]"></i></div>
+                            <div>
+                                <p class="font-bold text-[14px] text-[#1f2937] mb-0.5">Account Security</p>
+                                <p class="text-[11px] text-[#6b7280]">Manage your account password</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-[#d1d5db] text-[13px] group-hover:text-[#475569] transition-colors"></i>
+                    </button>
                 </div>
 
-                <!-- Setting Rows List matching Screen 20 -->
-                <div class="divide-y divide-[#f1f5f9] border border-[#e2e8f0] rounded-2xl overflow-hidden bg-white">
-                    <!-- Profile Information -->
-                    <button type="button" onclick="openProfileModal()" class="w-full flex items-center justify-between p-4 hover:bg-[#f8fafc] transition-colors text-left group">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-[#eff6ff] text-[#3b82f6] flex items-center justify-center text-sm font-bold">
-                                <i class="far fa-user"></i>
-                            </div>
-                            <span class="text-xs font-bold text-[#334155] group-hover:text-[#1e293b]">Profile Information</span>
-                        </div>
-                        <div class="text-[#94a3b8] text-xs font-bold group-hover:text-[#3b82f6]">
-                            <i class="fas fa-chevron-right"></i>
-                        </div>
-                    </button>
-
-                    <!-- Change Password -->
-                    <button type="button" onclick="openChangePasswordModal()" class="w-full flex items-center justify-between p-4 hover:bg-[#f8fafc] transition-colors text-left group">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-[#fef3c7] text-[#d97706] flex items-center justify-center text-sm font-bold">
-                                <i class="fas fa-key"></i>
-                            </div>
-                            <span class="text-xs font-bold text-[#334155] group-hover:text-[#1e293b]">Change Password</span>
-                        </div>
-                        <div class="text-[#94a3b8] text-xs font-bold group-hover:text-[#3b82f6]">
-                            <i class="fas fa-chevron-right"></i>
-                        </div>
-                    </button>
-
-                    <!-- Notification Settings -->
-                    <button type="button" onclick="openNotifSettingsModal()" class="w-full flex items-center justify-between p-4 hover:bg-[#f8fafc] transition-colors text-left group">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-[#f0fdf4] text-[#22c55e] flex items-center justify-center text-sm font-bold">
-                                <i class="far fa-bell"></i>
-                            </div>
-                            <span class="text-xs font-bold text-[#334155] group-hover:text-[#1e293b]">Notification Settings</span>
-                        </div>
-                        <div class="text-[#94a3b8] text-xs font-bold group-hover:text-[#3b82f6]">
-                            <i class="fas fa-chevron-right"></i>
-                        </div>
-                    </button>
-
-                    <!-- Help & Support -->
-                    <button type="button" onclick="openHelpSupportModal()" class="w-full flex items-center justify-between p-4 hover:bg-[#f8fafc] transition-colors text-left group">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-[#f3e8ff] text-[#9333ea] flex items-center justify-center text-sm font-bold">
-                                <i class="far fa-question-circle"></i>
-                            </div>
-                            <span class="text-xs font-bold text-[#334155] group-hover:text-[#1e293b]">Help & Support</span>
-                        </div>
-                        <div class="text-[#94a3b8] text-xs font-bold group-hover:text-[#3b82f6]">
-                            <i class="fas fa-chevron-right"></i>
-                        </div>
-                    </button>
-
-                    <!-- Logout -->
-                    <a href="{{ url_for('logout') }}" class="w-full flex items-center justify-between p-4 hover:bg-[#fef2f2] transition-colors text-left group">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-[#fef2f2] text-[#ef4444] flex items-center justify-center text-sm font-bold">
-                                <i class="fas fa-power-off"></i>
-                            </div>
-                            <span class="text-xs font-bold text-[#ef4444]">Logout Admin</span>
-                        </div>
-                        <div class="text-[#ef4444] text-xs font-bold">
-                            <i class="fas fa-chevron-right"></i>
-                        </div>
-                    </a>
-                </div>
+                <!-- Logout Button -->
+                <a href="{{ url_for('logout') }}" class="w-full flex items-center justify-center gap-2 py-3.5 bg-white border border-[#fca5a5] text-[#ef4444] rounded-2xl font-bold text-[15px] hover:bg-[#fef2f2] transition-colors mb-2 shadow-sm">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
             </div>
         </div>
 
