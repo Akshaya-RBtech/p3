@@ -549,82 +549,89 @@
         <!-- Student Complaints -->
         <!-- Student Complaints -->
         <div id="content-complaints" class="tab-content">
-            <!-- Screen 10 Recreation -->
-            <div class="max-w-3xl mx-auto">
+            <!-- Screen 10 Recreation - Single column centered card matching reference image -->
+            <div class="max-w-md mx-auto w-full">
                 <!-- Submit Form Card -->
-                <div class="bg-white rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.03)] border border-[#e2e8f0] mb-8 overflow-hidden">
-                    <div class="flex items-center gap-3 p-5 border-b border-[#f1f5f9]">
-                        <div class="w-8 h-8 rounded-full bg-[#e8f5e9] text-[#16a34a] flex justify-center items-center">
+                <div class="bg-white rounded-2xl shadow-sm border border-[#e2e8f0] mb-5 overflow-hidden">
+                    <!-- Card Header -->
+                    <div class="flex items-center gap-3 px-5 py-4 border-b border-[#f1f5f9]">
+                        <div class="w-9 h-9 rounded-full bg-[#e8f5e9] text-[#16a34a] flex justify-center items-center flex-shrink-0">
                             <i class="fas fa-file-signature text-sm"></i>
                         </div>
-                        <h2 class="font-bold text-[#1e293b] text-[17px]">Submit Complaint</h2>
+                        <h2 class="font-bold text-[#1e293b] text-[16px]">Submit Complaint</h2>
                     </div>
-                    
-                    <form onsubmit="submitStudentComplaint(event)" class="p-6">
-                        <!-- Category Input -->
-                        <div class="mb-5">
-                            <label class="block text-[13px] font-bold text-[#475569] mb-2">Category</label>
-                            <select id="comp-category" class="w-full border border-[#cbd5e1] rounded-lg p-3 text-[14px] text-[#334155] focus:outline-none focus:border-[#3b82f6] shadow-sm appearance-none bg-white" required>
-                                <option value="Food Quality">Food Quality</option>
-                                <option value="Food Quantity">Food Quantity</option>
-                                <option value="Hygiene">Hygiene</option>
-                                <option value="Menu">Menu</option>
-                                <option value="Service">Service</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-                        
-                        <!-- Subject Input -->
-                        <div class="mb-5">
-                            <label class="block text-[13px] font-bold text-[#475569] mb-2">Subject</label>
+
+                    <form onsubmit="submitStudentComplaint(event)" class="px-5 py-5">
+                        <!-- Category -->
+                        <div class="mb-4">
+                            <label class="block text-[13px] font-semibold text-[#374151] mb-1.5">Category</label>
                             <div class="relative">
-                                <input type="text" id="comp-subject" class="w-full border border-[#cbd5e1] rounded-lg p-3 text-[14px] text-[#334155] focus:outline-none focus:border-[#3b82f6] shadow-sm" placeholder="e.g. Food too spicy" required>
-                                <i class="fas fa-chevron-down absolute right-4 top-4 text-[#94a3b8] text-sm pointer-events-none"></i>
+                                <select id="comp-category" class="w-full border border-[#d1d5db] rounded-lg px-3 py-2.5 text-[13px] text-[#374151] focus:outline-none focus:border-[#16a34a] bg-white appearance-none pr-8" required>
+                                    <option value="Food Quality">Food Quality</option>
+                                    <option value="Food Quantity">Food Quantity</option>
+                                    <option value="Hygiene">Hygiene</option>
+                                    <option value="Menu">Menu</option>
+                                    <option value="Service">Service</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <i class="fas fa-chevron-down absolute right-3 top-3.5 text-[#9ca3af] text-xs pointer-events-none"></i>
+                            </div>
+                        </div>
+
+                        <!-- Subject -->
+                        <div class="mb-4">
+                            <label class="block text-[13px] font-semibold text-[#374151] mb-1.5">Subject</label>
+                            <div class="relative">
+                                <input type="text" id="comp-subject" class="w-full border border-[#d1d5db] rounded-lg px-3 py-2.5 text-[13px] text-[#374151] focus:outline-none focus:border-[#16a34a] pr-8" placeholder="Food too spicy" required>
+                                <i class="fas fa-chevron-down absolute right-3 top-3.5 text-[#9ca3af] text-xs pointer-events-none"></i>
                             </div>
                         </div>
 
                         <!-- Description -->
+                        <div class="mb-4">
+                            <label class="block text-[13px] font-semibold text-[#374151] mb-1.5">Description</label>
+                            <textarea id="comp-description" rows="3" class="w-full border border-[#d1d5db] rounded-lg px-3 py-2.5 text-[13px] text-[#6b7280] focus:outline-none focus:border-[#16a34a] resize-none" placeholder="The food was too spicy today. Please consider reducing the spice level." required></textarea>
+                        </div>
+
+                        <!-- Image Upload -->
                         <div class="mb-5">
-                            <label class="block text-[13px] font-bold text-[#475569] mb-2">Description</label>
-                            <textarea id="comp-description" class="w-full border border-[#cbd5e1] rounded-lg p-3 text-[14px] text-[#64748b] min-h-[100px] focus:outline-none focus:border-[#3b82f6] shadow-sm" placeholder="The food was too spicy today. Please consider reducing the spice level..." required></textarea>
+                            <label class="block text-[13px] font-semibold text-[#374151] mb-1.5">Attach Image (Optional)</label>
+                            <label class="flex items-center gap-3 border border-[#d1d5db] rounded-lg px-3 py-2 cursor-pointer hover:bg-[#f9fafb] bg-white transition-colors">
+                                <div class="flex items-center gap-2 bg-[#f3f4f6] border border-[#e5e7eb] rounded px-3 py-1.5 text-[12px] font-semibold text-[#374151] whitespace-nowrap">
+                                    <i class="fas fa-cloud-upload-alt text-[#6b7280]"></i>
+                                    Choose File
+                                </div>
+                                <span class="text-[12px] text-[#9ca3af]">No file chosen</span>
+                                <input type="file" class="hidden" accept="image/*">
+                            </label>
                         </div>
 
-                        <!-- Image File (Visual only as per UI) -->
-                        <div class="mb-6">
-                            <label class="block text-[13px] font-bold text-[#475569] mb-2">Image Complaint</label>
-                            <div class="flex items-center w-full border border-[#cbd5e1] rounded-lg overflow-hidden shadow-sm">
-                                <label class="cursor-pointer bg-[#f8fafc] px-4 py-3 border-r border-[#cbd5e1] text-[#475569] font-bold text-[13px] hover:bg-[#f1f5f9] transition-colors whitespace-nowrap">
-                                    <i class="fas fa-cloud-upload-alt mr-2 text-[#64748b]"></i> Choose file
-                                    <input type="file" class="hidden">
-                                </label>
-                                <div class="px-4 text-[13px] text-[#94a3b8]">No file chosen</div>
-                            </div>
-                        </div>
+                        <!-- Status Messages -->
+                        <div id="comp-status" class="mb-3 text-center text-[12px] font-bold hidden"></div>
 
-                        <!-- Submit Button matching the green from the prompt -->
-                        <button type="submit" id="comp-btn" class="w-full bg-gradient-to-r from-[#2eb868] to-[#22c55e] text-white font-bold text-[15px] py-3.5 rounded-lg shadow-[0_4px_12px_rgba(34,197,94,0.3)] hover:opacity-90 transition-opacity">
+                        <!-- Submit Button -->
+                        <button type="submit" id="comp-btn" class="w-full bg-[#16a34a] hover:bg-[#15803d] text-white font-bold text-[14px] py-3 rounded-lg shadow-sm transition-colors">
                             Submit Complaint
                         </button>
-                        <div id="comp-status" class="mt-4 text-center text-sm font-bold hidden"></div>
                     </form>
                 </div>
 
                 <!-- My Complaints Table -->
-                <div class="bg-white rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.03)] border border-[#e2e8f0] overflow-hidden">
-                    <div class="p-5 border-b border-[#f1f5f9]">
-                        <h2 class="font-bold text-[#1e293b] text-[17px]">My Complaints</h2>
+                <div class="bg-white rounded-2xl shadow-sm border border-[#e2e8f0] overflow-hidden">
+                    <div class="px-5 py-4 border-b border-[#f1f5f9]">
+                        <h3 class="font-bold text-[#1e293b] text-[15px]">My Complaints</h3>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
+                        <table class="w-full text-left">
                             <thead>
-                                <tr class="bg-[#f8fafc] border-b border-[#e2e8f0]">
-                                    <th class="p-4 text-[12px] font-bold text-[#64748b] w-1/3">Date</th>
-                                    <th class="p-4 text-[12px] font-bold text-[#475569]">Subject</th>
-                                    <th class="p-4 text-[12px] font-bold text-[#64748b] text-center w-[120px]">Status</th>
+                                <tr class="bg-[#f9fafb] border-b border-[#f1f5f9]">
+                                    <th class="px-4 py-3 text-[11px] font-bold text-[#6b7280] uppercase tracking-wide">Date</th>
+                                    <th class="px-4 py-3 text-[11px] font-bold text-[#6b7280] uppercase tracking-wide">Subject</th>
+                                    <th class="px-4 py-3 text-[11px] font-bold text-[#6b7280] uppercase tracking-wide text-right">Status</th>
                                 </tr>
                             </thead>
                             <tbody id="stu-comp-list">
-                                <tr><td colspan="3" class="p-6 text-center text-[#94a3b8] text-sm"><i class="fas fa-spinner fa-spin mr-2"></i> Loading history...</td></tr>
+                                <tr><td colspan="3" class="p-6 text-center text-[#94a3b8] text-sm"><i class="fas fa-spinner fa-spin mr-2"></i> Loading...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -770,79 +777,102 @@
 
         <!-- SECTION: LEAVE REQUEST -->
         <div id="content-leave" class="tab-content">
-            <h2 class="text-2xl fw-800 text-[var(--text-primary)] mb-6">Leave Requests</h2>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Request Form (Matches Reference Screen 08) -->
-                <div>
-                    <div class="card p-0 overflow-hidden shadow" style="border-radius: 12px; background: white;">
-                        <div class="flex items-center justify-between p-4 border-b border-[#e2e8f0]">
-                            <div class="flex items-center gap-3">
-                                <img src="https://ui-avatars.com/api/?name={{ current_user.full_name or current_user.username }}&background=0D8ABC&color=fff" class="w-8 h-8 rounded-full" alt="Avatar">
-                                <h3 class="fw-700 text-[#1e293b]">New Leave Request</h3>
+            <!-- Single centered card matching reference image 8 -->
+            <div class="max-w-md mx-auto w-full">
+                <!-- Leave Form Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-[#e2e8f0] overflow-hidden mb-5">
+                    <!-- Card Header with avatar -->
+                    <div class="flex items-center justify-between px-5 py-4 border-b border-[#f1f5f9]">
+                        <div class="flex items-center gap-3">
+                            <img src="https://ui-avatars.com/api/?name={{ current_user.full_name or current_user.username }}&background=0D8ABC&color=fff&size=40" class="w-9 h-9 rounded-full flex-shrink-0" alt="Avatar">
+                            <h3 class="font-bold text-[#1e293b] text-[15px]">New Leave Request</h3>
+                        </div>
+                        <button type="button" class="w-7 h-7 flex items-center justify-center rounded-full text-[#94a3b8] hover:text-[#475569] hover:bg-[#f1f5f9] transition-colors">
+                            <i class="fas fa-times text-sm"></i>
+                        </button>
+                    </div>
+
+                    <!-- Form Body -->
+                    <div class="px-5 py-5">
+                        <form id="leave-form" onsubmit="submitLeave(event)">
+                            <!-- Leave Start Date -->
+                            <div class="mb-4">
+                                <label class="block text-[13px] font-semibold text-[#374151] mb-1.5">Leave Start Date</label>
+                                <div class="relative">
+                                    <input type="date" id="leave-start" required
+                                        class="w-full border border-[#d1d5db] rounded-lg px-3 py-2.5 text-[13px] text-[#374151] focus:outline-none focus:border-[#16a34a] bg-white pr-10">
+                                    <i class="fas fa-calendar-alt absolute right-3 top-3 text-[#9ca3af] text-sm pointer-events-none"></i>
+                                </div>
                             </div>
-                            <button class="text-[#94a3b8] hover:text-[#475569]"><i class="fas fa-times"></i></button>
-                        </div>
-                        <div class="p-6">
-                            <form id="leave-form" onsubmit="submitLeave(event)">
-                                <div class="mb-5">
-                                    <label class="block text-[13px] fw-600 text-[#475569] mb-1.5">Leave Start Date</label>
-                                    <div class="relative">
-                                        <input type="date" id="leave-start" required class="w-full p-3 border border-[#cbd5e1] rounded hover:border-[#94a3b8] focus:border-[#3b82f6] outline-none text-[#334155] text-sm bg-transparent">
+
+                            <!-- Leave End Date -->
+                            <div class="mb-4">
+                                <label class="block text-[13px] font-semibold text-[#374151] mb-1.5">Leave End Date</label>
+                                <div class="relative">
+                                    <input type="date" id="leave-end" required
+                                        class="w-full border border-[#d1d5db] rounded-lg px-3 py-2.5 text-[13px] text-[#374151] focus:outline-none focus:border-[#16a34a] bg-white pr-10">
+                                    <i class="fas fa-calendar-alt absolute right-3 top-3 text-[#9ca3af] text-sm pointer-events-none"></i>
+                                </div>
+                            </div>
+
+                            <!-- Leave Type -->
+                            <div class="mb-4">
+                                <label class="block text-[13px] font-semibold text-[#374151] mb-1.5">Leave Type</label>
+                                <div class="relative">
+                                    <select id="leave-type" required
+                                        class="w-full border border-[#d1d5db] rounded-lg px-3 py-2.5 text-[13px] text-[#374151] focus:outline-none focus:border-[#16a34a] appearance-none bg-white pr-8">
+                                        <option>Personal Leave</option>
+                                        <option>Sick Leave</option>
+                                        <option>Family Function</option>
+                                        <option>Other</option>
+                                    </select>
+                                    <i class="fas fa-chevron-down absolute right-3 top-3.5 text-[#9ca3af] text-xs pointer-events-none"></i>
+                                </div>
+                            </div>
+
+                            <!-- Reason -->
+                            <div class="mb-4">
+                                <label class="block text-[13px] font-semibold text-[#374151] mb-1.5">Reason</label>
+                                <textarea id="leave-reason" required rows="3"
+                                    class="w-full border border-[#d1d5db] rounded-lg px-3 py-2.5 text-[13px] text-[#6b7280] focus:outline-none focus:border-[#16a34a] resize-none"
+                                    placeholder="Family function at home"></textarea>
+                            </div>
+
+                            <!-- Optional Document -->
+                            <div class="mb-5">
+                                <label class="block text-[13px] font-semibold text-[#374151] mb-1.5">Optional Document</label>
+                                <label class="flex items-center gap-3 border border-[#d1d5db] rounded-lg px-3 py-2 bg-white cursor-pointer hover:bg-[#f9fafb] transition-colors">
+                                    <div class="flex items-center gap-2 bg-[#f3f4f6] border border-[#e5e7eb] rounded px-3 py-1.5 text-[12px] font-semibold text-[#374151] whitespace-nowrap">
+                                        <i class="fas fa-cloud-upload-alt text-[#6b7280]"></i>
+                                        Choose File
                                     </div>
-                                </div>
-                                
-                                <div class="mb-5">
-                                    <label class="block text-[13px] fw-600 text-[#475569] mb-1.5">Leave End Date</label>
-                                    <div class="relative">
-                                        <input type="date" id="leave-end" required class="w-full p-3 border border-[#cbd5e1] rounded hover:border-[#94a3b8] focus:border-[#3b82f6] outline-none text-[#334155] text-sm bg-transparent">
-                                    </div>
-                                </div>
-                                
-                                <div class="mb-5">
-                                    <label class="block text-[13px] fw-600 text-[#475569] mb-1.5">Leave Type</label>
-                                    <div class="relative">
-                                        <select id="leave-type" required class="w-full p-3 border border-[#cbd5e1] rounded hover:border-[#94a3b8] focus:border-[#3b82f6] outline-none text-[#334155] text-sm bg-transparent appearance-none">
-                                            <option>Personal Leave</option>
-                                            <option>Sick Leave</option>
-                                            <option>Family Function</option>
-                                            <option>Other</option>
-                                        </select>
-                                        <i class="fas fa-chevron-down text-[#94a3b8] absolute right-4 top-[15px] text-xs pointer-events-none"></i>
-                                    </div>
-                                </div>
-                                
-                                <div class="mb-5">
-                                    <label class="block text-[13px] fw-600 text-[#475569] mb-1.5">Reason</label>
-                                    <textarea id="leave-reason" required rows="3" class="w-full p-3 border border-[#cbd5e1] rounded hover:border-[#94a3b8] focus:border-[#3b82f6] outline-none text-[#334155] text-sm resize-none" placeholder="Family function at home"></textarea>
-                                </div>
-                                
-                                <div class="mb-6">
-                                    <label class="block text-[13px] fw-600 text-[#475569] mb-1.5">Optional Document</label>
-                                    <div class="flex items-center gap-3 border border-[#cbd5e1] rounded p-1.5">
-                                        <div class="bg-[#f1f5f9] text-[#475569] text-xs fw-600 py-2 px-4 rounded border border-[#e2e8f0] cursor-pointer flex items-center gap-2 hover:bg-[#e2e8f0]">
-                                            <i class="fas fa-cloud-upload-alt"></i> Choose File
-                                        </div>
-                                        <span class="text-xs text-[#94a3b8]">No file chosen</span>
-                                    </div>
-                                </div>
-                                
-                                <div id="leave-error" class="hidden mb-4 p-3 bg-red-50 text-red-600 text-xs rounded border border-red-200"></div>
-                                <div id="leave-success" class="hidden mb-4 p-3 bg-green-50 text-green-600 text-xs rounded border border-green-200">Leave request submitted successfully.</div>
-                                
-                                <button type="submit" id="leave-submit-btn" class="w-full py-3.5 bg-[#409b62] hover:bg-[#348451] text-white rounded font-bold transition-colors shadow">
-                                    Submit Request
-                                </button>
-                            </form>
-                        </div>
+                                    <span class="text-[12px] text-[#9ca3af]">No file chosen</span>
+                                    <input type="file" class="hidden">
+                                </label>
+                            </div>
+
+                            <!-- Alerts -->
+                            <div id="leave-error" class="hidden mb-3 p-3 bg-red-50 text-red-600 text-[12px] rounded-lg border border-red-100"></div>
+                            <div id="leave-success" class="hidden mb-3 p-3 bg-green-50 text-green-700 text-[12px] rounded-lg border border-green-100"></div>
+
+                            <!-- Submit Button -->
+                            <button type="submit" id="leave-submit-btn"
+                                class="w-full py-3 bg-[#16a34a] hover:bg-[#15803d] text-white rounded-lg font-bold text-[14px] transition-colors shadow-sm">
+                                Submit Request
+                            </button>
+                        </form>
                     </div>
                 </div>
-                
-                <!-- History Side -->
-                <div class="card p-6 shadow hidden" id="leave-history-container">
-                    <h3 class="fw-700 text-lg mb-6"><i class="fas fa-history text-muted mr-2"></i> Your Request History</h3>
-                    <div id="leave-history-list" class="space-y-4">
-                        <div class="text-sm text-muted text-center py-8">Loading history...</div>
+
+                <!-- Leave Request History (shown below form, same column) -->
+                <div class="bg-white rounded-2xl shadow-sm border border-[#e2e8f0] overflow-hidden" id="leave-history-container">
+                    <div class="px-5 py-4 border-b border-[#f1f5f9]">
+                        <h3 class="font-bold text-[#1e293b] text-[15px]">My Leave Requests</h3>
+                    </div>
+                    <div id="leave-history-list" class="divide-y divide-[#f1f5f9]">
+                        <div class="text-[13px] text-[#94a3b8] text-center py-8">
+                            <i class="fas fa-spinner fa-spin mr-2"></i> Loading...
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1408,7 +1438,7 @@ async function loadStudentHistory() {
         
         if (lData.length === 0) {
             if(lDiv) lDiv.innerHTML='<div class="text-muted text-[11px] p-3 text-center">No leave requests found.</div>';
-            if(lDivNew) lDivNew.innerHTML='<div class="text-sm text-muted text-center py-8">No past leave requests found.</div>';
+            if(lDivNew) lDivNew.innerHTML='<div class="text-[13px] text-[#94a3b8] text-center py-8">No leave requests found.</div>';
         } else {
             const getBadge = s => s==='Approved' ? 'badge-success' : (s==='Rejected' ? 'badge-danger' : 'badge-warning');
             
@@ -1417,26 +1447,28 @@ async function loadStudentHistory() {
             if(lDivNew) {
                 document.getElementById('leave-history-container').classList.remove('hidden');
                 
-                lDivNew.innerHTML = lData.map(l => `
-                <div class="p-4 border border-[#e2e8f0] rounded bg-[#f8fafc]">
-                    <div class="flex justify-between items-center mb-3">
-                        <div>
-                            <span class="text-[13px] fw-700 text-[#0f172a] block">Request #${l.id} &bull; ${l.type}</span>
-                            <span class="text-[11px] text-[#64748b]">${l.start_date} to ${l.end_date}</span>
+                lDivNew.innerHTML = lData.map(l => {
+                    const statusColor = l.status==='Approved' 
+                        ? 'bg-[#dcfce7] text-[#16a34a]' 
+                        : (l.status==='Rejected' ? 'bg-[#fee2e2] text-[#dc2626]' : 'bg-[#fef3c7] text-[#d97706]');
+                    const statusIcon = l.status==='Approved' ? 'fa-check-circle' : (l.status==='Rejected' ? 'fa-times-circle' : 'fa-clock');
+                    return `
+                    <div class="px-5 py-4 border-b border-[#f1f5f9] last:border-0">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <span class="text-[13px] font-bold text-[#1e293b] block">Request #${l.id} &middot; ${l.type || 'Leave'}</span>
+                                <span class="text-[11px] text-[#64748b]">${l.start_date} &rarr; ${l.end_date}</span>
+                            </div>
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${statusColor} flex items-center gap-1 flex-shrink-0 ml-2">
+                                <i class="fas ${statusIcon} text-[9px]"></i> ${l.status}
+                            </span>
                         </div>
-                        <span class="badge ${getBadge(l.status)} rounded shadow-sm text-[10px]">${l.status}</span>
-                    </div>
-                    <div class="text-[12px] text-[#334155] mb-2 p-2 bg-white rounded border border-[#e2e8f0]">
-                        <span class="fw-600">Reason:</span> ${l.reason}
-                    </div>
-                    ${l.admin_remarks ? `
-                        <div class="text-[12px] text-[#1e40af] p-2 bg-[#eff6ff] rounded border border-[#bfdbfe]">
-                            <i class="fas fa-reply mr-1"></i> <span class="fw-600">Admin Remark:</span> ${l.admin_remarks}
+                        <div class="text-[12px] text-[#475569] bg-[#f9fafb] rounded-lg px-3 py-2 border border-[#f1f5f9]">
+                            <span class="font-semibold text-[#374151]">Reason:</span> ${l.reason || '—'}
                         </div>
-                    ` : ''}
-                    <div class="text-[10px] text-[#94a3b8] mt-2 text-right">Submitted: ${l.created_at}</div>
-                </div>
-                `).join('');
+                        ${l.admin_remarks ? `<div class="mt-2 text-[12px] text-[#1e40af] px-3 py-2 bg-[#eff6ff] rounded-lg border border-[#bfdbfe]"><i class="fas fa-reply mr-1 text-[10px]"></i> <span class="font-semibold">Admin:</span> ${l.admin_remarks}</div>` : ''}
+                    </div>`;
+                }).join('');
             }
         }
     } catch(e) {}
