@@ -643,32 +643,244 @@
 
 
         
-        <!-- SECTION 12: INVENTORY LOG MAPPED AS EXTRA ADMIN SETTINGS/REPORTS -->
+        <!-- SECTION 12: INVENTORY / STOCK MANAGEMENT (REFERENCE SCREEN 16) -->
         <div id="content-inventory" class="tab-content">
-            <h2 class="section-title mb-6">Inventory Logs</h2>
-            <div class="card p-0 overflow-y-auto">
-                <table class="data-table w-full text-left text-[12px]">
-                    <thead class="bg-input border-b border-[var(--border)]">
-                        <tr><th class="p-3">Ingredient</th><th class="p-3">Quantity</th><th class="p-3">Unit</th><th class="p-3">Min Stock</th><th class="p-3">Last Updated</th></tr>
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                <div>
+                    <h2 class="section-title m-0">Ingredients Inventory</h2>
+                    <p class="text-xs text-muted mt-1">Real-time stock monitoring & low-stock alerts powered by WasteZero database</p>
+                </div>
+                <button onclick="document.getElementById('add-ingredient-modal').classList.toggle('hidden')" class="btn-primary bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs py-2 px-4 rounded-lg shadow flex items-center gap-2">
+                    <i class="fas fa-plus"></i> Add Item
+                </button>
+            </div>
+
+            <!-- ADD INGREDIENT FORM / MODAL -->
+            <div id="add-ingredient-modal" class="hidden mb-6 card p-5 bg-white border border-emerald-200 shadow-md">
+                <div class="flex items-center justify-between mb-4 pb-2 border-b border-gray-100">
+                    <h3 class="fw-700 text-emerald-700 text-sm flex items-center gap-2">
+                        <i class="fas fa-box-open"></i> Add New Ingredient
+                    </h3>
+                    <button onclick="document.getElementById('add-ingredient-modal').classList.add('hidden')" class="text-muted hover:text-gray-700 text-xs">
+                        <i class="fas fa-times"></i> Close
+                    </button>
+                </div>
+                <form action="/admin/inventory/add" method="POST" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
+                    <div>
+                        <label class="text-[10px] fw-700 text-muted uppercase">Ingredient Name</label>
+                        <input type="text" name="name" placeholder="e.g. Rice" class="form-input w-full text-xs" required>
+                    </div>
+                    <div>
+                        <label class="text-[10px] fw-700 text-muted uppercase">Current Qty</label>
+                        <input type="number" step="0.1" name="quantity" placeholder="50" class="form-input w-full text-xs" required>
+                    </div>
+                    <div>
+                        <label class="text-[10px] fw-700 text-muted uppercase">Unit</label>
+                        <select name="unit" class="form-input w-full text-xs" required>
+                            <option value="kg">kg</option>
+                            <option value="liters">liters</option>
+                            <option value="packets">packets</option>
+                            <option value="grams">grams</option>
+                            <option value="units">units</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] fw-700 text-muted uppercase">Min Stock Threshold</label>
+                        <input type="number" step="0.1" name="min_stock" placeholder="20" class="form-input w-full text-xs" required>
+                    </div>
+                    <div>
+                        <label class="text-[10px] fw-700 text-muted uppercase">Expiry Date</label>
+                        <input type="date" name="expiry_date" class="form-input w-full text-xs">
+                    </div>
+                    <div class="sm:col-span-2 md:col-span-5 flex justify-end gap-2 mt-2">
+                        <button type="button" onclick="document.getElementById('add-ingredient-modal').classList.add('hidden')" class="btn-primary bg-gray-200 text-gray-700 text-xs px-4">Cancel</button>
+                        <button type="submit" class="btn-primary bg-emerald-600 text-white text-xs px-5"><i class="fas fa-save mr-1"></i> Save Ingredient</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- FILTERS BAR -->
+            <div class="card p-3 mb-6 bg-white flex flex-wrap items-center justify-between gap-3 text-xs border border-gray-100 shadow-sm">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <div class="flex items-center gap-1 bg-gray-50 border border-gray-200 rounded px-3 py-1.5 text-gray-600">
+                        <i class="far fa-calendar-alt text-gray-400"></i>
+                        <span>Apr 21 — Apr 27, 2025</span>
+                    </div>
+                    <select id="inventory-status-filter" onchange="filterInventoryTable()" class="form-input text-xs py-1 px-3 border border-gray-200 rounded bg-gray-50 text-gray-700">
+                        <option value="all">All Status</option>
+                        <option value="ok">OK</option>
+                        <option value="low">Low Stock</option>
+                    </select>
+                </div>
+                <div class="text-muted text-[11px]">
+                    Total Items: <span class="fw-700 text-primary">{{ all_ingredients|length }}</span>
+                </div>
+            </div>
+
+            <!-- INVENTORY TABLE -->
+            <div class="card p-0 overflow-x-auto bg-white mb-6 border border-gray-200 shadow-sm rounded-lg">
+                <table id="inventory-table" class="data-table w-full text-left text-[12px]">
+                    <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 fw-700">
+                        <tr>
+                            <th class="p-3">Ingredient</th>
+                            <th class="p-3">Qty</th>
+                            <th class="p-3">Unit</th>
+                            <th class="p-3">Expiry</th>
+                            <th class="p-3">Status</th>
+                            <th class="p-3 text-center">Actions</th>
+                        </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="divide-y divide-gray-100">
                         {% if all_ingredients %}
                             {% for ing in all_ingredients %}
-                            <tr class="border-b border-[var(--border)]">
-                                <td class="p-3 fw-700 text-primary">{{ ing.name }}</td>
-                                <td class="p-3 text-{{ 'danger' if ing.quantity < ing.min_stock else 'success' }} fw-700">{{ ing.quantity }}</td>
-                                <td class="p-3">{{ ing.unit }}</td>
-                                <td class="p-3 text-muted">{{ ing.min_stock }}</td>
-                                <td class="p-3 text-muted text-[10px]">{{ ing.last_updated.strftime('%Y-%m-%d') if ing.last_updated else '-' }}</td>
+                            {% set is_low = ing.quantity < ing.min_stock %}
+                            <tr class="ing-row hover:bg-gray-50/80 transition-colors" data-status="{{ 'low' if is_low else 'ok' }}">
+                                <td class="p-3 fw-700 text-gray-800 flex items-center gap-2">
+                                    <i class="fas fa-cube text-emerald-500/70"></i> {{ ing.name }}
+                                </td>
+                                <td class="p-3 fw-800 {{ 'text-red-600' if is_low else 'text-emerald-700' }}">
+                                    {{ ing.quantity }}
+                                </td>
+                                <td class="p-3 text-gray-600">{{ ing.unit }}</td>
+                                <td class="p-3 text-gray-500 font-mono text-[11px]">
+                                    {{ ing.expiry_date if ing.expiry_date else 'N/A' }}
+                                </td>
+                                <td class="p-3">
+                                    {% if is_low %}
+                                    <span class="inline-flex items-center gap-1 bg-red-100 text-red-700 border border-red-200 px-2.5 py-0.5 rounded-full font-bold text-[10px] uppercase">
+                                        <i class="fas fa-exclamation-triangle text-[9px]"></i> Low Stock
+                                    </span>
+                                    {% else %}
+                                    <span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-700 border border-emerald-200 px-2.5 py-0.5 rounded-full font-bold text-[10px] uppercase">
+                                        <i class="fas fa-check-circle text-[9px]"></i> OK
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td class="p-3 text-center">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <!-- Quick Edit Stock Toggle Button -->
+                                        <button onclick="toggleEditRow('{{ ing.id }}')" title="Edit Stock" class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 p-1.5 rounded transition">
+                                            <i class="fas fa-pencil-alt text-xs"></i>
+                                        </button>
+                                        <!-- Delete Button -->
+                                        <form action="/admin/inventory/delete/{{ ing.id }}" method="POST" onsubmit="return confirm('Are you sure you want to delete {{ ing.name }}?');" class="inline">
+                                            <button type="submit" title="Delete Item" class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 p-1.5 rounded transition">
+                                                <i class="fas fa-times text-xs"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            <!-- INLINE QUICK EDIT ROW -->
+                            <tr id="edit-row-{{ ing.id }}" class="hidden bg-indigo-50/50">
+                                <td colspan="6" class="p-4 border-b border-indigo-100">
+                                    <form action="/admin/inventory/edit" method="POST" class="flex flex-wrap items-center gap-3">
+                                        <input type="hidden" name="id" value="{{ ing.id }}">
+                                        <div class="flex-1 min-w-[120px]">
+                                            <label class="text-[9px] fw-700 text-indigo-700 uppercase">Item Name</label>
+                                            <input type="text" name="name" value="{{ ing.name }}" class="form-input w-full text-xs py-1" required>
+                                        </div>
+                                        <div class="w-[90px]">
+                                            <label class="text-[9px] fw-700 text-indigo-700 uppercase">Qty</label>
+                                            <input type="number" step="0.1" name="quantity" value="{{ ing.quantity }}" class="form-input w-full text-xs py-1" required>
+                                        </div>
+                                        <div class="w-[80px]">
+                                            <label class="text-[9px] fw-700 text-indigo-700 uppercase">Unit</label>
+                                            <input type="text" name="unit" value="{{ ing.unit }}" class="form-input w-full text-xs py-1" required>
+                                        </div>
+                                        <div class="w-[90px]">
+                                            <label class="text-[9px] fw-700 text-indigo-700 uppercase">Min Stock</label>
+                                            <input type="number" step="0.1" name="min_stock" value="{{ ing.min_stock }}" class="form-input w-full text-xs py-1" required>
+                                        </div>
+                                        <div class="w-[120px]">
+                                            <label class="text-[9px] fw-700 text-indigo-700 uppercase">Expiry Date</label>
+                                            <input type="date" name="expiry_date" value="{{ ing.expiry_date }}" class="form-input w-full text-xs py-1">
+                                        </div>
+                                        <div class="flex items-center gap-1 self-end">
+                                            <button type="submit" class="btn-primary bg-indigo-600 text-white text-xs py-1 px-3">Update</button>
+                                            <button type="button" onclick="toggleEditRow('{{ ing.id }}')" class="btn-primary bg-gray-200 text-gray-700 text-xs py-1 px-2">Cancel</button>
+                                        </div>
+                                    </form>
+                                </td>
                             </tr>
                             {% endfor %}
                         {% else %}
-                            <tr><td colspan="5" class="p-8 text-center text-muted">No inventory records found.</td></tr>
+                            <tr><td colspan="6" class="p-8 text-center text-muted">No inventory records found. Add ingredients above.</td></tr>
                         {% endif %}
                     </tbody>
                 </table>
             </div>
+
+            <!-- LOW STOCK ALERTS CARD (REFERENCE SCREEN 16) -->
+            <div class="card p-5 bg-red-50/60 border border-red-200 rounded-xl shadow-sm">
+                <h3 class="fw-800 text-red-700 text-sm flex items-center gap-2 mb-3">
+                    <i class="fas fa-bell text-red-600 animate-pulse"></i> Low Stock Alerts
+                </h3>
+                {% set low_stock_items = [] %}
+                {% if all_ingredients %}
+                    {% for ing in all_ingredients %}
+                        {% if ing.quantity < ing.min_stock %}
+                            {% set _ = low_stock_items.append(ing) %}
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+
+                {% if low_stock_items %}
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {% for item in low_stock_items %}
+                    <div class="flex items-center justify-between p-3 bg-white border border-red-200 rounded-lg shadow-2xs">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600 fw-800 text-xs">
+                                🚨
+                            </div>
+                            <div>
+                                <div class="fw-700 text-gray-800 text-xs">
+                                    <span class="text-red-700 font-extrabold">{{ item.name }}</span> — {{ item.quantity }} {{ item.unit }}
+                                </div>
+                                <div class="text-[10px] text-gray-500">
+                                    Minimum required: <span class="fw-700 text-red-600">{{ item.min_stock }} {{ item.unit }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="toggleEditRow('{{ item.id }}')" class="text-xs bg-red-600 hover:bg-red-700 text-white font-semibold py-1 px-2.5 rounded shadow-2xs">
+                            Restock
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="p-4 bg-white border border-emerald-200 rounded-lg text-emerald-800 text-xs flex items-center gap-2">
+                    <i class="fas fa-check-circle text-emerald-600 text-base"></i> All inventory ingredients are sufficiently stocked above minimum levels!
+                </div>
+                {% endif %}
+            </div>
         </div>
+
+        <script>
+        function toggleEditRow(id) {
+            const row = document.getElementById('edit-row-' + id);
+            if (row) {
+                row.classList.toggle('hidden');
+            }
+        }
+
+        function filterInventoryTable() {
+            const filterVal = document.getElementById('inventory-status-filter').value;
+            const rows = document.querySelectorAll('#inventory-table .ing-row');
+            rows.forEach(r => {
+                const status = r.getAttribute('data-status');
+                if (filterVal === 'all') {
+                    r.style.display = '';
+                } else if (filterVal === 'ok' && status === 'ok') {
+                    r.style.display = '';
+                } else if (filterVal === 'low' && status === 'low') {
+                    r.style.display = '';
+                } else {
+                    r.style.display = 'none';
+                }
+            });
+        }
+        </script>
 
         <!-- SECTION LEAVE REQUESTS -->
         <div id="content-leave" class="tab-content">

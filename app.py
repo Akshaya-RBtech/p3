@@ -273,6 +273,18 @@ def init_db():
                 
                 db.session.commit()
                 print("Sample data seeded successfully.")
+
+        if Ingredient.query.count() == 0:
+            sample_ingredients = [
+                Ingredient(name="Rice", quantity=50.0, unit="kg", min_stock=20.0, expiry_date="2025-10-30"),
+                Ingredient(name="Wheat Flour", quantity=20.0, unit="kg", min_stock=25.0, expiry_date="2025-10-25"),
+                Ingredient(name="Tomato", quantity=15.0, unit="kg", min_stock=10.0, expiry_date="2025-10-22"),
+                Ingredient(name="Onion", quantity=30.0, unit="kg", min_stock=15.0, expiry_date="2025-10-30"),
+                Ingredient(name="Paneer", quantity=5.0, unit="kg", min_stock=12.0, expiry_date="2025-10-20"),
+            ]
+            db.session.add_all(sample_ingredients)
+            db.session.commit()
+            print("Default inventory ingredients seeded.")
         
         # Train predictor
         predictor.train()
@@ -1427,31 +1439,79 @@ def get_inventory():
     if current_user.role != 'admin':
         return jsonify({"error": "Unauthorized"}), 403
     inv = Ingredient.query.all()
-    return jsonify([{"id": i.id, "name": i.name, "quantity": i.quantity, "unit": i.unit, "min_stock": i.min_stock, "last_updated": i.last_updated.strftime('%Y-%m-%d %H:%M')} for i in inv])
+    return jsonify([{"id": i.id, "name": i.name, "quantity": i.quantity, "unit": i.unit, "min_stock": i.min_stock, "expiry_date": i.expiry_date or '', "last_updated": i.last_updated.strftime('%Y-%m-%d %H:%M') if i.last_updated else ''} for i in inv])
 
+@app.route('/admin/inventory/add', methods=['POST'])
 @app.route('/api/inventory/add', methods=['POST'])
 @login_required
 def add_inventory():
     if current_user.role != 'admin':
         return jsonify({"error": "Unauthorized"}), 403
-    data = request.json
-    ing = Ingredient(name=data.get('name'), quantity=float(data.get('quantity', 0)), unit=data.get('unit'), min_stock=float(data.get('min_stock', 10.0)))
+    
+    if request.is_json:
+        data = request.json
+    else:
+        data = request.form
+
+    name = data.get('name')
+    quantity = float(data.get('quantity', 0))
+    unit = data.get('unit', 'kg')
+    min_stock = float(data.get('min_stock', 10.0))
+    expiry_date = data.get('expiry_date', '')
+
+    ing = Ingredient(name=name, quantity=quantity, unit=unit, min_stock=min_stock, expiry_date=expiry_date)
     db.session.add(ing)
     db.session.commit()
-    return jsonify({"success": True})
 
+    if request.is_json:
+        return jsonify({"success": True, "id": ing.id})
+    flash(f"Ingredient '{name}' added successfully.")
+    return redirect(url_for('admin_dashboard') + "?tab=inventory")
+
+@app.route('/admin/inventory/edit', methods=['POST'])
 @app.route('/api/inventory/<int:ing_id>/update', methods=['POST'])
 @login_required
-def update_inventory(ing_id):
+def update_inventory(ing_id=None):
+    if current_user.role != 'admin':
+        return jsonify({"error": "Unauthorized"}), 403
+    
+    if request.is_json:
+        data = request.json
+        item_id = ing_id or data.get('id')
+    else:
+        data = request.form
+        item_id = ing_id or data.get('id')
+
+    ing = Ingredient.query.get(item_id)
+    if not ing:
+        if request.is_json: return jsonify({"error": "Not Found"}), 404
+        flash("Ingredient not found.", "danger")
+        return redirect(url_for('admin_dashboard') + "?tab=inventory")
+
+    if 'name' in data and data['name']: ing.name = data['name']
+    if 'quantity' in data and data['quantity'] != '': ing.quantity = float(data['quantity'])
+    if 'unit' in data and data['unit']: ing.unit = data['unit']
+    if 'min_stock' in data and data['min_stock'] != '': ing.min_stock = float(data['min_stock'])
+    if 'expiry_date' in data: ing.expiry_date = data['expiry_date']
+
+    db.session.commit()
+    if request.is_json:
+        return jsonify({"success": True})
+    flash(f"Stock for '{ing.name}' updated successfully.")
+    return redirect(url_for('admin_dashboard') + "?tab=inventory")
+
+@app.route('/admin/inventory/delete/<int:ing_id>', methods=['POST'])
+@login_required
+def delete_inventory(ing_id):
     if current_user.role != 'admin':
         return jsonify({"error": "Unauthorized"}), 403
     ing = Ingredient.query.get(ing_id)
-    if not ing: return jsonify({"error": "Not Found"}), 404
-    data = request.json
-    if 'quantity' in data: ing.quantity = float(data['quantity'])
-    if 'min_stock' in data: ing.min_stock = float(data['min_stock'])
-    db.session.commit()
-    return jsonify({"success": True})
+    if ing:
+        name = ing.name
+        db.session.delete(ing)
+        db.session.commit()
+        flash(f"Ingredient '{name}' deleted.")
+    return redirect(url_for('admin_dashboard') + "?tab=inventory")
 
 @app.route('/api/feedback', methods=['POST'])
 @login_required

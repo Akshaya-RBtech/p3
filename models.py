@@ -238,6 +238,7 @@ class Ingredient(db.Model):
     quantity = db.Column(db.Float, nullable=False)
     unit = db.Column(db.String(20), nullable=False) 
     min_stock = db.Column(db.Float, default=10.0)
+    expiry_date = db.Column(db.String(20), nullable=True)
     last_updated = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 
 class Feedback(db.Model):
