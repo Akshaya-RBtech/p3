@@ -64,7 +64,7 @@
     <span class="badge badge-primary">{{ current_user.username }}</span>
 </div>
 
-<div style="display:flex; height: calc(100vh - 64px); position: relative; overflow: hidden;">
+<div style="display:flex; height: calc(100vh - 64px); position: relative; overflow: hidden; overflow-x: hidden;">
     <!-- Sidebar Navigation for 12 Admin Sections -->
     <div class="admin-sidebar shadow-[4px_0_15px_rgba(0,0,0,0.03)] border-r border-[#0f4e4a]">
         <div style="padding:0 24px 12px; font-size:11px; font-weight:800; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:1.5px;">Admin Control Panel</div>
@@ -1103,7 +1103,9 @@
                 <div class="p-8 flex flex-col gap-6 bg-white overflow-y-auto">
                     <!-- Recipients -->
                     <div>
-                        <label class="font-bold text-[#1e293b] text-[14px] mb-2 block">Recipients</label>
+                        <label class="font-bold text-[#1e293b] text-[14px] mb-2 block">Title</label>
+                        <input id="ann_title" type="text" class="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-xl px-3 py-2.5 text-[14px] text-[#475569] focus:outline-none focus:border-[#3b82f6]" placeholder="Announcement Title" />
+                        <label class="font-bold text-[#1e293b] text-[14px] mb-2 block mt-3">Recipients</label>
                         <div class="relative w-full">
                             <i class="fas fa-users absolute left-4 top-3 text-[#3b82f6] text-[13px]"></i>
                             <select id="ann_recipients" class="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-xl pl-10 pr-8 text-[14px] text-[#475569] h-11 appearance-none focus:outline-none focus:border-[#3b82f6]">
@@ -1157,7 +1159,7 @@
 
                 <!-- Footer Buttons -->
                 <div class="p-6 border-t border-[#f1f5f9] bg-white flex justify-between gap-4 mt-auto">
-                    <button id="ann_save_btn" type="button" class="flex-1 bg-white border border-[#e2e8f0] hover:bg-[#f8fafc] text-[#475569] font-bold rounded-xl py-3 text-[14.5px] transition-colors shadow-sm">Save as Draft</button>
+                    <button id="ann_save_btn" type="button" class="flex-1 bg-white border border-[#e2e8f0] hover:bg-[#f8fafc] text-[#475569] font-bold rounded-xl py-3 text-[14.5px] transition-colors shadow-sm" onclick="saveDraftAnnouncement()">Save as Draft</button>
                     <button id="ann_send_btn" type="button" class="flex-1 bg-[#22c55e] hover:bg-[#16a34a] text-white font-bold rounded-xl py-3 text-[14.5px] transition-colors shadow-sm" onclick="sendAdminAnnouncement()">Send</button>
                 </div>
             </div>
@@ -1202,6 +1204,125 @@
                 </div>
                 <div id="ai_insight_text" class="text-[#374151] text-[13.5px] leading-relaxed whitespace-pre-wrap"></div>
             </div>
+            <script>
+            // Helper to fetch JSON safely
+            async function fetchJSON(url, options={}) {
+                const resp = await fetch(url, options);
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                return await resp.json();
+            }
+            // Announcement preview update
+            function updateAnnPreview(){
+                const title = document.getElementById('ann_title').value || 'New Announcement';
+                const body = document.getElementById('ann_message').value || 'Your message preview will appear here.';
+                document.getElementById('ann_preview_title').innerText = title;
+                document.getElementById('ann_preview_body').innerText = body;
+            }
+            // Generate AI announcement using existing Gemini integration
+            async function generateAIAnnouncement(){
+                const category = document.getElementById('ann_category').value;
+                const recipients = document.getElementById('ann_recipients').value;
+                const prompt = `Create a concise ${category.toLowerCase()} announcement for ${recipients.toLowerCase()}.`; // simple prompt
+                try {
+                    const data = await fetchJSON('/api/gemini/generate', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({prompt})});
+                    if (data.text) {
+                        document.getElementById('ann_message').value = data.text;
+                        updateAnnPreview();
+                    }
+                } catch(e){
+                    alert('AI generation failed: '+e.message);
+                }
+            }
+            // Send announcement to all selected students
+            async function sendAdminAnnouncement(){
+                const title = document.getElementById('ann_title').value || 'New Announcement';
+                const message = document.getElementById('ann_message').value;
+                const category = document.getElementById('ann_category').value;
+                // For simplicity we broadcast to all students; filtering can be added later.
+                try {
+                    const result = await fetchJSON('/api/announcements/send', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({title, message, category})});
+                    alert(result.message || 'Announcement sent.');
+                } catch(e){
+                    alert('Failed to send announcement: '+e.message);
+                }
+            }
+            // Save draft (simply store in localStorage for now)
+            function saveDraftAnnouncement(){
+                const draft = {
+                    title: document.getElementById('ann_title').value,
+                    message: document.getElementById('ann_message').value,
+                    category: document.getElementById('ann_category').value,
+                    recipients: document.getElementById('ann_recipients').value
+                };
+                localStorage.setItem('admin_ann_draft', JSON.stringify(draft));
+                alert('Draft saved locally.');
+            }
+            // Load draft on page load
+            window.addEventListener('load',()=>{
+                const draft = JSON.parse(localStorage.getItem('admin_ann_draft')||'null');
+                if(draft){
+                    document.getElementById('ann_title').value = draft.title||'';
+                    document.getElementById('ann_message').value = draft.message||'';
+                    document.getElementById('ann_category').value = draft.category||'General Announcement';
+                    document.getElementById('ann_recipients').value = draft.recipients||'All Students';
+                    updateAnnPreview();
+                }
+            });
+            // Load AI insights data
+            async function loadInsights(){
+                try {
+                    const data = await fetchJSON('/api/ai_insights');
+                    // Populate popular dishes
+                    const popDiv = document.getElementById('popular_list');
+                    popDiv.innerHTML = data.popular_dishes.length ? data.popular_dishes.map(d=>`<div class="flex justify-between"><span>${d.dish}</span><span>Yes: ${d.yes} / No: ${d.no}</span></div>`).join('') : '<div class="text-[#94a3b8] text-[13px] italic">No data available.</div>';
+                    // Populate low acceptance
+                    const lowDiv = document.getElementById('low_acceptance_list');
+                    lowDiv.innerHTML = data.low_acceptance.length ? data.low_acceptance.map(d=>`<div class="flex justify-between"><span>${d.dish}</span><span>Rate: ${d.rate}%</span></div>`).join('') : '<div class="text-[#94a3b8] text-[13px] italic">No data available.</div>';
+                    // Charts using Chart.js (assume library loaded)
+                    if(window.Chart){
+                        // Acceptance Trend
+                        const accCtx = document.getElementById('acceptanceTrendChart').getContext('2d');
+                        new Chart(accCtx, {type:'line', data:{labels:data.trend_dates, datasets:[{label:'Yes', data:data.trend_yes, borderColor:'#10b981', fill:false},{label:'No', data:data.trend_no, borderColor:'#ef4444', fill:false}]}, options:{responsive:true, maintainAspectRatio:false}});
+                        // Waste by Meal
+                        const wasteCtx = document.getElementById('wasteByMealChart').getContext('2d');
+                        new Chart(wasteCtx, {type:'bar', data:{labels:data.waste_by_meal.map(m=>m.meal), datasets:[{label:'Waste (kg)', data:data.waste_by_meal.map(m=>m.waste), backgroundColor:'#f59e0b'}]}, options:{responsive:true, maintainAspectRatio:false}});
+                        // Attendance Trend
+                        const attCtx = document.getElementById('attendanceTrendChart').getContext('2d');
+                        new Chart(attCtx, {type:'line', data:{labels:data.att_trend.map(a=>a.week), datasets:[{label:'Yes', data:data.att_trend.map(a=>a.yes), borderColor:'#10b981'},{label:'No', data:data.att_trend.map(a=>a.no), borderColor:'#ef4444'}]}, options:{responsive:true, maintainAspectRatio:false}});
+                        // Feedback Trend
+                        const fbCtx = document.getElementById('feedbackTrendChart').getContext('2d');
+                        new Chart(fbCtx, {type:'line', data:{labels:data.fb_dates, datasets:[{label:'Feedback Count', data:data.fb_counts, borderColor:'#3b82f6'}]}, options:{responsive:true, maintainAspectRatio:false}});
+                    }
+                } catch(e){
+                    console.error('Failed to load AI insights', e);
+                }
+            }
+            // Generate AI summary (simple placeholder using Gemini)
+            async function generateAiInsightSummary(){
+                document.getElementById('ai_insight_summary_box').classList.remove('hidden');
+                document.getElementById('ai_insight_loading').classList.remove('hidden');
+                try {
+                    const data = await fetchJSON('/api/ai_insights');
+                    const prompt = `Summarize the following waste zero insights in a short paragraph: Popular dishes: ${JSON.stringify(data.popular_dishes)}. Low acceptance dishes: ${JSON.stringify(data.low_acceptance)}. Waste by meal: ${JSON.stringify(data.waste_by_meal)}.`;
+                    const ai = await fetchJSON('/api/gemini/generate', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({prompt})});
+                    document.getElementById('ai_insight_text').innerText = ai.text || 'No summary generated.';
+                } catch(e){
+                    document.getElementById('ai_insight_text').innerText = 'Error generating summary.';
+                } finally {
+                    document.getElementById('ai_insight_loading').classList.add('hidden');
+                }
+            }
+            // Theme persistence (reuse same logic as student settings)
+            function selectTheme(theme){
+                document.documentElement.dataset.theme = theme;
+                localStorage.setItem('theme', theme);
+            }
+            function loadTheme(){
+                const saved = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                selectTheme(saved);
+            }
+            loadTheme();
+            </script>
 
             <!-- Top 2 lists: Popular + Low Acceptance -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">

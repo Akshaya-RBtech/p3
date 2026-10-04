@@ -1573,6 +1573,28 @@ def internal_error(e):
 def ping():
     return jsonify({"status": "alive"}), 200
 
+@app.route('/api/gemini/generate', methods=['POST'])
+@login_required
+def gemini_generate():
+    """Generic Gemini text generation endpoint used by the admin dashboard."""
+    if current_user.role != 'admin':
+        return jsonify({'error': 'Unauthorized'}), 403
+    data = request.json or {}
+    prompt = data.get('prompt', '').strip()
+    if not prompt:
+        return jsonify({'error': 'No prompt provided'}), 400
+    if not GEMINI_API_KEY:
+        return jsonify({'error': 'Gemini API key not configured'}), 503
+    try:
+        genai.configure(api_key=GEMINI_API_KEY)
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        response = model.generate_content(prompt)
+        text = response.text if hasattr(response, 'text') else ''
+        return jsonify({'text': text})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(debug=True, host='0.0.0.0', port=port)
