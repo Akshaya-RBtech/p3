@@ -666,7 +666,7 @@ def get_waste_analytics():
 
 @app.route('/api/ai_insights')
 @login_required
-def ai_insights():
+def get_ai_insights():
     if current_user.role != 'admin':
         return jsonify({'error': 'Unauthorized'}), 403
 
