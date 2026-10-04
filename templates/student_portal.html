@@ -68,7 +68,7 @@
     }
 </style>
 
-<div style="display:flex; height: calc(100vh - 64px);">
+<div style="display:flex; height: calc(100vh - 64px); position: relative; width: 100%; max-width: 100vw; overflow-x: hidden; box-sizing: border-box;">
     <!-- Sidebar Navigation for 9 Sections -->
     <div class="sidebar-nav student-sidebar">
         <div style="padding: 0 24px 30px; display: flex; align-items: center; gap: 8px;">
@@ -93,7 +93,7 @@
     </div>
 
     <!-- Main Content Area -->
-    <div style="flex:1; overflow-y:auto; background:var(--bg-color);" class="px-4 py-4 md:p-[30px]">
+    <div style="flex:1; min-width: 0; overflow-y:auto; overflow-x:hidden; background:var(--bg-color);" class="px-4 py-4 md:p-[30px] w-full max-w-full box-border">
         
         <!-- Home Dashboard -->
         <!-- Home Dashboard (Exactly matches Image 4) -->
