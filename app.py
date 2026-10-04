@@ -1445,6 +1445,24 @@ def send_announcement():
     db.session.commit()
     return jsonify({"success": True, "message": f"Broadcast sent to {count} students."})
 
+@app.route('/api/profile/update', methods=['POST'])
+@login_required
+def update_profile():
+    data = request.json
+    full_name = data.get('full_name')
+    email = data.get('email')
+    password = data.get('password')
+    
+    if full_name:
+        current_user.full_name = full_name
+    if email:
+        current_user.email = email
+    if password and current_user.role == 'admin':
+        current_user.password = password
+        
+    db.session.commit()
+    return jsonify({"success": True, "message": "Profile updated successfully."})
+
 @app.route('/api/inventory', methods=['GET'])
 @login_required
 def get_inventory():
